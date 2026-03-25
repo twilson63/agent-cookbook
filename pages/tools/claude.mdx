@@ -1,0 +1,99 @@
+---
+title: Claude
+---
+
+import { Callout, Tabs, Tab } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Claude
+
+**Made by:** Anthropic
+**Type:** Frontier AI Model
+**Best for:** Complex reasoning, long documents, nuanced writing, safe enterprise use
+
+<ConceptVideo id="tool-claude" title="What makes Claude different?" />
+
+## What it is
+
+Claude is Anthropic's family of large language models. When you give it a task — answer a question, analyse a document, write code, summarise a meeting — it generates a response by predicting what text should come next, informed by billions of examples of human writing and reasoning.
+
+Think of Claude less like a search engine (which retrieves facts) and more like a very knowledgeable colleague who can *reason* about what you give it.
+
+## The model family
+
+| Model | Speed | Context | Best for |
+|-------|-------|---------|----------|
+| Claude Haiku | ⚡ Fast | 200K tokens | High-volume tasks, classification, extraction |
+| Claude Sonnet | ⚖️ Balanced | 200K tokens | Most production workloads |
+| Claude Opus | 🧠 Deep | 200K tokens | Complex multi-step reasoning, research |
+
+A **200K token context window** means Claude can read roughly 150,000 words in a single conversation — that's an entire book, a quarter's worth of contracts, or a full codebase.
+
+## What makes it different
+
+**Extended thinking** — Claude Sonnet and Opus can "think before answering." For hard problems, they work through reasoning steps internally before producing a response. This dramatically improves accuracy on maths, logic, and multi-step tasks.
+
+**Constitutional AI** — Anthropic trains Claude to be honest and avoid harmful outputs. This matters in enterprise settings where a hallucinating agent can cause real damage.
+
+**Tool use** — Claude can call external tools (web search, code execution, APIs, databases) and reason about the results before continuing. This is the foundation of agentic behaviour.
+
+**Computer use (beta)** — Claude Sonnet can control a computer — clicking, typing, navigating browsers — making it possible to automate tasks in any legacy system with a GUI, no API required.
+
+## 200K tokens — what does that actually mean?
+
+import { Callout as Note } from 'nextra/components'
+
+<Note type="info">
+**Token ≈ ¾ of a word.** 200,000 tokens ≈ 150,000 words ≈ 500 pages.
+
+Practical examples:
+- 📄 A 50-page contract: ~25K tokens — fits easily
+- 📊 A year of weekly reports: ~100K tokens — fits in one call
+- 📚 *War and Peace*: ~580K tokens — would need chunking
+</Note>
+
+## Typical enterprise use cases
+
+- **Document analysis** — read a 100-page RFP and pull out key obligations, deadlines, risks
+- **Contract review** — compare against standard terms, flag deviations
+- **Research synthesis** — take 20 analyst reports and produce an executive summary
+- **Customer support** — read full conversation history and draft nuanced replies
+- **Code review** — analyse a PR with full context of the surrounding codebase
+
+## How to access Claude
+
+<Tabs items={['API', 'Claude.ai', 'Via Scout']}>
+  <Tab>
+    ```bash
+    curl https://api.anthropic.com/v1/messages \
+      -H "x-api-key: YOUR_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -d '{
+        "model": "claude-sonnet-4-5",
+        "max_tokens": 1024,
+        "messages": [{"role": "user", "content": "Summarise this contract..."}]
+      }'
+    ```
+    Get your API key at [console.anthropic.com](https://console.anthropic.com)
+  </Tab>
+  <Tab>
+    Claude.ai is the direct web interface — chat with any Claude model in your browser. Best for individual exploration and one-off tasks.
+  </Tab>
+  <Tab>
+    Scout wraps Claude with deployment infrastructure, memory, tool integrations, and monitoring. Best for building production agents on top of Claude.
+  </Tab>
+</Tabs>
+
+## Pricing at a glance
+
+Anthropic charges per token (input + output). As a rough guide:
+
+- **Haiku** — lowest cost, best for high-volume pipelines
+- **Sonnet** — mid-tier, the most popular for production
+- **Opus** — highest cost, use when quality is paramount
+
+Check [anthropic.com/pricing](https://www.anthropic.com/pricing) for current rates.
+
+<Callout type="warning">
+**Watch your output tokens.** Input tokens (what you send) are cheaper than output tokens (what Claude generates). For tasks like classification or extraction, prompt Claude to give short structured answers to keep costs down.
+</Callout>

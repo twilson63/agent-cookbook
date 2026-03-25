@@ -1,0 +1,60 @@
+---
+title: Tools & Actions
+---
+
+import { ConceptVideo } from '../../components/ConceptVideo'
+import { Callout } from 'nextra/components'
+
+# Tools & Actions
+
+Tools are what make agents actually useful. A model without tools can only think and write. A model with tools can browse the internet, run code, send emails, update spreadsheets, call APIs, and interact with the real world.
+
+<ConceptVideo id="tools" title="Giving agents tools" />
+
+## Common tools
+
+### Web search & browsing
+The agent can look things up, read articles, check prices, monitor news — anything you'd do in a browser.
+
+*Use case: Research an industry before a sales call. Monitor competitor pricing. Summarize recent news about a client.*
+
+### Code execution
+The agent writes and runs code in a sandboxed environment — Python, JavaScript, shell scripts. It can manipulate data, run calculations, and generate charts.
+
+*Use case: Analyze a CSV file, build a data model, automate a repetitive script.*
+
+### File operations
+Read PDFs, edit spreadsheets, process images, extract text from documents.
+
+*Use case: Process uploaded invoices, summarize a PDF report, update a shared document.*
+
+### API calls
+Connect to any external service — your CRM, accounting software, email platform, Slack, calendar.
+
+*Use case: Update a HubSpot contact, create a Jira ticket, send a Slack notification, book a calendar slot.*
+
+### Memory read/write
+Store and retrieve information from the agent's long-term memory.
+
+*Use case: Remember a customer's preferences, recall the context from last week's meeting.*
+
+### Sub-agent spawning
+Spin up another agent to handle a sub-task, then collect the result.
+
+*Use case: Manager agent delegates research to a specialist agent, compilation to a writing agent.*
+
+---
+
+## Tool safety
+
+<Callout type="warning">
+Tools are powerful — which means they can also cause real damage if misused or manipulated. A few principles:
+
+- **Least privilege** — give the agent access to only the tools it needs for the task
+- **Human-in-the-loop for irreversible actions** — sending emails, making purchases, deleting data should require confirmation
+- **Audit logs** — always know what tools were called and with what parameters
+</Callout>
+
+This is exactly why the **Steward** concept exists — a local secrets vault that controls which tools an agent can access and prevents credential leakage even if the agent is manipulated.
+
+**Next: see these concepts in action → [Recipes](/recipes)**

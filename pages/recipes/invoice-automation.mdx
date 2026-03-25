@@ -1,0 +1,79 @@
+---
+title: Invoice Processing
+---
+
+import { Steps, Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Recipe: Invoice Processing
+
+**Department:** Finance / Accounts Payable
+**Difficulty:** Beginner
+**Time to set up:** 1–2 hours
+
+<ConceptVideo id="recipe-invoice" title="Automating accounts payable with AI" />
+
+## The problem
+
+Every invoice that arrives in your company follows roughly the same journey:
+someone opens it, reads it, finds the matching purchase order, assigns a GL code, routes it to an approver, and enters it in the system. For a small company that's annoying. For a company processing thousands of invoices a month, it's a massive operational drain.
+
+**Without automation:** 9–19 minutes per invoice, delays, data entry errors, missed early-payment discounts.
+
+## The agent's job
+
+<Steps>
+
+### Monitor the inbox
+The agent watches an email inbox (or a shared folder) for new invoices arriving as PDFs or email attachments.
+
+### Extract the data
+Using OCR and AI, it reads every field: vendor name, invoice number, date, line items, amounts, payment terms.
+
+### Match to purchase orders
+It searches your ERP or procurement system for the matching PO. If it finds one, it proceeds. If not, it flags for human review.
+
+### Assign GL codes
+Based on the vendor history and invoice content, it assigns the correct general ledger code. It learns from corrections over time.
+
+### Route to the approver
+Based on the invoice amount and department, it routes to the right person with all context attached — they see the invoice, the PO match, and the recommended GL code in one click.
+
+### Handle exceptions
+Only invoices the agent can't confidently process land in a human queue. Everything else flows through automatically.
+
+### Optimize payment timing
+For invoices with early-payment discounts (e.g., 2/10 net 30), the agent flags them for priority payment.
+
+</Steps>
+
+## Tools needed
+
+- An email inbox or document intake folder
+- An ERP or accounting system with an API (QuickBooks, NetSuite, SAP, Xero)
+- An AI agent platform (Claude, OpenClaw, or similar)
+- An OCR tool for scanned documents (or use a model with vision capabilities)
+
+## Expected results
+
+| Metric | Before | After |
+|---|---|---|
+| Time per invoice | 9–19 minutes | 30–60 seconds |
+| Processing cycle | 19 days | 7–10 days |
+| Human touch rate | 100% | 5–15% (exceptions only) |
+| Cost per invoice | $12–$15 | $2–$4 |
+| Early-pay discounts captured | Occasional | Systematic |
+
+<Callout type="info">
+**Real-world result:** A global food distributor processing 8.5 million invoices/year reduced per-invoice processing time from 9 minutes to 30 seconds using an agentic AP workflow. The AP team shifted from data entry to exception management.
+</Callout>
+
+## Getting started
+
+The fastest path to implementing this:
+
+1. **Define your intake** — where do invoices arrive? Email is the most common and easiest to automate.
+2. **Map your approval rules** — which invoice amounts/departments require which approvers? Write this down clearly.
+3. **Connect your ERP** — most modern ERP systems have APIs. Your vendor can tell you what's available.
+4. **Start with a pilot** — run one invoice type (e.g., vendor A's standard invoices) through the agent first. Verify accuracy, then expand.
+5. **Handle exceptions first** — design the human review queue before you design the automation. Know exactly what a human sees when the agent can't decide.

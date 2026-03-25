@@ -1,0 +1,161 @@
+---
+title: OpenClaw
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# OpenClaw
+
+**Made by:** Community
+**Type:** Open-Source Agent Harness / Framework
+**Best for:** Building custom agents with full control, multi-provider deployments, self-hosted setups
+
+<ConceptVideo id="tool-openclaw" title="OpenClaw: the open agent harness" />
+
+## What it is
+
+OpenClaw is an open-source agent harness — the layer between your AI model and the real world. It provides the scaffolding that turns a language model into a working agent: tool management, conversation history, memory, provider switching, and execution loop.
+
+Think of it as the plumbing. You bring the model, you bring the business logic, OpenClaw handles the infrastructure that makes the agent actually run.
+
+## The provider landscape
+
+One of OpenClaw's biggest strengths is **50+ provider integrations** out of the box:
+
+**AI Models**
+- Anthropic (Claude family)
+- OpenAI (GPT-4, o1/o3)
+- Google (Gemini)
+- Mistral, Cohere, and others
+- Local models via Ollama
+
+**Channels** (where agents receive and send messages)
+- Telegram, Slack, Discord
+- Email (IMAP/SMTP)
+- WhatsApp
+- HTTP webhooks
+- CLI
+
+**Data & APIs**
+- PostgreSQL, MySQL, SQLite
+- Redis
+- REST APIs with auto-auth
+- File system
+- Web scraping
+
+## Architecture
+
+OpenClaw is built around a **plugin architecture**. Every capability — a tool, a model provider, a communication channel — is a plugin. Plugins are loaded at runtime from a manifest file.
+
+```yaml
+# openclaw.yaml
+agent:
+  name: my-sales-agent
+  model: claude-sonnet-4-5
+
+channels:
+  - type: telegram
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+  - type: slack
+    token: "${SLACK_BOT_TOKEN}"
+
+tools:
+  - type: web_search
+  - type: database
+    connection: "${DATABASE_URL}"
+  - type: email
+    smtp: "${SMTP_CONFIG}"
+
+memory:
+  type: sqlite
+  path: ./memory.db
+```
+
+## Multi-agent support
+
+OpenClaw supports **sub-agents** — agents that can spawn and coordinate with other agents. This enables patterns like:
+
+- A **supervisor agent** that breaks a task into subtasks and delegates each to a specialist
+- A **research agent** and a **writing agent** working in sequence
+- **Parallel agents** running the same task across different data sources
+
+```yaml
+tools:
+  - type: delegate
+    agents:
+      - research-agent
+      - analysis-agent
+      - report-writer
+```
+
+## Memory system
+
+OpenClaw ships with a built-in memory system using SQLite with FTS5 full-text search. Agents can:
+
+- Store facts from conversations
+- Retrieve relevant memories based on semantic similarity
+- Build up knowledge over time without re-reading source documents
+
+```
+[Agent searches memory for "customer pricing objections"]
+→ Finds 12 relevant past conversations
+→ Uses them to inform the current response
+```
+
+## Scheduling
+
+Agents can be configured to run on a schedule without external cron infrastructure:
+
+```yaml
+schedule:
+  - cron: "0 8 * * 1-5"   # 8am weekdays
+    task: "Check overnight alerts and send morning briefing"
+  - cron: "*/30 * * * *"   # Every 30 minutes
+    task: "Poll for new support tickets"
+```
+
+## Deploying OpenClaw
+
+OpenClaw is a single binary (cross-platform). Deployment is simple:
+
+```bash
+# Run directly
+openclaw start --config openclaw.yaml
+
+# Or via Docker
+docker run -v $(pwd)/config:/config openclaw/openclaw start
+```
+
+For production, run it as a systemd service or a Kubernetes Deployment. Because it's a single binary with no external dependencies (SQLite is embedded), it's easy to manage.
+
+<Callout type="info">
+OpenClaw pairs well with NanoClaw. Use OpenClaw for complex, feature-rich agents that need many integrations. Use NanoClaw when you need minimal footprint, fastest startup time, or embedded environments.
+</Callout>
+
+## When to choose OpenClaw
+
+| Situation | Recommendation |
+|-----------|----------------|
+| Need many integrations out of the box | ✅ OpenClaw |
+| Want to self-host everything | ✅ OpenClaw |
+| Multi-agent orchestration | ✅ OpenClaw |
+| Strict binary size / startup time | Consider NanoClaw |
+| Want managed infrastructure | Consider Scout |
+| Non-technical team | Consider Scout |
+
+## Getting started
+
+```bash
+# Install the binary
+curl -fsSL https://openclaw.dev/install | bash
+
+# Create a project
+openclaw init my-agent
+cd my-agent
+
+# Edit openclaw.yaml, then run
+openclaw start
+```
+
+Documentation and examples: [openclaw.dev/docs](https://openclaw.dev/docs)

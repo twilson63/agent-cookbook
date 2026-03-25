@@ -1,0 +1,63 @@
+---
+title: Agent Harnesses
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Agent Harnesses
+
+An **agent harness** is the infrastructure layer that turns a raw AI model into a production-ready agent. It handles the plumbing so you can focus on what the agent should do, not how it all wires together.
+
+<ConceptVideo id="harnesses" title="What is an agent harness?" />
+
+## What a harness provides
+
+Think of a model like a powerful engine. A harness is the rest of the car — the chassis, steering wheel, fuel system, and dashboard. Without it, the engine is impressive but useless.
+
+A good harness handles:
+
+- **Tool management** — giving the agent access to web search, code execution, APIs, databases
+- **Memory** — persisting information across sessions so the agent remembers context
+- **Conversation routing** — deciding which model or sub-agent handles which part of a task
+- **Scheduling** — running agents on a timer or in response to events
+- **Observability** — logging what the agent did, why, and what it produced
+- **Security** — controlling what the agent can access and what it can't touch
+
+## The spectrum of harnesses
+
+Harnesses range from simple chat wrappers to full production platforms:
+
+### Minimal (direct API)
+You call the model API directly. You manage everything yourself. Maximum control, maximum work.
+- Good for: One-off scripts, prototypes, learning
+
+### Framework (LangChain, CrewAI, AutoGen)
+A set of abstractions for building agents — tool connectors, memory modules, agent loops. You assemble the pieces.
+- Good for: Developers building custom agent workflows
+
+### Platform harness (NullClaw, NanoClaw, OpenClaw)
+A complete runtime — deploy it, configure it, and your agent is live. Handles channels (Telegram, Slack), memory, scheduling, tools out of the box.
+- Good for: Deploying production agents without building infrastructure
+
+### Cloud platform (Scout, OpenAI Assistants)
+Fully managed — you define the agent behavior via UI or API, the platform runs it for you.
+- Good for: Non-technical teams deploying agents at scale
+
+---
+
+## Choosing a harness
+
+| You want to... | Use... |
+|---|---|
+| Build a custom agent with full control | LangChain or direct API |
+| Deploy a personal agent on Telegram | NullClaw or NanoClaw |
+| Spin up production agents without infrastructure | Scout |
+| Multi-agent workflows with role specialization | CrewAI or OpenClaw |
+| Quick prototyping | Claude.ai Projects |
+
+<Callout type="info">
+The "right" harness is the one you'll actually finish building with. Start with the simplest thing that meets your needs. You can always graduate to a more sophisticated setup later.
+</Callout>
+
+**Next: [Memory & Context →](/concepts/memory)**

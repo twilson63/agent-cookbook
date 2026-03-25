@@ -1,0 +1,59 @@
+---
+title: Models
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# AI Models
+
+A **model** is the reasoning engine at the heart of every AI system. It's the part that reads your input and generates a response.
+
+<ConceptVideo id="models" title="How AI models work" />
+
+## What a model actually does
+
+A language model is trained on enormous amounts of text — books, websites, code, conversations. Through this training it learns patterns, facts, reasoning strategies, and language itself.
+
+When you send it a message, it doesn't "look up" an answer. It *generates* the most likely continuation of your prompt, word by word, based on everything it learned. The remarkable thing is that this simple process produces genuinely intelligent-seeming behavior at scale.
+
+## The key properties to understand
+
+### Context window
+How much text the model can "see" at once — your prompt, its response, any documents you shared, and the conversation history. Measured in **tokens** (roughly 1 token ≈ ¾ of a word).
+
+A small context window means the model forgets earlier parts of a long conversation. A large context window (100k+ tokens) means it can read an entire book or codebase in one shot.
+
+### Reasoning capability
+Not all models are equally good at complex reasoning — breaking a problem into steps, catching logical errors, handling ambiguity. More capable models tend to be slower and more expensive.
+
+### Speed and cost
+Smaller models are faster and cheaper. For high-volume, simple tasks (classifying emails, extracting data from forms), a smaller model often works fine and costs 10–100x less.
+
+### Instruction following
+How reliably the model does what you ask. This varies significantly and is often more important than raw intelligence for production use cases.
+
+---
+
+## The major models (2025–2026)
+
+| Model | Made by | Best for |
+|---|---|---|
+| **Claude 3.5 / 3.7** | Anthropic | Reasoning, writing, code, long documents, safety |
+| **GPT-4o** | OpenAI | General purpose, tool use, multimodal |
+| **Gemini 1.5 / 2.0** | Google | Very long context, multimodal, Google ecosystem |
+| **Llama 3 / 4** | Meta | Open source, self-hosted, customizable |
+| **Mistral** | Mistral AI | Fast, efficient, European data compliance |
+| **Deepseek** | Deepseek | Strong reasoning, lower cost |
+
+<Callout type="info">
+**Beginner rule of thumb:** Start with Claude for most tasks. It's excellent at following nuanced instructions, handles long documents well, and is designed with safety in mind. Switch to a different model only when you have a specific reason to.
+</Callout>
+
+## Models vs. agents
+
+A model alone is like a very smart person sitting in a room with no phone, no computer, no pen — just their mind. They can reason and advise brilliantly, but they can't *do* anything in the world.
+
+An **agent** gives the model hands. It can browse the web, run code, send emails, update databases. That's the next page.
+
+**Next: [What are agents? →](/concepts/agents)**

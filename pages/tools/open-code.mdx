@@ -1,0 +1,143 @@
+---
+title: OpenCode
+---
+
+import { Callout, Steps } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# OpenCode
+
+**Made by:** Community / SST
+**Type:** Open-Source Terminal Coding Agent
+**Best for:** Developers who want full control, local-first workflows, scripting and automation
+
+<ConceptVideo id="tool-open-code" title="OpenCode: open-source coding agents" />
+
+## What it is
+
+OpenCode is an open-source terminal-based coding agent — the community answer to Claude Code and Codex CLI. It runs in your terminal, reads your codebase, and executes coding tasks using whichever AI model you connect to it.
+
+Because it's open source, you can:
+- Self-host it entirely (no data leaving your network)
+- Connect your own models (local LLMs, private deployments)
+- Script and automate it however you like
+- Audit exactly what it's doing
+
+## Why it matters
+
+Most coding assistants are proprietary — your code goes to someone else's server. For organisations with strict data policies, on-premise requirements, or air-gapped environments, OpenCode is often the only viable choice.
+
+It also serves developers who simply want ownership over their tools: the ability to read the source, contribute, and extend without waiting for a vendor.
+
+## Core features
+
+**Model-agnostic** — Works with Claude, GPT-4, Gemini, Mistral, or a locally-running Ollama model. Switch models with a single config change.
+
+**Terminal-native** — No GUI, no Electron app. Runs wherever a shell runs — local machine, SSH session, Docker container, CI runner.
+
+**File-system tools** — Reads files, writes files, creates directories, runs shell commands. The same tool loop as Claude Code but open and configurable.
+
+**Scriptable** — Pass tasks via stdin or arguments for fully automated pipelines:
+```bash
+echo "Add input validation to POST /users" | opencode --model claude-sonnet
+```
+
+**Plugin system** — Add custom tools (database queries, internal APIs, company-specific linters) without forking the project.
+
+## Getting started
+
+<Steps>
+
+### Install
+```bash
+npm install -g opencode-ai
+# or
+curl -fsSL https://opencode.ai/install | bash
+```
+
+### Configure your model
+```bash
+opencode config set model claude-sonnet-4-5
+opencode config set api_key YOUR_ANTHROPIC_KEY
+```
+Or for a local model via Ollama:
+```bash
+opencode config set model ollama/codellama
+opencode config set base_url http://localhost:11434
+```
+
+### Run in your project
+```bash
+cd my-project
+opencode
+```
+
+### Give it a task
+```
+> Refactor the database layer to use connection pooling
+```
+
+</Steps>
+
+## Configuration
+
+OpenCode is configured via `~/.config/opencode/config.json` or a `.opencode.json` in your project root:
+
+```json
+{
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "api_key": "${ANTHROPIC_API_KEY}",
+  "auto_approve": false,
+  "tools": {
+    "shell": true,
+    "browser": false,
+    "custom": ["./tools/internal-api.js"]
+  }
+}
+```
+
+## Using local models
+
+For fully offline or private operation:
+
+```bash
+# Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull a code model
+ollama pull codellama:13b
+
+# Configure OpenCode
+opencode config set model ollama/codellama:13b
+opencode config set base_url http://localhost:11434/v1
+```
+
+<Callout type="warning">
+Local models are significantly less capable than frontier models like Claude Sonnet for complex multi-file tasks. Use them when privacy requirements are strict and accept the quality tradeoff.
+</Callout>
+
+## OpenCode vs Claude Code
+
+| | OpenCode | Claude Code |
+|---|---|---|
+| Open source | ✅ Yes | ❌ No |
+| Self-hostable | ✅ Yes | ❌ No |
+| Local models | ✅ Yes | ❌ No |
+| Model quality (default) | Depends on your choice | Claude (Anthropic's best) |
+| Maintenance | Community | Anthropic |
+| Enterprise support | Community forums | Anthropic support |
+
+## Best use cases
+
+- Teams with **strict data sovereignty** requirements
+- Developers building **automated pipelines** that call a coding agent programmatically
+- Organisations running **air-gapped** environments
+- Developers who want to **extend and customise** their coding agent
+- Engineers comfortable on the command line who don't want or need a GUI
+
+## Resources
+
+- GitHub: [github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)
+- Documentation: [opencode.ai/docs](https://opencode.ai/docs)
+- Community Discord: linked from the GitHub repo

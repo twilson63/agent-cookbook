@@ -1,0 +1,60 @@
+---
+title: Memory & Context
+---
+
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Memory & Context
+
+Memory is what separates a useful agent from a frustrating one. Without it, every conversation starts from zero. With it, an agent can learn your preferences, remember what it worked on yesterday, and build up expertise over time.
+
+<ConceptVideo id="memory" title="How agent memory works" />
+
+## The four types of memory
+
+### 1. In-context memory (working memory)
+Everything the model can see right now — your current conversation, any documents you've shared, the agent's recent tool outputs. This lives in the **context window** and disappears when the session ends.
+
+*Analogy: What's currently on your desk.*
+
+### 2. Persistent memory (long-term storage)
+Information the agent stores between sessions — facts it's learned about you, past decisions, preferences, knowledge it's built up. Stored in a database and retrieved when relevant.
+
+*Analogy: Your notes and files.*
+
+### 3. Episodic memory (history)
+A log of past interactions — what tasks were completed, what was decided, what worked. Lets the agent reason about its own past behavior.
+
+*Analogy: Your work journal.*
+
+### 4. Semantic memory (knowledge base)
+Structured knowledge the agent can search — documentation, company policies, product catalogs, FAQs. Usually stored in a vector database for fast retrieval by meaning, not just keyword.
+
+*Analogy: Your reference library.*
+
+---
+
+## How retrieval works
+
+Modern agents don't load all their memory into the context at once — that would fill up the context window instantly. Instead they use **retrieval** — when the agent needs to remember something, it searches its memory store for the most relevant information and loads just that.
+
+```
+User asks question
+       ↓
+Agent searches memory for relevant context
+       ↓
+Top results injected into context
+       ↓
+Model answers with full context
+```
+
+This is why agents can feel like they "remember" things from months ago — they're not storing the full conversation forever, they're storing key facts and retrieving them on demand.
+
+## Why this matters for you
+
+When setting up an agent:
+- **Give it relevant context upfront** — paste in your company's style guide, your product catalog, your team's conventions
+- **Use persistent memory** for anything the agent should always know — your name, your preferences, your team's vocabulary
+- **Be aware of context limits** — if a document is too long, the model may not process all of it
+
+**Next: [Tools & Actions →](/concepts/tools)**

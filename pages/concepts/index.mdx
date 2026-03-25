@@ -1,0 +1,45 @@
+---
+title: Concepts
+---
+
+import { Cards, Card } from 'nextra/components'
+
+# Core Concepts
+
+Before building with agents, it helps to have clear mental models for the key pieces. Think of these concepts like understanding the parts of a car before you learn to drive.
+
+<Cards>
+  <Card title="🧠 Models" href="/concepts/models" arrow>
+    The AI "brain" — what language models are, how they work, and how to choose one.
+  </Card>
+  <Card title="🤖 Agents" href="/concepts/agents" arrow>
+    What makes a model into an agent, and what agents can actually do.
+  </Card>
+  <Card title="🔧 Agent Harnesses" href="/concepts/harnesses" arrow>
+    The frameworks and infrastructure that wire models into real workflows.
+  </Card>
+  <Card title="💾 Memory & Context" href="/concepts/memory" arrow>
+    How agents remember things — and why this matters more than you'd think.
+  </Card>
+  <Card title="⚡ Tools & Actions" href="/concepts/tools" arrow>
+    The superpowers you give an agent — web access, code execution, API calls.
+  </Card>
+</Cards>
+
+---
+
+## The three-layer mental model
+
+Every AI agent system has three layers:
+
+```
+┌─────────────────────────────────┐
+│         YOUR APPLICATION        │  ← What users see and interact with
+├─────────────────────────────────┤
+│         AGENT HARNESS           │  ← Orchestration, memory, tools, routing
+├─────────────────────────────────┤
+│         AI MODEL                │  ← The reasoning engine (Claude, GPT, etc.)
+└─────────────────────────────────┘
+```
+
+You don't have to build all three yourself — that's what the tools in this cookbook are for. But understanding what lives at each layer makes you dramatically better at both using and building agent systems.

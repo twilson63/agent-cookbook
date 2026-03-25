@@ -1,0 +1,84 @@
+---
+title: Agents
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# AI Agents
+
+An **agent** is an AI model that can *act* — not just respond. It can use tools, make decisions across multiple steps, and pursue a goal autonomously.
+
+<ConceptVideo id="agents" title="Models vs. Agents — what's the difference?" />
+
+## The core difference
+
+| | Model (chat) | Agent |
+|---|---|---|
+| Input | Your message | Your goal |
+| Output | A response | Completed work |
+| Steps | One | Many |
+| Tools | None | Web, code, APIs, files... |
+| Memory | Session only | Persistent |
+| Autonomy | None | High |
+
+A model answers questions. An agent accomplishes tasks.
+
+## The agent loop
+
+Every agent runs the same basic cycle, over and over until the task is done:
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│   OBSERVE → THINK → PLAN → ACT → OBSERVE │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+1. **Observe** — what's the current state of things? What information do I have?
+2. **Think** — what does this mean? What do I need to do next?
+3. **Plan** — break the goal into steps
+4. **Act** — call a tool, write something, make a decision
+5. **Observe** — what happened? Update the plan if needed
+
+This loop runs until the goal is reached or the agent gets stuck and asks for help.
+
+## Types of agents
+
+### Reactive agents
+Triggered by an event (a message, a file upload, a schedule) — do one thing and stop. Simple, predictable, great for automating specific tasks.
+
+*Example: An agent that monitors your inbox and drafts replies to customer questions.*
+
+### Autonomous agents
+Given a high-level goal and left to figure out the steps. More powerful, requires more oversight for high-stakes work.
+
+*Example: An agent that monitors your ad spend, identifies underperforming campaigns, and pauses them automatically.*
+
+### Multi-agent systems
+Multiple specialized agents working together, each handling a different part of a workflow. A "manager" agent routes tasks to specialist agents.
+
+*Example: A research agent that finds information + a writing agent that drafts the report + a review agent that checks accuracy.*
+
+---
+
+## What agents are good at (and not)
+
+**Great for:**
+- Repetitive tasks with clear rules (invoice processing, data extraction)
+- Research and synthesis (gathering information from many sources)
+- First drafts (emails, reports, code)
+- Monitoring and alerting (watching for anomalies, sending notifications)
+- Multi-step workflows that currently require human hand-offs
+
+**Still needs human oversight:**
+- High-stakes irreversible decisions (large financial transactions, legal commitments)
+- Tasks requiring genuine judgment in novel, complex situations
+- Anything where being wrong has serious consequences
+
+<Callout type="warning">
+Think of current agents as a very capable, very fast intern. They do remarkable work but you still review anything important before it goes out.
+</Callout>
+
+**Next: [Agent harnesses →](/concepts/harnesses)**

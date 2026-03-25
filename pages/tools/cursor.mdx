@@ -1,0 +1,103 @@
+---
+title: Cursor
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Cursor
+
+**Made by:** Anysphere
+**Type:** AI-First IDE (Coding Assistant)
+**Best for:** Active development sessions, real-time pair programming, teams moving fast
+
+<ConceptVideo id="tool-cursor" title="Cursor: the AI-native IDE" />
+
+## What it is
+
+Cursor is a code editor built from the ground up for working with AI. It looks and feels like VS Code (it's a fork) but every feature — autocomplete, chat, code generation, refactoring — is designed around AI models rather than bolted on as an extension.
+
+If VS Code with Copilot is a car with a GPS added on, Cursor is a car designed around the GPS from day one.
+
+## The core features
+
+### Tab completion (Cursor Tab)
+As you type, Cursor predicts not just the next token but the next *logical edit* — often a multi-line change across several locations. Press Tab to accept, Escape to reject. It learns your patterns over time.
+
+### Inline chat (Cmd+K)
+Select any code and press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux). Describe what you want:
+- *"Rewrite this to use async/await"*
+- *"Add error handling"*
+- *"Extract this into a separate function"*
+
+Cursor applies the change inline, with a diff you can accept or reject.
+
+### Chat panel (Cmd+L)
+A sidebar chat that has full context of your codebase. Ask it questions:
+- *"How does authentication work in this app?"*
+- *"Where is the user's email stored?"*
+- *"Explain what this function does"*
+
+Or give it tasks that span multiple files. Unlike a plain chatbot, Cursor's chat can directly apply changes to your code.
+
+### Composer (Cmd+I)
+The most powerful mode — a full-screen agent that can create and edit multiple files at once. Describe a feature end-to-end and Composer plans and executes it.
+
+## Codebase context: @-mentions
+
+Cursor lets you pull specific context into any conversation using `@`:
+
+| Mention | What it includes |
+|---------|-----------------|
+| `@Files` | A specific file |
+| `@Folders` | An entire directory |
+| `@Code` | A specific function or class |
+| `@Docs` | External documentation (React, Next.js, etc.) |
+| `@Web` | A web search result |
+| `@Git` | Commit history or a diff |
+
+```
+@auth.ts Why is the token being rejected on refresh?
+```
+
+## Which model runs Cursor?
+
+Cursor works with multiple models — you choose in settings:
+
+- **Claude Sonnet / Opus** — best for complex reasoning and large context
+- **GPT-4o** — fast, good at code
+- **o1 / o3** — deep reasoning for hard algorithmic problems
+- **Cursor's own models** — fine-tuned for autocomplete speed
+
+Most teams default to Claude Sonnet for chat and keep Cursor's fast model for Tab autocomplete.
+
+## Cursor vs Claude Code
+
+| | Cursor | Claude Code |
+|---|---|---|
+| When to use | Active coding session | Delegated tasks, CI/CD |
+| Interface | GUI IDE | Terminal |
+| Collaboration feel | Pair programmer | Junior engineer you delegate to |
+| Speed of feedback | Instant, inline | End-to-end (plan → build → test) |
+| Best for | Frontend work, exploratory development | Backend refactors, automation |
+
+Many developers use *both* — Cursor for the active coding session, Claude Code for the grunt work they'd rather not do themselves.
+
+## Pricing
+
+- **Free tier** — 2,000 completions/month + 50 slow premium requests
+- **Pro ($20/month)** — Unlimited fast completions + 500 premium requests
+- **Business ($40/user/month)** — Team features, SSO, admin controls, privacy mode
+
+<Callout type="info">
+**Privacy mode** disables training on your code. Recommended for proprietary codebases. Available on Pro and Business plans.
+</Callout>
+
+## Getting started
+
+1. Download from [cursor.sh](https://cursor.sh)
+2. It imports your VS Code settings, extensions, and keybindings automatically
+3. Sign in and pick your preferred model
+4. Open a project and start typing — Cursor Tab is on by default
+
+The fastest way to feel the difference: open a file you haven't touched in a while and ask `@file What does this do and what could go wrong?`

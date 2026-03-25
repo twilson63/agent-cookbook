@@ -1,0 +1,71 @@
+---
+title: Supply Chain Monitoring
+---
+
+import { Steps, Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Recipe: Supply Chain Monitoring
+
+**Department:** Operations / Procurement
+**Difficulty:** Intermediate
+**Time to set up:** 2–4 hours
+
+<ConceptVideo id="recipe-supply-chain" title="Automating supply chain exception management" />
+
+## The problem
+
+Operations managers spend their mornings chasing late shipments, answering vendor emails about payment status, and manually checking dashboards across multiple supplier portals. It's reactive, time-consuming, and the important exceptions often surface too late.
+
+## The agent's job
+
+<Steps>
+
+### Monitor purchase orders and shipments
+The agent watches all open POs and shipment tracking feeds continuously — not just during business hours. It knows every order's expected delivery date and current status.
+
+### Detect exceptions early
+When something goes wrong — a shipment is delayed, a supplier is unresponsive, inventory is falling below reorder threshold — the agent identifies it *before* it becomes a crisis.
+
+### Surface options, not just problems
+When it flags an exception, it doesn't just say "shipment late." It says:
+> *"Supplier X is 8 days late on PO #4421 (250 units of SKU-789). You have 3 days before a stockout at your Austin warehouse. Here are 3 alternative suppliers with current pricing and lead times: Supplier B ($12.40/unit, 5 days), Supplier C ($13.20/unit, 3 days), Supplier D ($11.80/unit, 7 days)."*
+
+### Handle routine vendor communication
+The majority of vendor emails are routine — "when will my payment clear?", "can you confirm receipt of our invoice?", "what's the status of PO #X?". The agent handles these autonomously by querying the ERP and responding within seconds.
+
+### Monitor supplier performance
+It tracks each supplier across cost, reliability, lead time, and quality scores over time. Suppliers falling below threshold trigger a review alert.
+
+### Adjust reorder points dynamically
+Based on demand signals, lead time variability, and inventory levels, it automatically suggests reorder point adjustments to prevent stockouts.
+
+</Steps>
+
+## Tools needed
+
+- An ERP or inventory management system (SAP, Oracle, NetSuite)
+- Supplier portals or EDI connections
+- Email access for vendor communication
+- Shipment tracking data (FedEx, UPS, freight carrier APIs)
+
+## Expected results
+
+| Metric | Before | After |
+|---|---|---|
+| Exception detection | Reactive (after stockout) | Proactive (days before) |
+| Vendor email response time | Hours / business hours only | Seconds / 24/7 |
+| Manual lookup time eliminated | Baseline | 40–50% |
+| Expedite costs | Baseline | -3–5% |
+| Stockout incidents | Baseline | -30–40% |
+
+<Callout type="info">
+**Real-world result:** C.H. Robinson's agent network captured 318,000 freight tracking updates from a single call type in one month. An AWS logistics AI agent eliminated up to 50% of manual lookup and reconciliation workload.
+</Callout>
+
+## Getting started
+
+1. **Start with one exception type** — late shipments are the most common pain point and the easiest to automate first.
+2. **Map your vendor communication patterns** — what are the 5 most common emails your team receives from suppliers? Write the responses. That's your first training data.
+3. **Connect one system at a time** — ERP first, then shipment tracking, then supplier portals. Don't try to boil the ocean.
+4. **Set the alert thresholds carefully** — too many alerts and the team ignores them. Too few and exceptions slip through. Tune over the first two weeks.

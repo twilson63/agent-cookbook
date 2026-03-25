@@ -1,0 +1,119 @@
+---
+title: Claude Code
+---
+
+import { Callout, Steps } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Claude Code
+
+**Made by:** Anthropic
+**Type:** Autonomous Coding Agent (CLI)
+**Best for:** Complex, multi-file engineering tasks; running in CI/CD; agentic software development
+
+<ConceptVideo id="tool-claude-code" title="Claude Code: autonomous software engineering" />
+
+## What it is
+
+Claude Code is a command-line tool that turns Claude into an autonomous software engineer. You give it a task in plain English — *"add rate limiting to the auth API"* or *"find and fix the memory leak in the worker"* — and it:
+
+1. Reads the relevant files in your repository
+2. Forms a plan
+3. Makes the code changes
+4. Runs tests and lints to verify
+5. Asks you to review before committing
+
+It's not an autocomplete tool. It's an agent that works end-to-end on tasks, the way a junior engineer would — but faster and without coffee breaks.
+
+## How it differs from Cursor
+
+| | Claude Code | Cursor |
+|---|---|---|
+| Interface | Terminal / CLI | IDE (VS Code-based) |
+| Working style | Autonomous (you delegate tasks) | Collaborative (you pair in real time) |
+| Best for | Batch engineering work, CI pipelines | Active development sessions |
+| Context | Whole repo scan | Open files + codebase index |
+| Human in loop | You approve at each checkpoint | Continuous back-and-forth |
+
+Both use Claude under the hood. Claude Code is for *delegating*; Cursor is for *pairing*.
+
+## Getting started
+
+<Steps>
+
+### Install
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+### Authenticate
+```bash
+claude auth login
+```
+This links Claude Code to your Anthropic account.
+
+### Run it in your project
+```bash
+cd my-project
+claude
+```
+You'll get an interactive shell where you can type tasks in plain English.
+
+### Give it a task
+```
+> Add input validation to the POST /users endpoint. Use zod. Write tests.
+```
+
+Claude Code reads your codebase, writes the code, runs your test suite, and shows you a diff to approve.
+
+### Review and commit
+When you're happy, Claude Code commits the changes with a generated commit message, or you can commit manually.
+
+</Steps>
+
+## What it can do
+
+**Understand your whole codebase** — Claude Code scans your repo on startup. It knows your file structure, imports, and conventions before it writes a single line.
+
+**Multi-file edits** — A feature that touches 5 files across 3 directories? Claude Code handles it as one coherent task, not 5 disconnected edits.
+
+**Run commands** — It can execute `npm test`, `cargo build`, `pytest` and read the output. If tests fail after its changes, it debugs and tries again.
+
+**Ask clarifying questions** — When requirements are ambiguous, Claude Code asks before it builds. It won't silently guess wrong for 200 lines.
+
+**Work in CI** — You can run Claude Code non-interactively in a CI/CD pipeline to automate things like dependency updates, generated code regeneration, or changelog writing.
+
+```bash
+# Non-interactive CI mode
+claude -p "Update all npm dependencies and fix any breaking changes" --no-confirm
+```
+
+## Practical uses
+
+- **Bug fixes** — *"Users report the CSV export is missing the last row. Find and fix it."*
+- **Refactoring** — *"Convert all class components in /src/components to functional components with hooks."*
+- **Feature additions** — *"Add a dark mode toggle. Use the existing theme system."*
+- **Code review** — *"Review this PR diff for security issues and performance problems."*
+- **Documentation** — *"Generate JSDoc comments for every exported function in /src/lib."*
+- **Test writing** — *"Write unit tests for the payment module. Aim for 90% coverage."*
+
+## Permissions and safety
+
+Claude Code asks for permission before:
+- Running commands (configurable)
+- Making changes outside your project directory
+- Accessing credentials or secret files
+
+<Callout type="info">
+You can run Claude Code in **read-only mode** for exploration without any risk of changes:
+```bash
+claude --no-edits
+```
+</Callout>
+
+## Tips
+
+- **Be specific about scope.** *"Fix the auth bug"* is harder than *"Fix the 401 error in src/api/auth.ts line 47."*
+- **Use it for the boring stuff.** Migrations, boilerplate, docs, test writing — tasks you'd procrastinate on are perfect for Claude Code.
+- **Trust but verify.** Always review the diff before committing. Claude Code is good, not infallible.
+- **Pair it with Scout** for teams — Scout adds shared history, audit logging, and cost visibility across your engineering team.

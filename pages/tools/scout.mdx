@@ -1,0 +1,141 @@
+---
+title: Scout
+---
+
+import { Callout, Steps } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# Scout
+
+**Made by:** ScoutOS
+**Type:** Agent Deployment Platform
+**Best for:** Building and running production AI agents, teams deploying agents at scale
+
+<ConceptVideo id="tool-scout" title="Scout: deploying agents to production" />
+
+## What it is
+
+Scout is a platform for deploying, managing, and monitoring AI agents in production. Where a model like Claude is the *brain* and a framework like LangChain is the *wiring*, Scout is the *building* — the infrastructure that makes agents real, observable, and reliable.
+
+If you've built an agent that works great in a Jupyter notebook but you're not sure how to run it 24/7, share it with your team, or know when it breaks — Scout is the answer.
+
+## The core problem Scout solves
+
+Running an agent locally is easy. Running it in production is not:
+
+| Challenge | What goes wrong without a platform |
+|-----------|-----------------------------------|
+| Deployment | Manual, error-prone, different on every machine |
+| Scheduling | Cron jobs that silently fail |
+| Secrets | API keys in .env files, in version control |
+| Monitoring | No visibility into what agents are doing |
+| Costs | No idea how much you're spending on API calls |
+| Team access | "It works on my laptop" |
+
+Scout addresses all of these.
+
+## Core features
+
+### Deploy from source
+Push your agent code and Scout builds, containerises, and deploys it — no Docker expertise required. Behind the scenes, it runs on Alpine Linux + Kubernetes.
+
+```bash
+# Deploy your agent
+scout deploy --name my-agent --entry agent.ts
+```
+
+Or via the build API:
+```bash
+curl -X POST "https://scoutos.live/api/build?subdomain=my-agent" \
+  -H "X-API-Key: YOUR_KEY" \
+  -F "artifact=@agent.tar.gz"
+```
+
+### Managed scheduling
+Set agents to run on a schedule — hourly, daily, on a cron expression — without managing cron servers or dealing with silent failures. Scout logs every run and alerts on failures.
+
+### Agent memory and storage
+Scout provides persistent storage that agents can read and write across runs. Your agent doesn't restart from scratch every time it wakes up — it remembers.
+
+### Tool integrations
+Pre-built connectors for common services: email, Slack, Google Workspace, databases, REST APIs. Plug them in without writing boilerplate authentication code.
+
+### Observability dashboard
+Every agent run is logged: what it was asked, what tools it used, how long it took, how much it cost. You can replay runs, compare performance across versions, and debug failures without guesswork.
+
+### Multi-model support
+Switch between Claude, GPT-4, Gemini, or your own fine-tuned model via a config change — no code changes required.
+
+## Getting started
+
+<Steps>
+
+### Create an account
+Sign up at [scoutos.live](https://scoutos.live)
+
+### Install the CLI
+```bash
+npm install -g @scoutos/cli
+scout login
+```
+
+### Create your first agent
+```bash
+scout init my-first-agent
+cd my-first-agent
+```
+
+This scaffolds a project with a `agent.ts` entry point, `scout.config.json`, and example tools.
+
+### Define your agent
+```typescript
+// agent.ts
+import { Agent, tool } from '@scoutos/sdk'
+
+const agent = new Agent({
+  name: 'my-first-agent',
+  model: 'claude-sonnet-4-5',
+  systemPrompt: 'You are a helpful assistant that...',
+  tools: [
+    tool.webSearch(),
+    tool.sendEmail(),
+  ]
+})
+
+export default agent
+```
+
+### Deploy
+```bash
+scout deploy
+```
+
+Your agent is now running at `https://my-first-agent.scoutos.live`.
+
+</Steps>
+
+## Scout vs DIY infrastructure
+
+| | DIY (AWS/GCP + Docker) | Scout |
+|---|---|---|
+| Time to first deploy | Days–weeks | Minutes |
+| Kubernetes expertise needed | Yes | No |
+| Built-in monitoring | Must build | Included |
+| Secrets management | Must build | Included |
+| Per-agent cost visibility | Must build | Included |
+| Scaling | Manual | Automatic |
+
+## Who uses Scout
+
+- **Product teams** building AI features that need to be reliable in production
+- **Operations teams** deploying agents to automate repetitive workflows
+- **Founders** who want to ship an AI product without hiring a DevOps engineer
+- **Enterprises** that need audit trails, access controls, and cost management
+
+<Callout type="info">
+Scout is particularly well-suited for teams that want to run multiple agents across different business functions — sales, ops, finance — from a single platform with unified monitoring and cost visibility.
+</Callout>
+
+## Pricing
+
+Scout offers a free tier for development and small deployments, with team and enterprise plans based on compute usage and feature requirements. See [scoutos.live/pricing](https://scoutos.live/pricing) for current rates.

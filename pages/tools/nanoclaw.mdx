@@ -1,0 +1,173 @@
+---
+title: NanoClaw
+---
+
+import { Callout } from 'nextra/components'
+import { ConceptVideo } from '../../components/ConceptVideo'
+
+# NanoClaw
+
+**Made by:** Community (Zig)
+**Type:** Ultra-lightweight Agent Runtime
+**Best for:** Edge deployments, embedded systems, serverless, anywhere size and startup time matter
+
+<ConceptVideo id="tool-nanoclaw" title="NanoClaw: tiny but capable" />
+
+## What it is
+
+NanoClaw is an agent runtime built in Zig — a systems programming language optimised for performance and binary size. The result is remarkable:
+
+- **678KB binary** — smaller than most favicons, smaller than a JPEG
+- **< 2ms startup time** — faster than a blink
+- **50+ provider integrations** — Telegram, Slack, Discord, email, REST APIs, and more
+- **19 channel types** — every major messaging platform
+- **Zero runtime dependencies** — the binary is the entire runtime
+
+It's OpenClaw's smaller, faster sibling. Where OpenClaw prioritises features and extensibility, NanoClaw prioritises footprint and speed.
+
+## Why size and startup time matter
+
+Most agents run in the cloud where resources are plentiful. NanoClaw targets the cases where that's not true:
+
+**Serverless functions** — Cold starts are the enemy. A 678KB binary starting in 2ms vs a Node.js runtime taking 800ms is a meaningful difference at scale.
+
+**Edge computing** — Running agents close to users (Cloudflare Workers, Fastly Compute) requires extreme size constraints.
+
+**Embedded systems** — IoT devices, industrial controllers, smart appliances — these can now run agents.
+
+**High-concurrency deployments** — When you're running thousands of agent instances simultaneously, footprint per instance adds up fast.
+
+**Kubernetes pods** — A pod image with NanoClaw can be 5MB vs 500MB for a Node.js equivalent. Faster pod startup, lower registry costs, faster scaling.
+
+## Channels supported
+
+NanoClaw has native support for 19 channels including:
+
+| Category | Channels |
+|----------|----------|
+| Messaging | Telegram, WhatsApp, Signal |
+| Team chat | Slack, Discord, Microsoft Teams |
+| Email | SMTP/IMAP, SendGrid, Mailgun |
+| Web | HTTP webhooks, WebSockets |
+| CLI | Terminal, stdin/stdout |
+| Social | Twitter/X, LinkedIn |
+
+## Configuration
+
+NanoClaw uses a TOML config file:
+
+```toml
+[agent]
+name = "my-nanoclaw-agent"
+model = "claude-sonnet-4-5"
+system_prompt = "You are a helpful assistant."
+
+[channels.telegram]
+bot_token = "${TELEGRAM_BOT_TOKEN}"
+
+[channels.slack]
+token = "${SLACK_BOT_TOKEN}"
+
+[memory]
+type = "sqlite"
+path = "./memory.nc"
+
+[schedule]
+cron = "0 9 * * *"
+task = "Send daily briefing to Telegram"
+```
+
+## Memory
+
+NanoClaw uses SQLite with FTS5 for agent memory — the same search primitives that power enterprise search engines. Agents can store and retrieve information with full-text search, ranking, and fuzzy matching — all in a 500KB database file with no server required.
+
+```toml
+[memory]
+type = "sqlite"
+path = "./agent.db"
+max_entries = 10000
+search = "bm25"   # BM25 relevance ranking
+```
+
+## Sub-agents (delegate tool)
+
+NanoClaw supports **sub-agent delegation** — an agent can spin up another NanoClaw instance, give it a task, and incorporate the result:
+
+```toml
+[[tools]]
+type = "delegate"
+agent = "research-agent"
+config = "./research-agent.toml"
+```
+
+This enables multi-agent patterns even in resource-constrained environments. Because each NanoClaw instance starts in under 2ms, spawning a sub-agent has negligible overhead.
+
+## Scheduling
+
+Built-in cron scheduling, no external scheduler needed:
+
+```toml
+[[schedules]]
+cron = "*/5 * * * *"
+task = "Check monitoring alerts"
+
+[[schedules]]
+cron = "0 8 * * 1-5"
+task = "Send morning standup summary to Slack"
+```
+
+## Deployment
+
+```bash
+# Download the binary (one file, 678KB)
+curl -fsSL https://nanoclaw.dev/install | bash
+
+# Run with a config file
+nanoclaw --config agent.toml
+
+# Or pipe config via stdin
+cat agent.toml | nanoclaw
+
+# Run in the background (systemd, supervisor, or just &)
+nanoclaw --config agent.toml &
+```
+
+**Docker:**
+```dockerfile
+FROM scratch
+COPY nanoclaw /nanoclaw
+COPY agent.toml /agent.toml
+ENTRYPOINT ["/nanoclaw", "--config", "/agent.toml"]
+```
+
+Final image: ~1MB.
+
+## NanoClaw vs OpenClaw
+
+| | NanoClaw | OpenClaw |
+|---|---|---|
+| Binary size | 678KB | ~15MB |
+| Startup time | < 2ms | ~200ms |
+| Language | Zig | Go |
+| Config format | TOML | YAML |
+| Plugin system | Built-in providers | External plugins |
+| Extensibility | Compile-time | Runtime |
+| Best for | Edge, serverless, embedded | Feature-rich, extensible |
+
+<Callout type="info">
+A common pattern is to use NanoClaw as the **edge listener** — fielding incoming messages and routing them — while delegating complex, long-running tasks to an OpenClaw or Scout agent. NanoClaw's 2ms startup makes it ideal for the hot path.
+</Callout>
+
+## When NanoClaw makes sense
+
+- You're running **hundreds or thousands** of agent instances
+- You need agents on **serverless** (Lambda, Cloud Functions, Workers)
+- You're deploying to **IoT or embedded** hardware
+- You need the **fastest possible response time** to user messages
+- You want the **simplest possible deployment** (one file, no dependencies)
+- You're building an agent that runs as a **Telegram or Discord bot** and needs to be always-on with minimal cost
+
+## Resources
+
+- GitHub: [github.com/nanoclaw/nanoclaw](https://github.com/nanoclaw/nanoclaw)
+- Docs: [nanoclaw.dev/docs](https://nanoclaw.dev/docs)
