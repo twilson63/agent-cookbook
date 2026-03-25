@@ -2,7 +2,7 @@
 title: Quick Start
 ---
 
-import { Callout, Steps, Tabs } from 'nextra/components'
+import { Callout, Steps, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../components/ConceptVideo'
 
 # Quick Start
@@ -13,11 +13,33 @@ Let's go from zero to your first working AI agent in under 10 minutes. No code r
 
 <Steps>
 
-### Pick your model
+### Pick your starting point
 
-An AI model is the "brain" of your agent. For most beginners, start with **Claude** (by Anthropic) — it's excellent at following instructions, writing, analysis, and reasoning.
+An AI model is the "brain" of your agent. Pick whichever feels most familiar — they all work for the steps that follow.
 
-➡️ Go to [claude.ai](https://claude.ai) and create a free account.
+<Tabs items={['Claude', 'ChatGPT', 'Scout']}>
+  <Tab>
+    **Claude** by Anthropic — excellent at reasoning, long documents, and nuanced writing. Great default choice.
+
+    ➡️ Go to [claude.ai](https://claude.ai) and create a free account.
+
+    Free tier available. No credit card required to start.
+  </Tab>
+  <Tab>
+    **ChatGPT** by OpenAI — the most widely recognised AI assistant. Familiar to most people and works great for everyday tasks.
+
+    ➡️ Go to [chat.openai.com](https://chat.openai.com) and create a free account.
+
+    Free tier available. GPT-4o included on the free plan.
+  </Tab>
+  <Tab>
+    **Scout** — a platform built for deploying agents, not just chatting. If you already know you want to build and automate, start here.
+
+    ➡️ Go to [scoutos.live](https://scoutos.live) and sign up.
+
+    Scout is web-based — no installs required. Connects directly to Claude and other models.
+  </Tab>
+</Tabs>
 
 ### Give it a real task
 
