@@ -1,5 +1,6 @@
 {
   "index": "Overview",
+  "prerequisites": "Prerequisites",
   "claude": "Claude",
   "claude-code": "Claude Code",
   "cursor": "Cursor",

@@ -1,0 +1,101 @@
+---
+title: Prerequisites
+---
+
+import { Callout, Steps } from 'nextra/components'
+import { VideoEmbed } from '../../components/VideoEmbed'
+
+# Prerequisites
+
+Before diving into AI tools and agents, you'll want a few basics in place. This page covers the three foundations that most tools in this cookbook build on: the command line, Node.js/npm, and Docker.
+
+If you're already comfortable with all three, skip ahead to [Claude](/tools/claude).
+
+---
+
+## 1. The Command Line
+
+Most developer tools — including Claude Code, OpenCode, and NanoClaw — run in a terminal. If you've never used the command line before, this short video will get you comfortable with the basics.
+
+<VideoEmbed
+  src="/videos/command-line-basics-final.mp4"
+  title="Command Line Basics"
+  description="Navigate directories, run commands, and understand what a terminal is for."
+/>
+
+**What you'll learn:**
+- Opening a terminal on Mac, Windows (WSL), or Linux
+- Navigating directories with `cd`, `ls`, `pwd`
+- Running commands and reading output
+- Understanding file paths
+
+<Callout type="info">
+On Windows, we recommend using **WSL2** (Windows Subsystem for Linux) — it gives you a proper Linux terminal and is required for most dev tools covered in this cookbook. Install it from the Microsoft Store.
+</Callout>
+
+---
+
+## 2. Node.js and npm
+
+Many tools in this cookbook — including Claude Code and the Agent Cookbook itself — are built on Node.js. npm is Node's package manager, used to install tools with a single command.
+
+<VideoEmbed
+  src="/videos/node-npm-basics-with-audio.mp4"
+  title="Node.js and npm Basics"
+  description="Install Node.js, understand npm, and run your first JavaScript tool."
+/>
+
+**What you'll learn:**
+- Installing Node.js via `nvm` (the recommended way)
+- What `npm install` does and where packages go
+- Running npm scripts (`npm run build`, `npm start`)
+- Understanding `package.json`
+
+**Quick check — you're ready when:**
+```bash
+node --version   # should print v18 or higher
+npm --version    # should print 9 or higher
+```
+
+---
+
+## 3. Docker Desktop
+
+Docker lets you run software in isolated containers — no installation conflicts, no "works on my machine" problems. Scout and NanoClaw both support Docker deployment, and it's the standard way to ship agents to production.
+
+<VideoEmbed
+  src="/videos/docker-desktop-basics-with-audio.mp4"
+  title="Docker Desktop Basics"
+  description="Install Docker, understand containers vs images, and run your first container."
+/>
+
+**What you'll learn:**
+- Installing Docker Desktop on Mac or Windows
+- The difference between an image and a container
+- Running a container with `docker run`
+- Using `docker ps` to see what's running
+- Stopping and removing containers
+
+**Quick check — you're ready when:**
+```bash
+docker --version   # should print 24 or higher
+docker run hello-world   # should print a success message
+```
+
+<Callout type="info">
+You don't need Docker to use Claude, Claude Code, or Cursor. It becomes relevant when you want to **deploy agents** to production via Scout or run NanoClaw in an isolated environment.
+</Callout>
+
+---
+
+## What's next?
+
+Once you're comfortable with these three, pick the tool that matches what you want to do:
+
+| I want to… | Start with |
+|---|---|
+| Chat with an AI model | [Claude](/tools/claude) |
+| Get AI help writing code | [Cursor](/tools/cursor) |
+| Delegate whole coding tasks | [Claude Code](/tools/claude-code) |
+| Build and deploy an agent | [Scout](/tools/scout) |
+| Run a lightweight local agent | [NanoClaw](/tools/nanoclaw) |
