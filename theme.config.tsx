@@ -8,9 +8,9 @@ const config: DocsThemeConfig = {
     </span>
   ),
   project: {
-    link: 'https://github.com/nullclaw/nullclaw',
+    link: 'https://github.com/twilson63/agent-cookbook',
   },
-  docsRepositoryBase: 'https://github.com/nullclaw/nullclaw',
+  docsRepositoryBase: 'https://github.com/twilson63/agent-cookbook/blob/main',
   footer: {
     text: (
       <span>
@@ -53,7 +53,7 @@ const config: DocsThemeConfig = {
     next: true,
   },
   editLink: {
-    text: null,
+    text: 'Edit this page on GitHub →',
   },
   feedback: {
     content: null,
