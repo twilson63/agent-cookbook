@@ -2,19 +2,25 @@
 title: History
 ---
 
-import { ConceptVideo } from '../components/ConceptVideo'
+import { VideoEmbed } from '../components/VideoEmbed'
 
 # A Brief History of AI
 
-To understand where agents are today, it helps to know where we came from. This isn't a textbook — just the highlights that explain *why* things work the way they do now.
+<VideoEmbed 
+  src="/videos/history-of-ai.mp4" 
+  title="From rule-based systems to AI agents" 
+  description="A 2-minute journey through AI history: rules → machine learning → transformers → agents" 
+/>
 
-<ConceptVideo id="history" title="From rule-based systems to AI agents" />
+To understand where agents are today, it helps to know where we came from. This isn't a textbook — just the highlights that explain *why* things work the way they do now.
 
 ## The early days: rules and logic (1950s–1990s)
 
 The first "intelligent" computer programs weren't learned — they were handcrafted. Programmers wrote explicit rules: *if X then Y*. These systems could play chess, diagnose diseases, and answer narrow questions — but only within the exact boundaries their authors had anticipated.
 
-They were brittle. One edge case outside the rules and they'd fail completely. And writing the rules for anything complex was impossibly time-consuming.
+**Feature unlocks:** Chess programs, medical diagnosis systems, language translation
+
+**Limitation:** Brittle — one edge case outside the rules and they'd fail completely.
 
 ## Machine learning arrives (1990s–2010s)
 
@@ -22,27 +28,37 @@ The breakthrough: instead of writing rules, let computers *learn* them from data
 
 Show a machine learning model 10,000 pictures of cats and 10,000 pictures of dogs, and it learns to tell them apart — without anyone writing a single rule about ears or tails.
 
-This unlocked image recognition, spam filtering, recommendation engines, and early voice assistants. But these models were **narrow** — each one learned one specific task and nothing else.
+**Feature unlocks:** Image recognition, spam filtering, recommendation engines, early voice assistants
+
+**Limitation:** Each model learned exactly one task — nothing more.
 
 ## The transformer moment (2017)
 
-In 2017, Google researchers published a paper called *"Attention Is All You Need"* — and it quietly changed everything.
+In 2017, Google researchers published *"Attention Is All You Need"* — and it quietly changed everything.
 
 The **transformer architecture** let models learn language at a scale and quality that had never been possible. Instead of learning one task, these models could learn from the entire internet and develop a general understanding of language, reasoning, and knowledge.
 
-This was the foundation for GPT, Claude, Gemini, and every major model you've heard of today.
+**Feature unlocks:** Parallel processing, context-aware understanding, foundation for GPT/Claude/Gemini
+
+**Limitation:** Required massive compute and data.
 
 ## Large Language Models emerge (2020–2022)
 
 OpenAI's GPT-3 in 2020 was the first widely accessible demonstration that AI could write, reason, code, and converse at a genuinely useful level. It wasn't perfect — but it was shockingly capable for something that simply predicted the next word.
 
-Researchers quickly discovered that **scale mattered enormously**. More parameters + more data + more compute = dramatically better capability. The race to build larger, better models began in earnest.
+**Feature unlocks:** Few-shot learning, code generation, creative writing, natural language understanding
+
+**Limitation:** Could only respond — not act.
 
 ## ChatGPT and the mainstream moment (2022–2023)
 
 In November 2022, OpenAI released ChatGPT. 100 million users in 60 days — the fastest product adoption in history.
 
 For most people, this was their first real experience with a capable AI. But for researchers, it was a proof of concept for something bigger: if you could chat with an AI, could you also *give it tools* and let it work autonomously?
+
+**Feature unlocks:** Conversational interface, accessible to non-technical users, proof that AI can be useful to everyone
+
+**Limitation:** Still just a chatbot — no tools, no action.
 
 ## The agent era begins (2023–present)
 
@@ -51,9 +67,9 @@ The leap from "smart chatbot" to "autonomous agent" required two things that arr
 1. **Tool use** — models that could call APIs, browse the web, run code, and interact with external systems
 2. **Longer context** — models that could hold an entire codebase, document, or conversation history in their working memory
 
-Combine a capable model with tools and enough memory, and you have an agent that can *plan and execute* multi-step work — not just answer a question.
+**Feature unlocks:** Multi-step planning, autonomous workflows, writing and deploying code, operating business workflows
 
-Today, agents are writing and deploying code, processing invoices, running marketing campaigns, managing customer support, and operating entire business workflows with minimal human oversight.
+Combine a capable model with tools and enough memory, and you have an agent that can *plan and execute* multi-step work — not just answer a question.
 
 ---
 
