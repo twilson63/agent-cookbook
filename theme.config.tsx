@@ -30,6 +30,9 @@ const config: DocsThemeConfig = {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta property="og:title" content="Agent Cookbook" />
       <meta property="og:description" content="A practical guide to AI models, agents, and agent harnesses — from beginner to builder." />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     </>
   ),
   useNextSeoProps() {
@@ -38,6 +41,7 @@ const config: DocsThemeConfig = {
     }
   },
   primaryHue: 220,
+  primarySaturation: 72,
   sidebar: {
     titleComponent({ title, type }) {
       if (type === 'separator') {

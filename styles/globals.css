@@ -1,0 +1,296 @@
+/* ============================================================
+   Agent Cookbook — ARCA Design System
+   Inspired by ram.zenbin.org/arca · RAM Design Studio 2026
+   ============================================================ */
+
+/* Google Fonts — Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Design tokens ─────────────────────────────────────────── */
+:root {
+  --ac-bg:        #F4F1EC;
+  --ac-surface:   #FFFFFF;
+  --ac-surface2:  #FAF8F4;
+  --ac-text:      #1A1714;
+  --ac-sub:       #888070;
+  --ac-muted:     #B0A898;
+  --ac-accent:    #2254C8;
+  --ac-accent2:   #2B8A3E;
+  --ac-warn:      #B45309;
+  --ac-danger:    #C0392B;
+  --ac-border:    #E8E4DC;
+
+  /* Override Nextra primary hue to match ARCA blue */
+  --nextra-primary-hue: 220deg;
+}
+
+/* ── Base / body ───────────────────────────────────────────── */
+html,
+body {
+  font-family: 'Inter', -apple-system, 'Helvetica Neue', sans-serif !important;
+  background-color: var(--ac-bg) !important;
+  color: var(--ac-text) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Navbar ────────────────────────────────────────────────── */
+nav.nextra-nav-container,
+.nextra-nav-container {
+  background-color: rgba(244, 241, 236, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  border-bottom: 1px solid var(--ac-border) !important;
+}
+
+/* Nav links */
+.nextra-nav-container a,
+nav .nx-text-sm {
+  color: var(--ac-text) !important;
+  font-weight: 500 !important;
+}
+
+.nextra-nav-container a:hover {
+  color: var(--ac-accent) !important;
+}
+
+/* Logo text */
+.nextra-nav-container .nx-font-bold {
+  color: var(--ac-text) !important;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.nextra-sidebar-container,
+aside.nextra-sidebar {
+  background-color: var(--ac-bg) !important;
+  border-right: 1px solid var(--ac-border) !important;
+}
+
+/* Sidebar links */
+.nextra-sidebar-container a {
+  color: var(--ac-sub) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+.nextra-sidebar-container a:hover,
+.nextra-sidebar-container a.nx-text-primary-600,
+.nextra-sidebar-container a[aria-current="page"] {
+  color: var(--ac-accent) !important;
+  background-color: rgba(34, 84, 200, 0.06) !important;
+  border-radius: 6px !important;
+}
+
+/* Sidebar separators / section titles */
+.nextra-sidebar-container li.nx-mt-5 > span,
+.nextra-sidebar-container .nx-text-xs {
+  color: var(--ac-muted) !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Main content area ─────────────────────────────────────── */
+.nextra-content,
+main article,
+.nx-w-full {
+  background-color: var(--ac-bg) !important;
+}
+
+/* ── Typography — headings ─────────────────────────────────── */
+article h1 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  color: var(--ac-text) !important;
+  line-height: 1.15 !important;
+  margin-bottom: 1rem !important;
+}
+
+article h2 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--ac-text) !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 0.75rem !important;
+  border-bottom: 1px solid var(--ac-border) !important;
+  padding-bottom: 0.5rem !important;
+}
+
+article h3 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ac-text) !important;
+}
+
+article p {
+  color: var(--ac-text) !important;
+  line-height: 1.75 !important;
+}
+
+/* ── Links ─────────────────────────────────────────────────── */
+article a {
+  color: var(--ac-accent) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+article a:hover {
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+/* ── Callouts / blockquotes ────────────────────────────────── */
+.nextra-callout {
+  background-color: var(--ac-surface) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 8px !important;
+}
+
+/* ── Tables ────────────────────────────────────────────────── */
+article table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 0.875rem !important;
+  background-color: var(--ac-surface) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+article table thead tr {
+  background-color: var(--ac-surface2) !important;
+  border-bottom: 1px solid var(--ac-border) !important;
+}
+
+article table th {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: var(--ac-sub) !important;
+  padding: 0.75rem 1rem !important;
+  text-align: left !important;
+}
+
+article table td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid var(--ac-border) !important;
+  color: var(--ac-text) !important;
+}
+
+article table tr:last-child td {
+  border-bottom: none !important;
+}
+
+article table tr:hover td {
+  background-color: rgba(34, 84, 200, 0.03) !important;
+}
+
+/* ── Code blocks ───────────────────────────────────────────── */
+article pre {
+  background-color: var(--ac-text) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 8px !important;
+}
+
+article :not(pre) > code {
+  background-color: var(--ac-surface) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 4px !important;
+  color: var(--ac-accent) !important;
+  font-size: 0.85em !important;
+  padding: 0.15em 0.4em !important;
+}
+
+/* ── Breadcrumb / TOC ──────────────────────────────────────── */
+.nextra-toc {
+  border-left: 1px solid var(--ac-border) !important;
+}
+
+.nextra-toc a {
+  color: var(--ac-sub) !important;
+  font-size: 0.8rem !important;
+}
+
+.nextra-toc a:hover,
+.nextra-toc a.nx-text-primary-600 {
+  color: var(--ac-accent) !important;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+footer.nextra-footer {
+  background-color: var(--ac-bg) !important;
+  border-top: 1px solid var(--ac-border) !important;
+  color: var(--ac-sub) !important;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ac-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ac-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ac-muted);
+}
+
+/* ── Tabs (nextra/components) ──────────────────────────────── */
+.nextra-tabs [role="tab"] {
+  font-weight: 500 !important;
+  color: var(--ac-sub) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.nextra-tabs [role="tab"][aria-selected="true"] {
+  color: var(--ac-accent) !important;
+  border-bottom-color: var(--ac-accent) !important;
+}
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.nextra-steps h3::before {
+  background-color: var(--ac-accent) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+/* ── Selection ─────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(34, 84, 200, 0.15);
+  color: var(--ac-text);
+}
+
+/* ── Nextra search ─────────────────────────────────────────── */
+.nextra-search input {
+  background-color: var(--ac-surface) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 8px !important;
+  color: var(--ac-text) !important;
+}
+
+.nextra-search input::placeholder {
+  color: var(--ac-muted) !important;
+}
+
+/* Dark mode — keep warm tones */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ac-bg:       #1A1714;
+    --ac-surface:  #242119;
+    --ac-surface2: #2A2723;
+    --ac-text:     #F4F1EC;
+    --ac-sub:      #9A9080;
+    --ac-muted:    #6A6058;
+    --ac-border:   #3A3730;
+  }
+}
