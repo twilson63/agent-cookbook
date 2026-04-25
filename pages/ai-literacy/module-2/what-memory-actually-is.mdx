@@ -1,0 +1,38 @@
+---
+title: "What Memory Actually Is"
+---
+
+import { VideoEmbed } from '../../../components/VideoEmbed'
+import { Callout } from 'nextra/components'
+
+# What Memory Actually Is
+
+<VideoEmbed
+  src="https://resource2.heygen.ai/aws_pacific/avatar_tmp/5c9b644d60644cab9580b8c67045527f/v008fa4e3d44945e2947fb255e816c3cb/caption_476f20614d5e4063a98464d2c09eadc0.mp4"
+  title="What Memory Actually Is"
+  description="Module 2: Memory & Context · Lesson 2"
+/>
+
+*Module 2, Skills & Memory | Essay 2 of 8*
+
+---
+
+Memory sounds like something complex happening inside the agent. It isn't. Memory is a file, plain text, usually markdown, that your agent reads at the start of every conversation. That's it.
+
+There's no magic. No learning in the machine learning sense. Your agent isn't updating its model based on what you tell it. It's reading notes you wrote, the same way a new colleague reads a briefing document before a meeting.
+
+Understanding this demystifies the whole thing. Memory is just organized information. You write it, the agent reads it, and every conversation starts from that context instead of zero.
+
+There are two kinds of context worth keeping in memory. The first is persistent context, things that are always true about you. Your job title and industry. How you like to communicate. Who your key stakeholders are. What kind of work you do day to day. This is the foundation. You write it once and update it when things change.
+
+The second is working context, things that are true right now. The project you're focused on. An upcoming deadline. A recent decision that affects your work. This context has a shelf life. It's useful for weeks or months, not forever. You add it when something significant starts and clean it up when it's resolved.
+
+What doesn't belong in memory: one-off tasks, temporary to-dos, information specific to a single conversation. That stuff belongs in the conversation itself, not in your persistent notes.
+
+A good memory file is short and scannable. The agent reads it quickly. Long, dense notes slow things down and make it harder for the agent to identify what's relevant to any given conversation. Aim for clarity over completeness. A crisp three-line note about your communication style is more useful than a paragraph.
+
+You'll refine your memory over time. Start with the obvious things, who you're, what you're working on, how you prefer outputs formatted. Run a few sessions. Notice what you keep re-explaining. Add that to memory. The file improves as you use it.
+
+<Callout type="info" emoji="🏋️">
+**Pod Exercise:** Open your practice pod's memory file. Write three notes: one about your role, one about your communication style, one about something you're currently working on. Each note should be two to three sentences, specific and factual, not general.
+</Callout>
