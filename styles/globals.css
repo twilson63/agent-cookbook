@@ -222,6 +222,36 @@ article :not(pre) > code {
   color: var(--ac-accent) !important;
 }
 
+/* Edit this page on GitHub — ARCA style */
+.nextra-toc a[href*="github.com"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  color: var(--ac-sub) !important;
+  background-color: transparent !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 6px !important;
+  padding: 0.3rem 0.65rem !important;
+  letter-spacing: 0.01em !important;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease !important;
+  text-decoration: none !important;
+}
+
+.nextra-toc a[href*="github.com"]:hover {
+  color: var(--ac-accent) !important;
+  border-color: var(--ac-accent) !important;
+  background-color: rgba(34, 84, 200, 0.05) !important;
+}
+
+/* Fix the edit link section border-top to use ARCA token */
+.nextra-toc .nx-border-t {
+  border-color: var(--ac-border) !important;
+  padding-top: 1rem !important;
+  margin-top: 0.5rem !important;
+}
+
 /* ── Footer ────────────────────────────────────────────────── */
 footer.nextra-footer {
   background-color: var(--ac-bg) !important;
