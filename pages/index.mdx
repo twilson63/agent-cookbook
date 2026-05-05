@@ -5,12 +5,12 @@ title: Welcome
 import { Callout, Cards, Card } from 'nextra/components'
 import { VideoEmbed } from '../components/VideoEmbed'
 
-# Welcome to the Agent Cookbook 🍳
+# Welcome to the Agent Cookbook
 
-<VideoEmbed 
-  src="/videos/agent-cookbook-intro.mp4" 
-  title="Introduction to AI Agents" 
-  description="Learn what AI agents are, who they're for, and how to think about them as team members" 
+<VideoEmbed
+  src="/videos/agent-cookbook-intro.mp4"
+  title="Introduction to AI Agents"
+  description="Learn what AI agents are, who they're for, and how to think about them as team members"
 />
 
 You've probably heard the buzz — *AI agents*, *large language models*, *autonomous workflows*. But what does any of it actually mean, and more importantly, **what can it do for you?**
@@ -20,19 +20,19 @@ This cookbook is your guided tour. Whether you're completely new to AI or you've
 ## What you'll find here
 
 <Cards>
-  <Card title="🚀 Quick Start" href="/quick-start" arrow>
+  <Card title="Quick Start" href="/quick-start" arrow>
     Get up and running with your first agent in under 10 minutes.
   </Card>
-  <Card title="📖 History" href="/history" arrow>
+  <Card title="History" href="/history" arrow>
     Where did all this come from? A brief journey from rule-based systems to today's AI.
   </Card>
-  <Card title="🧠 Concepts" href="/concepts" arrow>
+  <Card title="Concepts" href="/concepts" arrow>
     Understand the building blocks — models, agents, harnesses, and how they fit together.
   </Card>
-  <Card title="🍽️ Recipes" href="/recipes" arrow>
+  <Card title="Recipes" href="/recipes" arrow>
     Real-world playbooks for automating work across finance, sales, marketing, and ops.
   </Card>
-  <Card title="🛠️ Tools" href="/tools" arrow>
+  <Card title="Tools" href="/tools" arrow>
     A practical guide to every major tool in the ecosystem — what each does and when to use it.
   </Card>
 </Cards>
@@ -45,14 +45,50 @@ No coding experience required for most of this cookbook. Concepts and Recipes ar
 
 This cookbook is for **three types of people**:
 
-- **The curious newcomer** — you've heard about AI and want to actually understand it, not just the hype
-- **The business operator** — you want to save your team hours every week by putting agents to work
-- **The builder** — you're ready to ship something and need to pick the right stack
+- **The curious newcomer** — you've heard about AI and want to actually understand it, not just the hype. Start with [History](/history) and [Concepts](/concepts) to build a solid mental model before diving in.
+- **The business operator** — you want to save your team hours every week by putting agents to work. Head straight to [Recipes](/recipes) for step-by-step playbooks you can run today without writing any code.
+- **The builder** — you're ready to ship something and need to pick the right stack. The [Tools](/tools) section breaks down every major platform, when to use each, and how they fit together.
 
----
+Not sure which one you are? Start with [Quick Start](/quick-start) — it takes less than 10 minutes and shows you concretely what agents can do.
 
-## A note on how to read this
+## What is an AI agent, exactly?
+
+An AI agent is a program that uses a language model as its "brain" and connects it to tools — so instead of just answering questions, it can *take action*.
+
+A plain chatbot responds. An agent **acts**.
+
+Here's the difference in practice:
+
+| Chatbot | Agent |
+|---|---|
+| "Here's how you could draft that email." | Drafts the email and sends it. |
+| "Here's a summary of that document." | Reads the document, summarizes it, and files it in the right folder. |
+| "Here are some leads that might fit your criteria." | Searches the web, scores each lead, and adds them to your CRM. |
+
+The underlying model is the same — what changes is whether you've connected it to tools and given it the ability to act on your behalf.
+
+## How to think about agents
 
 Think of an AI agent like a **new team member** who never sleeps, never forgets, and can work across dozens of tools at once — but needs clear instructions. This cookbook teaches you how to give those instructions well, and which tools to put in their hands.
 
-Let's start cooking. 👇
+A few principles that will serve you throughout:
+
+**Clarity beats cleverness.** The more specific your instructions, the better the output. Vague prompts produce vague results — good briefs produce good work.
+
+**Start narrow, then expand.** Don't try to automate your entire business in one go. Pick one well-defined task, get it working reliably, then build from there.
+
+**Agents work best with structure.** Give them a defined input, a clear goal, and a known output format. The more ambiguous any of those are, the more likely you'll need to iterate.
+
+**Oversight matters early on.** Modern agents are impressively capable, but they're not infallible. Build in review steps for anything consequential until you've established trust in a workflow.
+
+## A note on how to read this
+
+This cookbook is organized so you can jump around based on what you need. But if you're new to this space, the recommended order is:
+
+1. [Quick Start](/quick-start) — get hands-on immediately
+2. [History](/history) — understand how we got here
+3. [Concepts](/concepts) — learn the building blocks
+4. [Recipes](/recipes) — apply it to your real work
+5. [Tools](/tools) — go deeper when you're ready to build
+
+Let's start cooking.
