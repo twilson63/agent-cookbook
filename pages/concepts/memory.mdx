@@ -2,11 +2,12 @@
 title: Memory & Context
 ---
 
+import { Callout } from 'nextra/components'
 import { VideoEmbed } from '../../components/VideoEmbed'
 
 # Memory & Context
 
-Memory is what separates a useful agent from a frustrating one. Without it, every conversation starts from zero. With it, an agent can learn your preferences, remember what it worked on yesterday, and build up expertise over time.
+Memory is what separates a useful agent from a frustrating one. Without it, every conversation starts from zero. With it, an agent learns your preferences, remembers what it worked on yesterday, and builds up knowledge over time.
 
 <VideoEmbed 
   src="/videos/memory.mp4" 
@@ -16,49 +17,135 @@ Memory is what separates a useful agent from a frustrating one. Without it, ever
 
 ## The four types of memory
 
-### 1. In-context memory (working memory)
-Everything the model can see right now — your current conversation, any documents you've shared, the agent's recent tool outputs. This lives in the **context window** and disappears when the session ends.
+| Type | Lives in | Persists? | Best for |
+|---|---|---|---|
+| In-context (working) | Context window | Session only | Current task state |
+| Persistent (long-term) | Database | Yes | User preferences, learned facts |
+| Episodic (history) | Log / database | Yes | Past interactions, decisions |
+| Semantic (knowledge) | Vector database | Yes | Searchable reference knowledge |
 
-*Analogy: What's currently on your desk.*
+### 1. In-context memory (working memory)
+Everything the model can see right now — the current conversation, shared documents, recent tool outputs, and any injected facts. This lives in the **context window** and disappears when the session ends.
+
+The context window has a hard size limit (measured in tokens). Fill it past the limit and older content gets dropped. This means a long, unmanaged conversation gradually loses its own early context.
+
+**Analogy:** What is currently on your desk — everything in reach, but limited space.
+
+**Practical implication:** For long tasks, the harness must actively manage what stays in context. Summarization, compression, and selective retrieval are all strategies for keeping the most important information visible.
 
 ### 2. Persistent memory (long-term storage)
-Information the agent stores between sessions — facts it's learned about you, past decisions, preferences, knowledge it's built up. Stored in a database and retrieved when relevant.
+Information the agent saves between sessions — facts it has learned about you, past decisions, stated preferences, recurring patterns. Stored in a database and retrieved when relevant.
 
-*Analogy: Your notes and files.*
+**Analogy:** Your notes and files — not on your desk right now, but you can look them up.
 
-### 3. Episodic memory (history)
-A log of past interactions — what tasks were completed, what was decided, what worked. Lets the agent reason about its own past behavior.
+**Example stored facts:**
+```
+user_preferences:
+  - Prefers bullet points over paragraphs in summaries
+  - Uses metric units
+  - Timezone: America/Chicago
 
-*Analogy: Your work journal.*
+project_context:
+  - Current sprint ends Friday
+  - Primary language: TypeScript
+  - Deploy target: AWS Lambda
+```
+
+### 3. Episodic memory (interaction history)
+A log of past interactions — what tasks were completed, what was decided, what worked, what did not. Allows the agent to reason about its own history and avoid repeating mistakes.
+
+**Analogy:** Your work journal — a dated record of what you did and decided.
+
+**Example use:** An agent that has tried and failed to reach a contact three times via email can check its episodic memory, recognize the pattern, and suggest trying a different channel.
 
 ### 4. Semantic memory (knowledge base)
-Structured knowledge the agent can search — documentation, company policies, product catalogs, FAQs. Usually stored in a vector database for fast retrieval by meaning, not just keyword.
+Structured knowledge the agent can search — documentation, company policies, product catalogs, FAQs, research papers. Usually stored in a **vector database** which enables search by meaning rather than exact keyword match.
 
-*Analogy: Your reference library.*
+**Analogy:** Your reference library — you search it when you need to look something up.
+
+**Why vector search?** A keyword search for "vacation time" might miss a policy document that says "annual leave entitlement." A vector search finds both because it understands semantic similarity.
 
 ---
 
 ## How retrieval works
 
-Modern agents don't load all their memory into the context at once — that would fill up the context window instantly. Instead they use **retrieval** — when the agent needs to remember something, it searches its memory store for the most relevant information and loads just that.
+Agents do not load all their memory into context at once — that would exhaust the context window immediately. Instead they use **retrieval-augmented generation (RAG)**:
 
 ```
-User asks question
-       ↓
-Agent searches memory for relevant context
-       ↓
-Top results injected into context
-       ↓
-Model answers with full context
+User sends message or agent starts a step
+         ↓
+Agent generates a search query from the current context
+         ↓
+Search runs against memory store (vector DB, SQL, or both)
+         ↓
+Top-N most relevant results retrieved
+         ↓
+Results injected into context alongside the original message
+         ↓
+Model generates response with full relevant context available
 ```
 
-This is why agents can feel like they "remember" things from months ago — they're not storing the full conversation forever, they're storing key facts and retrieving them on demand.
+This is why a well-configured agent can feel like it "remembers" something from three months ago — it is not holding the full history in memory, it is storing key facts and surfacing them on demand.
 
-## Why this matters for you
+### Retrieval quality matters
 
-When setting up an agent:
-- **Give it relevant context upfront** — paste in your company's style guide, your product catalog, your team's conventions
-- **Use persistent memory** for anything the agent should always know — your name, your preferences, your team's vocabulary
-- **Be aware of context limits** — if a document is too long, the model may not process all of it
+The usefulness of retrieval depends on:
+- **Chunking strategy** — how documents are split before indexing. Chunks too small lose context; chunks too large dilute relevance.
+- **Embedding model** — the model used to convert text into vectors. Better embeddings = better semantic matches.
+- **Reranking** — a second-pass model that re-scores retrieved results for relevance before injecting them.
+- **Metadata filtering** — filtering by date, source, or category before semantic search to narrow the candidate pool.
+
+---
+
+## Memory in practice
+
+### Setting up an agent with useful memory
+
+```python
+# Pseudocode: agent with persistent + semantic memory
+def run_agent(user_message, user_id):
+    # 1. Retrieve relevant persistent facts about this user
+    user_facts = memory.get_user_facts(user_id)
+    
+    # 2. Retrieve relevant knowledge base entries
+    kb_results = vector_db.search(user_message, top_k=5)
+    
+    # 3. Retrieve recent episodic context
+    recent_history = memory.get_recent_episodes(user_id, n=3)
+    
+    # 4. Build context for the model
+    context = build_context(user_facts, kb_results, recent_history)
+    
+    # 5. Run the model with enriched context
+    response = model.generate(context + user_message)
+    
+    # 6. Store this interaction as a new episode
+    memory.store_episode(user_id, user_message, response)
+    
+    return response
+```
+
+### What to store in persistent memory
+
+Store things that are true across sessions and change infrequently:
+- User preferences and communication style
+- Project conventions and terminology
+- Decisions that have been made and should not be revisited
+- Frequently referenced facts (timezone, team size, tech stack)
+
+Do not store everything — that degrades retrieval quality. Be selective about what is worth remembering long-term.
+
+<Callout type="info">
+When setting up an agent, give it relevant context upfront rather than waiting for it to learn over time. Paste in your style guide, product glossary, or team conventions as initial persistent memory. The agent will use this immediately and you will get better results from the first interaction.
+</Callout>
+
+### Context window limits
+
+Be aware of the practical limits:
+- **Claude:** Up to 200k tokens (~150,000 words) in context
+- **GPT-4o:** Up to 128k tokens
+- **Gemini 1.5/2.0:** Up to 1M tokens (excellent for very long documents)
+
+Even with large context windows, flooding the context with everything degrades output quality. The model attends to everything in context, and noise hurts signal. Selective retrieval outperforms "stuff everything in" even when the window is large enough to hold everything.
 
 **Next: [Tools & Actions →](/concepts/tools)**
