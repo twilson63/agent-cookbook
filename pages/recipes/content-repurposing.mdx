@@ -2,77 +2,179 @@
 title: Content Repurposing
 ---
 
-import { Steps, Callout } from 'nextra/components'
+import { Steps, Callout, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../../components/ConceptVideo'
 
 # Recipe: Content Repurposing
 
 **Department:** Marketing / Content
 **Difficulty:** Beginner
-**Time to set up:** 15 minutes
+**Time to set up:** 15–30 minutes
 
 <ConceptVideo id="recipe-content" title="One input, a week of content" />
 
-## The problem
+## Overview
 
-Creating content is expensive and time-consuming. A 45-minute webinar takes a full day to turn into blog posts, social content, email newsletters, and sales enablement material. Most teams either skip the repurposing or pay an agency. Either way, you're leaving value on the table.
+The Content Repurposing agent takes a single long-form asset — a webinar recording, podcast transcript, blog post, or internal report — and transforms it into a full suite of publish-ready content: social posts, email newsletter segments, video scripts, FAQ documents, and blog outlines. What previously took a content team six to eight hours now happens in under an hour.
 
-## The agent's job
+## Use Case
+
+**Who this is for:** Content marketers, social media managers, demand generation teams, and solo founders who create content regularly but struggle to distribute it widely.
+
+**The problem it solves:** Creating content is expensive and slow. A 45-minute webinar takes a full day to turn into blog posts, social content, email newsletters, and sales enablement material. Most teams either skip the repurposing entirely or pay an agency. Either way, value is left on the table.
+
+**Trigger:** Any time new long-form content is published or an old asset needs new life.
+
+## Agent Architecture
+
+| Component | Purpose |
+|---|---|
+| Transcription tool | Convert audio/video to text (Whisper, Otter.ai, or similar) |
+| AI agent (Claude) | Extract themes, generate content variants, match brand voice |
+| Brand style guide | Calibrate tone, vocabulary, and formatting preferences |
+| Publishing integrations | Buffer, Hootsuite, HubSpot, or direct social APIs |
+| A/B testing tool | Evaluate subject line and headline performance (optional) |
+
+The agent operates as a single pipeline: ingest → extract → generate → schedule. No multi-agent coordination is needed for the basic version.
+
+## Implementation Steps
 
 <Steps>
 
-### Accept the source content
-You give the agent a webinar recording, blog post, podcast transcript, or any long-form content piece.
+### Ingest the source content
+Provide the agent with one of the following:
+- A transcript (plain text, `.txt`, or `.docx`)
+- A URL to a blog post or article
+- A PDF (report, white paper, slide deck)
+- A video or audio file (the transcription step runs first)
 
-### Extract the key ideas
-It identifies the core themes, memorable quotes, data points, and actionable insights — the raw material for repurposing.
+The agent confirms the input type and asks for any missing context: target audience, content goal (awareness, conversion, retention), and brand voice notes.
+
+### Extract key ideas
+The agent reads the full content and identifies:
+- The 3–5 core themes or arguments
+- Memorable quotes suitable for social sharing
+- Data points and statistics with source references
+- Actionable takeaways the audience can use immediately
+- Questions the content answers (for FAQ generation)
 
 ### Generate the content suite
-In one pass, it produces:
-- **LinkedIn post** — professional, insight-forward, 150–300 words
-- **Twitter/X thread** — 5–8 tweet thread format
-- **Email newsletter section** — 100–150 word teaser with CTA
-- **Short-form video script** — 60-second talking points for Reels/Shorts/TikTok
-- **FAQ document** — Q&A format for sales enablement or website
-- **Blog post outline** — structured outline with headers and key points
+In one pass, the agent produces all of the following:
+
+- **LinkedIn post** — professional, insight-forward, 150–300 words with a clear hook and CTA
+- **Twitter/X thread** — 6–8 tweets, numbered, with the first tweet as a standalone hook
+- **Email newsletter segment** — 100–150 word teaser with a link and subject line options
+- **Short-form video script** — 60-second talking points formatted for Reels, Shorts, or TikTok
+- **FAQ document** — 8–12 Q&A pairs suitable for a website help section or sales enablement
+- **Blog post outline** — H1, H2, H3 structure with one-sentence descriptions per section
 
 ### Adapt tone and style
-It matches your brand voice — formal, casual, technical, conversational — based on examples you provide or style guidelines.
+The agent matches your brand voice based on:
+- Examples you provide (paste in 2–3 past posts you are happy with)
+- A style guide document (upload a PDF or paste key rules)
+- Direct instructions: "formal but not stuffy", "conversational, use contractions", "technical audience, don't over-explain basics"
 
-### A/B test subject lines and headlines
-For email sends, it generates 3–5 subject line variants. The best performer gets promoted automatically based on open rates.
+If the first draft tone is off, a single correction like *"make it 20% more casual"* is enough to recalibrate.
+
+### Generate subject line and headline variants
+For any email content, the agent produces 3–5 subject line variants optimized for different angles: curiosity, urgency, specificity, social proof, and direct benefit.
+
+Example output for a webinar on AI in supply chain:
+- `How [Company] cut supply chain costs 18% with one workflow change`
+- `What 200 ops leaders said about AI adoption (the results surprised us)`
+- `Your supply chain is leaking money. Here's the fix.`
+- `Inside the AI-powered warehouse: a live walkthrough`
 
 ### Schedule and publish
-Connected to your publishing tools (Buffer, Hootsuite, HubSpot), it schedules content across channels at optimal posting times.
+Connected to your publishing platform, the agent schedules content across channels at optimal times based on platform-specific engagement patterns. You review and approve before anything goes live, or enable auto-publish once you trust the output quality.
 
 </Steps>
 
-## Tools needed
+## Example Prompts
 
-- A transcription tool (for video/audio content)
-- Your brand style guide or voice examples
-- Publishing platform access (Buffer, Hootsuite, HubSpot, or similar)
-- An AI agent
+<Tabs items={["Basic repurpose", "With brand voice", "Bulk batch"]}>
+<Tab>
+```
+You are a content repurposing assistant. I am going to give you a blog post. 
+Your job is to produce:
+1. A LinkedIn post (150–250 words, professional tone, end with a question to drive comments)
+2. A Twitter/X thread (6 tweets, first tweet is a standalone hook, number each tweet)
+3. An email subject line (5 variants, each under 50 characters)
+4. A 60-second video script (talking points only, no production notes)
 
-## Expected results
+Here is the blog post:
+[PASTE CONTENT HERE]
+```
+</Tab>
+<Tab>
+```
+You are a content repurposing assistant for [Brand Name]. 
+Our brand voice: conversational, direct, occasionally witty — like a smart colleague 
+explaining something over coffee. We avoid corporate jargon and always lead with the 
+benefit to the reader.
+
+Here are two example posts in our voice:
+[EXAMPLE 1]
+[EXAMPLE 2]
+
+Now repurpose the following transcript into:
+- LinkedIn post
+- Twitter thread (6–8 tweets)
+- Email newsletter section (120 words max)
+
+Transcript:
+[PASTE TRANSCRIPT]
+```
+</Tab>
+<Tab>
+```
+I have 5 blog posts I need repurposed. For each one, produce:
+- LinkedIn post
+- Twitter thread  
+- Email subject line (3 variants)
+
+Process them in order. After each one, confirm you are ready for the next before 
+I paste the next post. Flag any posts where the content is thin or where you 
+recommend a different format.
+
+Ready to begin?
+```
+</Tab>
+</Tabs>
+
+## Expected Results
 
 | Metric | Before | After |
 |---|---|---|
 | Time to repurpose one asset | 6–8 hours | 30–45 minutes |
-| Content pieces per source | 1–2 | 6–8 |
+| Content pieces per source asset | 1–2 | 6–8 |
 | Time to localize for new market | 4–8 weeks | 1 day |
-| Agency spend on content | Baseline | -20–30% |
+| Agency spend on content repurposing | Baseline | -20–30% |
+| Consistency of brand voice across formats | Variable | High |
 
 <Callout type="info">
-**Real-world result:** A global biopharma company reduced content localization time from two months to one day and cut marketing agency spend by 20–30% using AI-driven content workflows.
+**Real-world result:** A global biopharma company reduced content localization time from two months to one day and cut marketing agency spend by 20–30% using AI-driven content workflows. A B2B SaaS team of three doubled their monthly content output without adding headcount.
 </Callout>
 
-## Getting started
+## Tips & Variations
 
-This is the easiest recipe to start with because the agent doesn't need access to any external systems — just your content.
+**Localization pipeline:** Add a translation step after content generation. Prompt: *"Translate each piece to [language]. Preserve the casual tone and adapt any idioms that would not translate well."*
 
-1. **Prepare one piece of source content** — a blog post works perfectly for a first test
-2. **Write 2–3 example posts** in your brand voice so the agent can calibrate
-3. **Run the agent on your source content** and review all outputs
-4. **Identify your favorite format** — most teams find one or two formats immediately usable, and refine the others over time
-5. **Automate the scheduling** as a second step once the content quality is where you want it
+**Evergreen refresh:** Feed old blog posts (12+ months) back through the agent to update statistics, refresh examples, and rewrite for current SEO targets.
+
+**Internal content:** Repurpose all-hands recordings, product update emails, and internal memos into external-facing announcements, release notes, and case study drafts.
+
+**Approval workflow:** Add a review step where the agent emails all drafts to a team Slack channel before scheduling. Use a simple thumbs-up emoji reaction to approve.
+
+**Content calendar integration:** Connect the output to Notion, Airtable, or a Google Sheet so every generated piece lands in your content calendar automatically with status, channel, and publish date fields filled in.
+
+## Getting Started
+
+This is the easiest recipe to start with because the agent does not need access to any external systems — just your content.
+
+1. **Pick one source asset** — a blog post works best for a first test because it is already in text format
+2. **Write 2–3 example posts** in your brand voice so the agent can calibrate its tone
+3. **Run the basic repurpose prompt** from the Examples section above
+4. **Review all outputs** and note which formats are immediately usable vs. which need refinement
+5. **Identify your two best formats** — most teams find one or two formats immediately publishable; focus quality there first
+6. **Connect a publishing tool** as a second step once content quality meets your bar
