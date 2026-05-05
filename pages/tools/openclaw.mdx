@@ -2,7 +2,7 @@
 title: OpenClaw
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout, Steps, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../../components/ConceptVideo'
 
 # OpenClaw
@@ -18,6 +18,63 @@ import { ConceptVideo } from '../../components/ConceptVideo'
 OpenClaw is an open-source agent harness — the layer between your AI model and the real world. It provides the scaffolding that turns a language model into a working agent: tool management, conversation history, memory, provider switching, and execution loop.
 
 Think of it as the plumbing. You bring the model, you bring the business logic, OpenClaw handles the infrastructure that makes the agent actually run.
+
+OpenClaw is the full-featured sibling of NanoClaw. Where NanoClaw optimises for size and speed, OpenClaw prioritises breadth of integrations and runtime extensibility.
+
+## Quick start
+
+<Steps>
+
+### Install OpenClaw
+
+```bash
+curl -fsSL https://openclaw.dev/install | bash
+
+# Verify
+openclaw --version
+```
+
+### Create a project
+
+```bash
+openclaw init my-agent
+cd my-agent
+```
+
+This creates a project directory with a starter `openclaw.yaml` and `.env.example`.
+
+### Configure your agent
+
+```yaml
+# openclaw.yaml
+agent:
+  name: my-sales-agent
+  model: claude-sonnet-4-5
+  system_prompt: |
+    You are a sales assistant. You help with lead research, draft outreach emails,
+    and track deal progress. Always be concise and professional.
+
+channels:
+  - type: telegram
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+
+tools:
+  - type: web_search
+  - type: email
+    smtp: "${SMTP_CONFIG}"
+
+memory:
+  type: sqlite
+  path: ./memory.db
+```
+
+### Start the agent
+
+```bash
+openclaw start
+```
+
+</Steps>
 
 ## The provider landscape
 
@@ -37,7 +94,7 @@ One of OpenClaw's biggest strengths is **50+ provider integrations** out of the 
 - HTTP webhooks
 - CLI
 
-**Data & APIs**
+**Data and APIs**
 - PostgreSQL, MySQL, SQLite
 - Redis
 - REST APIs with auto-auth
@@ -72,6 +129,8 @@ memory:
   path: ./memory.db
 ```
 
+This declarative approach means you can add or remove capabilities by editing a YAML file — no code changes required.
+
 ## Multi-agent support
 
 OpenClaw supports **sub-agents** — agents that can spawn and coordinate with other agents. This enables patterns like:
@@ -89,6 +148,61 @@ tools:
       - report-writer
 ```
 
+### Full multi-agent example
+
+```yaml
+# supervisor.yaml
+agent:
+  name: supervisor
+  model: claude-sonnet-4-5
+  system_prompt: |
+    You coordinate a team of specialist agents to answer complex questions.
+    For research tasks, delegate to the research agent.
+    For data analysis, delegate to the analyst agent.
+    Synthesize their outputs into a final answer.
+
+tools:
+  - type: delegate
+    agents:
+      - name: researcher
+        config: ./agents/researcher.yaml
+      - name: analyst
+        config: ./agents/analyst.yaml
+
+channels:
+  - type: slack
+    token: "${SLACK_BOT_TOKEN}"
+```
+
+```yaml
+# agents/researcher.yaml
+agent:
+  name: researcher
+  model: claude-haiku-4-5
+  system_prompt: |
+    You gather facts and data from the web and return structured findings.
+    Be thorough but concise. Always cite your sources.
+
+tools:
+  - type: web_search
+  - type: http
+```
+
+```yaml
+# agents/analyst.yaml
+agent:
+  name: analyst
+  model: claude-sonnet-4-5
+  system_prompt: |
+    You analyse data and identify patterns, trends, and anomalies.
+    Return structured analysis with clear conclusions.
+
+tools:
+  - type: database
+    connection: "${DATABASE_URL}"
+  - type: python_executor
+```
+
 ## Memory system
 
 OpenClaw ships with a built-in memory system using SQLite with FTS5 full-text search. Agents can:
@@ -103,31 +217,160 @@ OpenClaw ships with a built-in memory system using SQLite with FTS5 full-text se
 → Uses them to inform the current response
 ```
 
+```yaml
+memory:
+  type: sqlite
+  path: ./memory.db
+  max_entries: 50000
+  search: bm25
+  auto_store: true    # automatically store key facts from conversations
+```
+
 ## Scheduling
 
 Agents can be configured to run on a schedule without external cron infrastructure:
 
 ```yaml
 schedule:
-  - cron: "0 8 * * 1-5"   # 8am weekdays
-    task: "Check overnight alerts and send morning briefing"
+  - cron: "0 8 * * 1-5"    # 8am weekdays
+    task: "Check overnight alerts and send morning briefing to #ops"
   - cron: "*/30 * * * *"   # Every 30 minutes
-    task: "Poll for new support tickets"
+    task: "Poll for new support tickets and triage them"
+  - cron: "0 17 * * 5"     # Friday 5pm
+    task: "Generate weekly team summary and post to Confluence"
+```
+
+## Building a custom tool
+
+OpenClaw's plugin system lets you add any external capability as a tool the agent can call:
+
+```javascript
+// plugins/crm-lookup.js
+module.exports = {
+  name: "lookup_customer",
+  description: "Look up a customer record in the CRM by email or company name",
+  parameters: {
+    type: "object",
+    properties: {
+      query: { type: "string", description: "Email address or company name" }
+    },
+    required: ["query"]
+  },
+  async execute({ query }) {
+    const response = await fetch(
+      `${process.env.CRM_API_URL}/search?q=${encodeURIComponent(query)}`,
+      { headers: { "Authorization": `Bearer ${process.env.CRM_API_KEY}` } }
+    );
+    const results = await response.json();
+    if (!results.length) return "No customer found matching that query.";
+    const c = results[0];
+    return `Customer: ${c.name} (${c.email})
+Company: ${c.company}
+Status: ${c.status}
+ARR: $${c.arr.toLocaleString()}
+Last contact: ${c.last_contact_date}`;
+  }
+};
+```
+
+Register in `openclaw.yaml`:
+
+```yaml
+tools:
+  - type: plugin
+    path: ./plugins/crm-lookup.js
 ```
 
 ## Deploying OpenClaw
 
-OpenClaw is a single binary (cross-platform). Deployment is simple:
-
+<Tabs items={['Direct', 'Docker', 'Kubernetes']}>
+<Tab>
 ```bash
 # Run directly
 openclaw start --config openclaw.yaml
 
-# Or via Docker
-docker run -v $(pwd)/config:/config openclaw/openclaw start
+# Run as a systemd service
+sudo tee /etc/systemd/system/openclaw.service <<EOF
+[Unit]
+Description=OpenClaw Agent
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/openclaw start --config /opt/agent/openclaw.yaml
+Restart=always
+WorkingDirectory=/opt/agent
+EnvironmentFile=/opt/agent/.env
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable --now openclaw
+```
+</Tab>
+<Tab>
+```bash
+# Run via Docker
+docker run \
+  -v $(pwd)/openclaw.yaml:/config/openclaw.yaml \
+  -v $(pwd)/memory.db:/data/memory.db \
+  --env-file .env \
+  openclaw/openclaw start --config /config/openclaw.yaml
 ```
 
-For production, run it as a systemd service or a Kubernetes Deployment. Because it's a single binary with no external dependencies (SQLite is embedded), it's easy to manage.
+Or with Docker Compose:
+
+```yaml
+# docker-compose.yaml
+services:
+  agent:
+    image: openclaw/openclaw:latest
+    volumes:
+      - ./openclaw.yaml:/config/openclaw.yaml
+      - agent-data:/data
+    env_file: .env
+    restart: unless-stopped
+
+volumes:
+  agent-data:
+```
+</Tab>
+<Tab>
+```yaml
+# k8s-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openclaw-agent
+  template:
+    spec:
+      containers:
+      - name: agent
+        image: openclaw/openclaw:latest
+        args: ["start", "--config", "/config/openclaw.yaml"]
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /data
+        envFrom:
+        - secretRef:
+            name: agent-secrets
+      volumes:
+      - name: config
+        configMap:
+          name: openclaw-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: agent-data
+```
+</Tab>
+</Tabs>
 
 <Callout type="info">
 OpenClaw pairs well with NanoClaw. Use OpenClaw for complex, feature-rich agents that need many integrations. Use NanoClaw when you need minimal footprint, fastest startup time, or embedded environments.
@@ -137,25 +380,14 @@ OpenClaw pairs well with NanoClaw. Use OpenClaw for complex, feature-rich agents
 
 | Situation | Recommendation |
 |-----------|----------------|
-| Need many integrations out of the box | ✅ OpenClaw |
-| Want to self-host everything | ✅ OpenClaw |
-| Multi-agent orchestration | ✅ OpenClaw |
+| Need many integrations out of the box | OpenClaw |
+| Want to self-host everything | OpenClaw |
+| Multi-agent orchestration | OpenClaw |
 | Strict binary size / startup time | Consider NanoClaw |
 | Want managed infrastructure | Consider Scout |
 | Non-technical team | Consider Scout |
 
-## Getting started
+## Resources
 
-```bash
-# Install the binary
-curl -fsSL https://openclaw.dev/install | bash
-
-# Create a project
-openclaw init my-agent
-cd my-agent
-
-# Edit openclaw.yaml, then run
-openclaw start
-```
-
-Documentation and examples: [openclaw.dev/docs](https://openclaw.dev/docs)
+- Documentation and examples: [openclaw.dev/docs](https://openclaw.dev/docs)
+- Compare with NanoClaw: [NanoClaw](/tools/nanoclaw)
