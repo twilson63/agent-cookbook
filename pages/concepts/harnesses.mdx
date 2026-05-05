@@ -7,7 +7,7 @@ import { VideoEmbed } from '../../components/VideoEmbed'
 
 # Agent Harnesses
 
-An **agent harness** is the infrastructure layer that turns a raw AI model into a production-ready agent. It handles the plumbing so you can focus on what the agent should do, not how it all wires together.
+An **agent harness** is the infrastructure layer that turns a raw AI model into a working, production-ready agent. It handles the plumbing — the agent loop, tool dispatch, memory persistence, scheduling, logging, and security — so you can focus on what the agent should do rather than how all the pieces wire together.
 
 <VideoEmbed 
   src="/videos/harnesses.mp4" 
@@ -15,38 +15,105 @@ An **agent harness** is the infrastructure layer that turns a raw AI model into 
   description="70-second overview — tool management, memory, routing, scheduling, observability, and security"
 />
 
+## The analogy
+
+Think of a model like a powerful engine. A harness is the rest of the car — the chassis, steering wheel, fuel system, brakes, and dashboard. Without it, the engine is impressive but cannot take you anywhere.
+
+Or more practically: a model is a function that takes text and returns text. A harness is everything else that makes that function useful in the real world.
+
 ## What a harness provides
 
-Think of a model like a powerful engine. A harness is the rest of the car — the chassis, steering wheel, fuel system, and dashboard. Without it, the engine is impressive but useless.
+### Tool management
+The harness registers which tools the agent can use, handles the back-and-forth of tool calls (model requests a tool → harness executes it → result returned to model), and enforces access controls. Without this, the model can only generate text — it cannot search, compute, or call any external service.
 
-A good harness handles:
+### Memory
+Persisting information across sessions so the agent remembers context, past decisions, and learned preferences. The harness decides what gets stored, how it is indexed, and what gets retrieved when the agent needs to recall something. See [Memory & Context](/concepts/memory).
 
-- **Tool management** — giving the agent access to web search, code execution, APIs, databases
-- **Memory** — persisting information across sessions so the agent remembers context
-- **Conversation routing** — deciding which model or sub-agent handles which part of a task
-- **Scheduling** — running agents on a timer or in response to events
-- **Observability** — logging what the agent did, why, and what it produced
-- **Security** — controlling what the agent can access and what it can't touch
+### Conversation routing
+Deciding which model or sub-agent handles which part of a task. In a multi-agent system, the harness routes tasks from a coordinator to specialists and aggregates their results.
+
+### Scheduling
+Running agents on a timer, in response to webhooks, or triggered by events — not just when a user types a message. A harness with scheduling support lets you build agents that run continuously in the background.
+
+### Observability
+Logging every step: what prompt was sent, what tool was called, what parameters were used, what was returned, how long it took, and what it cost. Without this you cannot debug failures, audit behavior, or improve performance over time.
+
+### Security
+Controlling what the agent can access and preventing it from doing things it should not. This includes credential management (the agent should never see raw API keys), rate limiting, and sandboxing tool execution.
+
+---
 
 ## The spectrum of harnesses
 
-Harnesses range from simple chat wrappers to full production platforms:
+Harnesses range from a simple wrapper around an API call to a full production platform. Choose based on your needs today, not what you might need in six months.
 
 ### Minimal (direct API)
-You call the model API directly. You manage everything yourself. Maximum control, maximum work.
-- Good for: One-off scripts, prototypes, learning
+You call the model API directly and manage everything yourself — the loop, tool calls, memory, logging. Maximum control, maximum work.
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+messages = []
+while True:
+    user_input = input("You: ")
+    messages.append({"role": "user", "content": user_input})
+    
+    response = client.messages.create(
+        model="claude-opus-4-6",
+        max_tokens=1024,
+        messages=messages
+    )
+    
+    reply = response.content[0].text
+    messages.append({"role": "assistant", "content": reply})
+    print(f"Agent: {reply}")
+```
+
+Good for: one-off scripts, prototypes, learning how the underlying API works.
 
 ### Framework (LangChain, CrewAI, AutoGen)
-A set of abstractions for building agents — tool connectors, memory modules, agent loops. You assemble the pieces.
-- Good for: Developers building custom agent workflows
+A set of abstractions for building agents — pre-built tool connectors, memory modules, agent loop implementations. You assemble components rather than writing everything from scratch.
 
-### Platform harness (NullClaw, NanoClaw, OpenClaw)
-A complete runtime — deploy it, configure it, and your agent is live. Handles channels (Telegram, Slack), memory, scheduling, tools out of the box.
-- Good for: Deploying production agents without building infrastructure
+```python
+from langchain.agents import create_tool_calling_agent
+from langchain_anthropic import ChatAnthropic
+from langchain_community.tools import DuckDuckGoSearchRun
+
+llm = ChatAnthropic(model="claude-opus-4-6")
+tools = [DuckDuckGoSearchRun()]
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+```
+
+Good for: developers building custom agent workflows who want reusable building blocks without full infrastructure.
+
+### Platform harness (NanoClaw, OpenClaw)
+A complete runtime — deploy it, configure it, and your agent is live. Handles communication channels (Telegram, Slack, Discord), memory, scheduling, tool management, and secrets out of the box.
+
+```yaml
+# nanoclaw agent config example
+agent:
+  name: support-bot
+  model: claude-opus-4-6
+  channels:
+    - telegram
+  tools:
+    - web_search
+    - memory_read
+    - memory_write
+  schedule:
+    - cron: "0 9 * * 1"  # Monday morning briefing
+      prompt: "Summarize last week's support tickets"
+```
+
+Good for: deploying production agents quickly without building infrastructure from scratch.
 
 ### Cloud platform (Scout, OpenAI Assistants)
-Fully managed — you define the agent behavior via UI or API, the platform runs it for you.
-- Good for: Non-technical teams deploying agents at scale
+Fully managed — you define the agent behavior via UI or API, the platform runs and scales it. No infrastructure to maintain.
+
+Good for: non-technical teams deploying agents at scale, or when you want someone else to handle uptime and infrastructure.
 
 ---
 
@@ -55,13 +122,25 @@ Fully managed — you define the agent behavior via UI or API, the platform runs
 | You want to... | Use... |
 |---|---|
 | Build a custom agent with full control | LangChain or direct API |
-| Deploy a personal agent on Telegram | NullClaw or NanoClaw |
+| Deploy a personal agent on Telegram | NanoClaw |
 | Spin up production agents without infrastructure | Scout |
 | Multi-agent workflows with role specialization | CrewAI or OpenClaw |
-| Quick prototyping | Claude.ai Projects |
+| Quick prototyping without any setup | Claude.ai Projects |
+| Maximum observability and enterprise controls | Custom framework with LangSmith or similar |
 
 <Callout type="info">
-The "right" harness is the one you'll actually finish building with. Start with the simplest thing that meets your needs. You can always graduate to a more sophisticated setup later.
+The right harness is the one you will actually finish building with. Start with the simplest option that meets your current needs. You can always migrate to a more sophisticated setup when you have a concrete reason to — not because you think you might need it someday.
 </Callout>
+
+## What to look for in a harness
+
+When evaluating a harness for a production agent, check these:
+
+- **Tool call logging** — can you see every tool call and its parameters? You need this for debugging and auditing.
+- **Secret management** — does the harness handle credentials so the model never sees raw API keys?
+- **Error handling** — what happens when a tool call fails? Does the agent retry, give up, or escalate?
+- **Context management** — how does the harness handle conversations longer than the context window?
+- **Retry and rate limiting** — does it handle API rate limits gracefully?
+- **Cost tracking** — can you see token usage per session or per task?
 
 **Next: [Memory & Context →](/concepts/memory)**
