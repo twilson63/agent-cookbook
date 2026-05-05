@@ -19,6 +19,39 @@ We've organised them into three tiers:
 
 **Agent Platforms** — Full environments for deploying, running, and managing autonomous agents.
 
+## Which tool do I need?
+
+Different stages of agent development call for different tools:
+
+| Stage | Recommended Tool | Why |
+|-------|-----------------|-----|
+| Designing agent logic | Claude (API) | Direct model access, fast iteration on prompts |
+| Writing agent code | Cursor or Claude Code | AI-assisted coding in the environment you prefer |
+| Delegating bulk tasks | Claude Code | Autonomous multi-file engineering without babysitting |
+| Deploying to production | Scout | Infrastructure, monitoring, scheduling out of the box |
+| Automating in CI/CD | Claude Code | Non-interactive mode for pipelines |
+
+Most agent projects use tools from more than one tier. A common stack: Claude as the model brain, Claude Code or Cursor to write the integration code, and Scout to run it in production.
+
+## Frontier Models
+
+These are the large language models your agents are built on. They receive instructions, reason about them, and produce outputs — text, code, tool calls, decisions.
+
+The key variables when choosing a model are: reasoning depth, context window size, cost per token, and latency. Claude is optimised for long-context reasoning and safe enterprise use.
+
+## Coding Assistants
+
+These tools use AI models to help you write the agent infrastructure itself — the code that wires models to tools, data sources, and workflows.
+
+- **Cursor** — best for active development sessions where you want a pair programmer in the loop
+- **Claude Code** — best for delegating tasks end-to-end, running in CI, or handling bulk engineering work
+
+## Agent Platforms
+
+Once your agent works locally, you need infrastructure to run it reliably. Agent platforms handle deployment, scheduling, secrets management, monitoring, and scaling.
+
+- **Scout** — purpose-built for agent deployment with observability and team features built in
+
 ---
 
 <Cards>
