@@ -19,37 +19,55 @@ An AI model is the "brain" of your agent. Pick whichever feels most familiar —
 
 <Tabs items={['Claude', 'ChatGPT', 'Scout']}>
   <Tab>
-    **Claude** by Anthropic — excellent at reasoning, long documents, and nuanced writing. Great default choice.
+    **Claude** by Anthropic — excellent at reasoning, long documents, and nuanced writing. Great default choice for tasks that require careful analysis or careful instruction-following.
 
-    ➡️ Go to [claude.ai](https://claude.ai) and create a free account.
+    Go to [claude.ai](https://claude.ai) and create a free account.
 
     Free tier available. No credit card required to start.
+
+    **Best for:** Writing, analysis, summarization, working with long documents, step-by-step reasoning.
   </Tab>
   <Tab>
     **ChatGPT** by OpenAI — the most widely recognised AI assistant. Familiar to most people and works great for everyday tasks.
 
-    ➡️ Go to [chat.openai.com](https://chat.openai.com) and create a free account.
+    Go to [chat.openai.com](https://chat.openai.com) and create a free account.
 
     Free tier available. GPT-4o included on the free plan.
+
+    **Best for:** General-purpose tasks, image understanding, browsing the web, generating images with DALL-E.
   </Tab>
   <Tab>
     **Scout** — a platform built for deploying agents, not just chatting. If you already know you want to build and automate, start here.
 
-    ➡️ Go to [scoutos.live](https://scoutos.live) and sign up.
+    Go to [scoutos.live](https://scoutos.live) and sign up.
 
     Scout is web-based — no installs required. Connects directly to Claude and other models.
+
+    **Best for:** Building multi-step automated workflows, connecting to external tools and APIs, deploying agents your team can use repeatedly.
   </Tab>
 </Tabs>
 
 ### Give it a real task
 
-Don't just say "tell me about AI." Give it a task you actually do at work. Examples:
+Don't just say "tell me about AI." Give it a task you actually do at work. The key is specificity — the more context you provide, the more useful the response.
 
-- *"Here are my last 5 customer emails. Draft a response to each one in a professional tone."*
-- *"Summarize this meeting transcript into 5 bullet points with action items."*
-- *"I have a spreadsheet of invoices. Help me write a formula to flag any that are overdue."*
+Here are some concrete examples you can use right now:
 
-Notice how it completes the work — not just answers a question. **That's the shift from chatbot to agent.**
+**Customer communications:**
+> "Here are my last 5 customer emails [paste them]. Draft a professional response to each one that acknowledges their concern, provides a clear next step, and maintains a friendly tone."
+
+**Meeting follow-up:**
+> "Here's the transcript from today's team meeting [paste it]. Summarize the key decisions made, list all action items with the responsible person's name, and flag any unresolved questions."
+
+**Data and spreadsheets:**
+> "I have a spreadsheet of invoices with columns: Invoice Number, Client, Date, Amount, and Status. Write an Excel formula that flags any invoice where Status is 'Open' and the Date is more than 30 days ago."
+
+**Research and synthesis:**
+> "Here are three articles about [topic]. Identify the main points of agreement, any areas where the authors disagree, and summarize the overall picture in 3 bullet points for a non-expert audience."
+
+Notice how the model completes the work — not just answers a question. **That's the shift from chatbot to agent.**
+
+The pattern in each example: provide the raw material, describe the task clearly, specify the format you want back.
 
 ### Level up: use a tool-enabled agent
 
@@ -57,16 +75,32 @@ Claude and other models can be given **tools** — the ability to browse the web
 
 Try **Claude.ai Projects** (free tier available):
 1. Create a new project
-2. Upload a document (a PDF, a spreadsheet, anything)
+2. Upload a document (a PDF, a spreadsheet, meeting notes — anything)
 3. Ask it to analyze, extract, or act on the content
+
+For example, upload your company's pricing sheet and ask: *"A customer wants X units of product A and Y units of product B with a 15% enterprise discount. Calculate the total and draft a quote email."*
+
+The agent reads the document and uses that knowledge to complete the task — you didn't have to copy-paste the pricing information manually.
+
+**What tool use unlocks:**
+- Agents that can look things up rather than relying only on what they were trained on
+- Agents that can run calculations and verify their own work
+- Agents that can interact with other software on your behalf
 
 ### Automate a workflow
 
 Ready to go further? Pick one of the [Recipes](/recipes) and follow it step by step. Each recipe shows exactly how to set up an agent for a specific business task — no coding required for most of them.
 
+Good starting points based on your role:
+
+- **Sales:** [Sales Prospecting](/recipes/sales-prospecting) — research leads and draft outreach automatically
+- **Operations:** [Invoice Automation](/recipes/invoice-automation) — flag, categorize, and route invoices
+- **Marketing:** [Content Repurposing](/recipes/content-repurposing) — turn one piece of content into many formats
+- **HR:** [Employee Onboarding](/recipes/employee-onboarding) — guide new hires through your process
+
 ### Build your own
 
-If you want to build custom agents and deploy them, head to the [Tools](/tools) section. We'll walk you through the full stack — from picking a model to wiring up your first automated workflow.
+If you want to build custom agents and deploy them — either for yourself or for your team — head to the [Tools](/tools) section. We'll walk you through the full stack: picking a model, choosing a harness or platform, wiring up tools, and deploying something your team can actually use.
 
 </Steps>
 
@@ -74,6 +108,8 @@ If you want to build custom agents and deploy them, head to the [Tools](/tools) 
 
 <Callout type="warning" emoji="💡">
 **The most common beginner mistake:** being too vague. An agent is only as good as your instructions. The more specific and contextual your prompt, the better the output. Think of it like briefing a smart contractor — they need to know *what* you want, *why* it matters, and *what good looks like*.
+
+If you get a disappointing result, don't assume the model isn't capable. Try adding more context, specifying the format you want, or breaking the task into smaller steps.
 </Callout>
 
 ## What just happened?
@@ -86,4 +122,16 @@ Instruction → Model thinks → Model acts → Result
 
 As you add tools, memory, and automation, that loop becomes more powerful. But it's always that same structure. Everything in this cookbook builds on that foundation.
 
-**Next:** [Understanding the history →](/history)
+Here's how those layers stack up:
+
+| Layer | What it adds | Example |
+|---|---|---|
+| Base model | Understands language, reasons, writes | Answer a question |
+| + Instructions | Consistent behavior, persona, constraints | Always reply in Spanish |
+| + Context/Memory | Remembers past interactions and documents | "Based on our last meeting..." |
+| + Tools | Can take action in the world | Browse the web, send an email |
+| + Automation | Runs on a schedule or trigger without you | Every Monday at 9am, send the report |
+
+Each recipe and guide in this cookbook sits somewhere on that stack. You'll know exactly which layer you're working with at every step.
+
+**Next:** [Understanding the history of AI](/history)
