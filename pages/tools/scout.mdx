@@ -114,6 +114,74 @@ Your agent is now running at `https://my-first-agent.scoutos.live`.
 
 </Steps>
 
+## Practical patterns
+
+### Scheduled agent
+
+Run an agent every morning to process overnight data:
+
+```json
+// scout.config.json
+{
+  "name": "overnight-report",
+  "schedule": "0 7 * * *",
+  "entry": "agent.ts",
+  "secrets": ["DATABASE_URL", "SLACK_WEBHOOK"]
+}
+```
+
+Scout injects the secrets at runtime — they never appear in your code or config files.
+
+### Event-triggered agent
+
+Trigger an agent via webhook when an external event occurs (new support ticket, Slack message, form submission):
+
+```bash
+# Scout provides a unique webhook URL for each agent
+curl -X POST https://my-agent.scoutos.live/trigger \
+  -H "X-Scout-Key: YOUR_KEY" \
+  -d '{"event": "new_ticket", "ticket_id": "T-1234"}'
+```
+
+### Multi-agent pipeline
+
+Chain agents where one agent's output becomes another's input:
+
+```typescript
+// orchestrator.ts
+import { Agent, tool } from '@scoutos/sdk'
+
+const orchestrator = new Agent({
+  name: 'pipeline-orchestrator',
+  model: 'claude-sonnet-4-5',
+  systemPrompt: 'You coordinate specialised sub-agents to complete complex tasks.',
+  tools: [
+    tool.runAgent('researcher'),    // calls the researcher agent
+    tool.runAgent('writer'),        // calls the writer agent
+    tool.runAgent('fact-checker'),  // calls the fact-checker agent
+  ]
+})
+```
+
+### Memory between runs
+
+Use Scout's persistent storage to maintain agent state across scheduled runs:
+
+```typescript
+import { Agent, storage } from '@scoutos/sdk'
+
+const agent = new Agent({
+  name: 'trend-monitor',
+  model: 'claude-sonnet-4-5',
+  systemPrompt: 'You monitor trends and alert on significant changes.',
+  onRun: async (context) => {
+    const lastSnapshot = await storage.get('last_snapshot')
+    // ... compare to current data, alert if changed
+    await storage.set('last_snapshot', currentData)
+  }
+})
+```
+
 ## Scout vs DIY infrastructure
 
 | | DIY (AWS/GCP + Docker) | Scout |
