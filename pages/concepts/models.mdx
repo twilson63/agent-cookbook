@@ -7,7 +7,7 @@ import { VideoEmbed } from '../../components/VideoEmbed'
 
 # AI Models
 
-A **model** is the reasoning engine at the heart of every AI system. It's the part that reads your input and generates a response.
+A **model** is the reasoning engine at the heart of every AI system. It is the part that reads your input — text, images, code, documents — and generates a response. Everything else (tools, memory, harnesses) is infrastructure built around the model.
 
 <VideoEmbed 
   src="/videos/models.mp4" 
@@ -17,47 +17,94 @@ A **model** is the reasoning engine at the heart of every AI system. It's the pa
 
 ## What a model actually does
 
-A language model is trained on enormous amounts of text — books, websites, code, conversations. Through this training it learns patterns, facts, reasoning strategies, and language itself.
+A language model is trained on enormous amounts of text — books, websites, code, conversations. Through this training it learns patterns, facts, reasoning strategies, and language structure.
 
-When you send it a message, it doesn't "look up" an answer. It *generates* the most likely continuation of your prompt, word by word, based on everything it learned. The remarkable thing is that this simple process produces genuinely intelligent-seeming behavior at scale.
+When you send it a message, it does not look up a pre-stored answer. It *generates* the most statistically likely continuation of your input, token by token, based on everything it learned during training. The remarkable result is that this process produces genuinely useful reasoning, writing, and code at scale.
 
-## The key properties to understand
+Modern frontier models also support **multimodality** — they can process images, PDFs, audio, and even video alongside text.
+
+## Key properties to understand
 
 ### Context window
-How much text the model can "see" at once — your prompt, its response, any documents you shared, and the conversation history. Measured in **tokens** (roughly 1 token ≈ ¾ of a word).
+How much text the model can process at once — your prompt, its reply, any attached documents, tool outputs, and conversation history. Measured in **tokens** (roughly 1 token ≈ ¾ of a word, or ~4 characters).
 
-A small context window means the model forgets earlier parts of a long conversation. A large context window (100k+ tokens) means it can read an entire book or codebase in one shot.
+A small context window means the model loses earlier parts of a long conversation. A large context window (100k+ tokens) means it can process an entire codebase or lengthy contract in one pass.
 
 ### Reasoning capability
-Not all models are equally good at complex reasoning — breaking a problem into steps, catching logical errors, handling ambiguity. More capable models tend to be slower and more expensive.
+Not all models are equally capable at multi-step reasoning, catching logical errors, handling ambiguity, or following complex instructions. More capable models tend to be slower and more expensive — but for complex tasks, the quality difference justifies the cost.
 
 ### Speed and cost
-Smaller models are faster and cheaper. For high-volume, simple tasks (classifying emails, extracting data from forms), a smaller model often works fine and costs 10–100x less.
+Smaller, faster models cost 10–100x less per token than frontier models. For high-volume, simple tasks (classifying support tickets, extracting structured data from forms, generating short summaries), a smaller model often works just as well at a fraction of the cost.
 
 ### Instruction following
-How reliably the model does what you ask. This varies significantly and is often more important than raw intelligence for production use cases.
+How reliably the model does exactly what you ask. This varies significantly across models and is often more important than raw reasoning capability for production use cases. A model that consistently follows a detailed system prompt is more useful than a more intelligent model that goes off-script.
+
+### Safety and refusals
+How the model handles sensitive, ambiguous, or potentially harmful requests. Models vary significantly in their calibration — some refuse too aggressively (blocking legitimate use cases), others too permissively. For agents taking real-world actions, this matters.
 
 ---
 
 ## The major models (2025–2026)
 
-| Model | Made by | Best for |
-|---|---|---|
-| **Claude 3.5 / 3.7** | Anthropic | Reasoning, writing, code, long documents, safety |
-| **GPT-4o** | OpenAI | General purpose, tool use, multimodal |
-| **Gemini 1.5 / 2.0** | Google | Very long context, multimodal, Google ecosystem |
-| **Llama 3 / 4** | Meta | Open source, self-hosted, customizable |
-| **Mistral** | Mistral AI | Fast, efficient, European data compliance |
-| **Deepseek** | Deepseek | Strong reasoning, lower cost |
+| Model | Made by | Context | Best for |
+|---|---|---|---|
+| **Claude Opus 4 / Sonnet 4** | Anthropic | 200k tokens | Complex reasoning, long documents, nuanced instruction following, safety-critical applications |
+| **GPT-4o** | OpenAI | 128k tokens | General purpose, strong tool use, multimodal (images, audio) |
+| **o3 / o4-mini** | OpenAI | 128k tokens | Deep reasoning tasks, math, competitive coding |
+| **Gemini 1.5 / 2.0** | Google | 1M tokens | Very long documents, multimodal, Google Workspace integration |
+| **Llama 3.3 / 4** | Meta | 128k tokens | Self-hosted deployment, fine-tuning, cost control, no data leaving your infrastructure |
+| **Mistral Large** | Mistral AI | 128k tokens | European data compliance, efficient inference, strong multilingual support |
+| **Deepseek V3 / R1** | Deepseek | 128k tokens | Strong reasoning, very low cost, competitive with frontier models on benchmarks |
 
 <Callout type="info">
-**Beginner rule of thumb:** Start with Claude for most tasks. It's excellent at following nuanced instructions, handles long documents well, and is designed with safety in mind. Switch to a different model only when you have a specific reason to.
+Starting out? Use Claude for most tasks. It follows complex, nuanced instructions reliably, handles long documents well, and is designed with safety in mind. Switch models only when you have a specific reason — not because another model scored better on a benchmark for a task unrelated to yours.
 </Callout>
+
+## Choosing the right model for your task
+
+Different tasks call for different models. Here is a practical decision guide:
+
+### Use a frontier model (Claude Opus, GPT-4o, Gemini 2.0) when:
+- The task requires complex multi-step reasoning
+- Mistakes are costly or hard to catch
+- You are processing long, unstructured documents
+- Nuanced instruction following is critical
+- You are still in development and optimizing for quality
+
+### Use a fast/small model (Claude Haiku, GPT-4o-mini, Gemini Flash) when:
+- You have high volume and cost matters
+- The task is well-defined and relatively simple (classification, extraction, short summaries)
+- Latency matters — for real-time user interactions
+- You can validate quality with a test set before deploying
+
+### Use an open-source model (Llama, Mistral) when:
+- Data cannot leave your infrastructure
+- You need to fine-tune on proprietary data
+- You have the infrastructure to run it
+- Cost at scale is a primary constraint
+
+### Use a reasoning model (o3, Deepseek R1) when:
+- The task is a hard reasoning problem — math, logic, competitive programming
+- You need the model to show its work and check itself
+- You can tolerate higher latency (reasoning models think longer before answering)
+
+---
+
+## Running models: your options
+
+| Option | Example | Control | Cost | Setup |
+|---|---|---|---|---|
+| API (hosted) | Anthropic API, OpenAI API | Low | Pay per token | Minutes |
+| API (third-party) | Together AI, Groq, Fireworks | Medium | Often cheaper | Minutes |
+| Self-hosted | Ollama, vLLM with Llama | High | Infrastructure cost | Hours/days |
+| Fine-tuned | Your model on OpenAI or Replicate | Very high | Higher | Days/weeks |
+
+For most use cases, start with a hosted API. Self-hosting only makes sense when you have a genuine data sovereignty requirement or are running at a scale where the infrastructure savings outweigh the operational complexity.
 
 ## Models vs. agents
 
-A model alone is like a very smart person sitting in a room with no phone, no computer, no pen — just their mind. They can reason and advise brilliantly, but they can't *do* anything in the world.
+A model alone is like a very capable person sitting in a room with no phone, no computer, no pen — just their mind. They can reason and advise brilliantly, but they cannot do anything in the world.
 
-An **agent** gives the model hands. It can browse the web, run code, send emails, update databases. That's the next page.
+An **agent** gives the model hands. It can browse the web, run code, send emails, update databases. The model is the brain. The agent is the entire system built around that brain.
 
 **Next: [What are agents? →](/concepts/agents)**
