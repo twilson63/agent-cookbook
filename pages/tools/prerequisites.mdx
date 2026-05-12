@@ -7,9 +7,29 @@ import { VideoEmbed } from '../../components/VideoEmbed'
 
 # Prerequisites
 
-Before diving into AI tools and agents, you'll want a few basics in place. This page covers the three foundations that most tools in this cookbook build on: the command line, Node.js/npm, and Docker.
+Before diving into AI tools and agents, you'll want a few basics in place. This page covers the foundations that most tools in this cookbook build on.
 
-If you're already comfortable with all three, skip ahead to [Claude](/tools/claude).
+If you're already comfortable with the command line, Node.js, and Docker, skip ahead to [Claude](/tools/claude).
+
+---
+
+## Checklist
+
+Use this as your setup checklist before starting any recipe or tool in this cookbook:
+
+**Required for most tools:**
+- [ ] Terminal / command line basics
+- [ ] Node.js v18+ and npm v9+
+- [ ] An Anthropic API key (for Claude-powered agents)
+
+**Required for self-hosted agents (NanoClaw, OpenClaw):**
+- [ ] Docker Desktop installed and running
+- [ ] Git for version control
+
+**Required for specific integrations:**
+- [ ] Telegram bot token (for Telegram channel)
+- [ ] Slack app credentials (for Slack channel)
+- [ ] A cloud account or server (for production deployments)
 
 ---
 
@@ -29,9 +49,29 @@ Most developer tools — including Claude Code, OpenCode, and NanoClaw — run i
 - Running commands and reading output
 - Understanding file paths
 
+**Essential commands to know:**
+
+```bash
+pwd              # Print working directory — where are you?
+ls               # List files in current directory
+ls -la           # List all files including hidden, with details
+cd my-folder     # Change into a directory
+cd ..            # Go up one level
+mkdir my-project # Create a new directory
+cp file.txt copy.txt    # Copy a file
+mv old.txt new.txt      # Rename or move a file
+rm file.txt      # Delete a file (no undo!)
+cat file.txt     # Print file contents
+```
+
 <Callout type="info">
-On Windows, we recommend using **WSL2** (Windows Subsystem for Linux) — it gives you a proper Linux terminal and is required for most dev tools covered in this cookbook. Install it from the Microsoft Store.
+On Windows, we recommend using *WSL2* (Windows Subsystem for Linux) — it gives you a proper Linux terminal and is required for most dev tools covered in this cookbook. Install it from the Microsoft Store by searching for "Ubuntu".
 </Callout>
+
+**Quick check — you're ready when:**
+```bash
+echo "Hello from the terminal"   # should print: Hello from the terminal
+```
 
 ---
 
@@ -51,10 +91,32 @@ Many tools in this cookbook — including Claude Code and the Agent Cookbook its
 - Running npm scripts (`npm run build`, `npm start`)
 - Understanding `package.json`
 
+**Install via nvm (recommended):**
+
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Restart your terminal, then:
+nvm install 20       # Install Node.js 20 LTS
+nvm use 20           # Use it in this session
+nvm alias default 20 # Make it the default
+```
+
 **Quick check — you're ready when:**
 ```bash
-node --version   # should print v18 or higher
+node --version   # should print v18 or higher (e.g. v20.11.0)
 npm --version    # should print 9 or higher
+```
+
+**Common npm commands you'll use:**
+
+```bash
+npm install -g opencode-ai     # Install a package globally (available everywhere)
+npm install                    # Install project dependencies (from package.json)
+npm run dev                    # Run the "dev" script defined in package.json
+npm run build                  # Build for production
+npx some-tool                  # Run a tool without installing it globally
 ```
 
 ---
@@ -76,9 +138,28 @@ Docker lets you run software in isolated containers — no installation conflict
 - Using `docker ps` to see what's running
 - Stopping and removing containers
 
+**Install Docker Desktop:**
+- Mac: [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop) → Download for Mac
+- Windows: same link → Download for Windows (requires WSL2)
+- Linux: install Docker Engine via your package manager
+
+**Essential Docker commands:**
+
+```bash
+docker --version                    # Check version
+docker run hello-world              # Test installation
+docker ps                           # List running containers
+docker ps -a                        # List all containers (including stopped)
+docker images                       # List downloaded images
+docker stop container-id            # Stop a running container
+docker rm container-id              # Remove a stopped container
+docker logs container-id            # View container logs
+docker exec -it container-id bash   # Open a shell inside a container
+```
+
 **Quick check — you're ready when:**
 ```bash
-docker --version   # should print 24 or higher
+docker --version         # should print 24 or higher
 docker run hello-world   # should print a success message
 ```
 
@@ -88,14 +169,90 @@ You don't need Docker to use Claude, Claude Code, Cursor, or Scout — Scout is 
 
 ---
 
+## 4. An Anthropic API key
+
+Most agents in this cookbook use Claude as the underlying model. You'll need an API key from Anthropic.
+
+<Steps>
+
+### Create an Anthropic account
+
+Go to [console.anthropic.com](https://console.anthropic.com) and sign up.
+
+### Generate an API key
+
+Navigate to *API Keys* in the left sidebar and click *Create Key*. Give it a descriptive name like "agent-cookbook".
+
+### Store it securely
+
+Never hardcode API keys in your code. Use environment variables:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Or use a .env file in your project (add .env to .gitignore!)
+echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env
+echo ".env" >> .gitignore
+```
+
+### Test it
+
+```bash
+curl https://api.anthropic.com/v1/messages \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{"model":"claude-haiku-4-5","max_tokens":64,"messages":[{"role":"user","content":"Say hello"}]}'
+```
+
+You should get a JSON response with a "Hello" message.
+
+</Steps>
+
+<Callout type="warning">
+Keep your API key secret. If you accidentally commit it to a public repo, rotate it immediately at console.anthropic.com.
+</Callout>
+
+---
+
+## 5. Git basics
+
+Git is used to version-control your agent configs, system prompts, and code. Most examples in this cookbook assume you have Git installed.
+
+```bash
+# Check if installed
+git --version
+
+# If not, install via your package manager:
+# Mac:    brew install git
+# Ubuntu: sudo apt install git
+# Windows: git-scm.com/download/win
+```
+
+**Essential Git commands:**
+
+```bash
+git init                        # Start a new repo in current directory
+git clone https://github.com/… # Clone an existing repo
+git status                      # See what's changed
+git add .                       # Stage all changes
+git commit -m "Add agent config" # Commit with a message
+git push                        # Push to remote
+```
+
+---
+
 ## What's next?
 
-Once you're comfortable with these three, pick the tool that matches what you want to do:
+Once you're comfortable with these prerequisites, pick the tool that matches what you want to do:
 
-| I want to… | Start with |
+| I want to... | Start with |
 |---|---|
 | Chat with an AI model | [Claude](/tools/claude) |
 | Get AI help writing code | [Cursor](/tools/cursor) |
 | Delegate whole coding tasks | [Claude Code](/tools/claude-code) |
 | Build and deploy an agent | [Scout](/tools/scout) |
 | Run a lightweight local agent | [NanoClaw](/tools/nanoclaw) |
+| Build a fully customised agent harness | [OpenClaw](/tools/openclaw) |
+| Use an open-source coding agent | [OpenCode](/tools/open-code) |
