@@ -60,6 +60,50 @@ Cursor lets you pull specific context into any conversation using `@`:
 @auth.ts Why is the token being rejected on refresh?
 ```
 
+## Agent development workflows in Cursor
+
+### Designing agent logic
+
+Cursor is particularly useful when designing the core logic of an agent — the system prompt structure, the tool definitions, the agentic loop. Use the chat panel with your agent files in context:
+
+```
+@agent.ts @tools.ts I want this agent to retry failed tool calls up to 3 times with exponential backoff. How should I restructure the execution loop?
+```
+
+### Scaffolding new agents
+
+Use Composer to generate an entire agent scaffold from a description:
+
+```
+Create a new agent in src/agents/email-triager.ts. It should:
+- Accept an array of email objects with subject, body, sender fields
+- Use Claude to classify each email as: urgent / normal / spam
+- Return a structured object with the classification and a one-line reason
+- Include TypeScript types and a basic Jest test file
+```
+
+Composer creates all the files, wires up the imports, and shows you the diff before applying.
+
+### Debugging agent behaviour
+
+When an agent produces unexpected output, paste the conversation trace into Cursor's chat:
+
+```
+@agent.ts Here is a trace where the agent got stuck in a loop calling the same tool repeatedly. What's causing this and how do I fix it?
+
+[paste trace]
+```
+
+### Working with tool definitions
+
+Use inline chat to quickly generate tool schemas from natural language descriptions:
+
+```typescript
+// Select this comment and press Cmd+K:
+// Generate a JSON schema tool definition for a function that searches a Postgres database
+// using a natural language query. It should accept the query string and an optional table name.
+```
+
 ## Which model runs Cursor?
 
 Cursor works with multiple models — you choose in settings:
@@ -82,6 +126,13 @@ Most teams default to Claude Sonnet for chat and keep Cursor's fast model for Ta
 | Best for | Frontend work, exploratory development | Backend refactors, automation |
 
 Many developers use *both* — Cursor for the active coding session, Claude Code for the grunt work they'd rather not do themselves.
+
+## Tips for agent development
+
+- **Add your agent framework docs.** If you're using a specific SDK or framework, add it via `@Docs` so Cursor understands the APIs without you having to explain them.
+- **Use `@Git` to review agent changes.** Ask Cursor to explain what changed in the last commit and whether it could affect agent behaviour.
+- **Keep agent files small and focused.** Cursor's context is most effective when files have clear responsibilities — one file per agent, one file per tool, one file for the harness.
+- **Use Composer for scaffolding, Cmd+K for edits.** Composer is best for creating new agents from scratch; inline chat is best for targeted changes to existing code.
 
 ## Pricing
 
