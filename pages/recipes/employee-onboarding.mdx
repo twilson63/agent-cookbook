@@ -2,7 +2,7 @@
 title: Employee Onboarding
 ---
 
-import { Steps, Callout } from 'nextra/components'
+import { Steps, Callout, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../../components/ConceptVideo'
 
 # Recipe: Employee Onboarding
@@ -13,63 +13,173 @@ import { ConceptVideo } from '../../components/ConceptVideo'
 
 <ConceptVideo id="recipe-onboarding" title="Automating the new hire experience" />
 
-## The problem
+## Overview
 
-Onboarding a new employee involves dozens of tasks across HR, IT, and the hiring manager — benefits enrollment, laptop setup, system access, paperwork, introductions, training schedules. When done manually, it's chaotic. New hires often show up on day one without a computer, a login, or any idea what to do.
+The Employee Onboarding agent handles the entire sequence of tasks that bridge offer acceptance and a productive first month — IT provisioning, document delivery, policy Q&A, manager check-ins, and pulse surveys — without manual coordination across HR, IT, and hiring managers. The result is a consistent, fast, 24/7 onboarding experience that scales with headcount.
 
-## The agent's job
+## Use Case
+
+**Who this is for:** HR teams, People Operations leads, and operations managers at companies onboarding more than two or three people per month.
+
+**The problem it solves:** Onboarding involves dozens of tasks across HR, IT, and the hiring manager — benefits enrollment, laptop setup, system access, paperwork, introductions, and training schedules. Done manually, this process is fragmented and error-prone. New hires often arrive on day one without a login, a clear schedule, or answers to basic questions.
+
+**Trigger:** A new hire record appears in the HRIS or an offer letter is countersigned in the ATS.
+
+## Agent Architecture
+
+| Component | Purpose |
+|---|---|
+| HRIS (Workday, BambooHR, Rippling) | Trigger source — detects new hire records |
+| IT ticketing system (Jira, ServiceNow) | Receives auto-generated provisioning requests |
+| Messaging platform (Slack, Teams) | Delivers onboarding materials and handles Q&A |
+| Document storage (Notion, SharePoint, Google Drive) | Source for policies, handbooks, and guides |
+| Survey tool (optional) | Sends 30/60/90-day pulse checks |
+| AI agent (Claude) | Orchestrates the full workflow and handles natural language Q&A |
+
+This recipe benefits from a **multi-step orchestration pattern**: the agent runs different sub-tasks (provisioning, document delivery, Q&A, surveys) triggered by different events on a timeline rather than all at once.
+
+## Implementation Steps
 
 <Steps>
 
 ### Detect the new hire
-The agent monitors your HRIS (HR information system) for new employee records. The moment a hire is confirmed, the workflow begins — weeks before their start date.
+The agent monitors your HRIS for new employee records. The moment a hire is confirmed — ideally 2–3 weeks before the start date — the workflow begins. Key data it captures: name, role, department, manager, start date, work location, and employment type.
 
 ### Trigger IT provisioning
-Automatically submits access requests for email, Slack, tools, and systems based on the new hire's role. This alone typically takes IT 15–20 minutes per person manually — the agent does it in under a minute.
+The agent automatically generates and submits access requests to the IT ticketing system based on a role-to-system mapping. For a Marketing Manager, that might be: Google Workspace, Slack, HubSpot, Figma, Notion, and VPN access.
 
-### Send personalized onboarding materials
-The new hire receives a customized onboarding portal or message sequence with:
-- Welcome from the CEO/team
-- Benefits enrollment guide (tailored to their location and role)
-- First-week schedule
+This step alone typically takes IT 15–20 minutes per person manually. The agent does it in under a minute, and the requests arrive with all required fields pre-filled.
+
+### Send pre-boarding materials
+One week before the start date, the new hire receives a personalized welcome package:
+- Welcome message from the CEO or team lead
+- First-week schedule with calendar invites attached
+- Benefits enrollment guide tailored to their location and role
+- Equipment and IT setup instructions
 - Key contacts and org chart
-- Company policies and handbook
+- Company policies and handbook (linked, not attached)
 
 ### Answer questions 24/7
-The agent is available on Slack or Teams around the clock. New hires ask: *"What's the PTO policy?"* *"Where do I submit expenses?"* *"Who handles payroll questions?"* — and get accurate answers instantly, without bothering HR.
+From day one, the agent is available in Slack or Teams to answer any question a new hire has. It pulls answers from your document store.
+
+Common questions it handles:
+- *"What is the PTO policy for my first year?"*
+- *"How do I submit an expense report?"*
+- *"Who do I talk to about payroll?"*
+- *"Where do I find the brand guidelines?"*
+
+If it cannot answer confidently, it escalates to the right HR team member and logs the gap for document improvement.
 
 ### Keep the manager on track
-The hiring manager receives daily reminders of their onboarding checklist: *"Day 3 — have you scheduled the 1:1 with Alex? Here's the suggested agenda."*
+Each day during the first two weeks, the hiring manager's Slack receives a short briefing:
+*"Day 3 checklist for [New Hire Name]: Have you completed the 1:1 introduction? Here is a suggested agenda. Is their system access working? Reply YES/DONE to mark these complete."*
+
+Managers who do not respond after 24 hours get a gentle follow-up. Persistent gaps escalate to HR.
 
 ### Run pulse check-ins
-At 30, 60, and 90 days, the agent sends brief automated surveys and surfaces any early signals of disengagement to the HR team.
+At 30, 60, and 90 days, the agent sends a 3-question survey to the new hire:
+1. On a scale of 1–5, how supported do you feel?
+2. What is one thing that could make your onboarding better?
+3. Do you have what you need to do your job?
+
+Responses below a threshold automatically create a follow-up task for the HR team.
 
 </Steps>
 
-## Tools needed
+## Example Prompts
 
-- An HRIS (Workday, BambooHR, Rippling, etc.)
-- An IT ticketing system (Jira, ServiceNow, or similar)
-- A messaging platform (Slack or Microsoft Teams)
-- Document storage for policies and handbooks
+<Tabs items={["Q&A agent", "Provisioning request", "Manager briefing"]}>
+<Tab>
+```
+You are the onboarding assistant for [Company Name]. Your job is to answer 
+questions from new employees accurately and warmly.
 
-## Expected results
+You have access to the following documents:
+- Employee Handbook (attached)
+- Benefits Guide (attached)  
+- IT Setup Instructions (attached)
+- Expense Policy (attached)
+
+Rules:
+- Always answer from the documents. Do not guess.
+- If the answer is not in the documents, say: "I don't have that information 
+  handy — let me connect you with [HR contact name] who can help."
+- Keep answers under 150 words unless a longer answer is clearly needed.
+- Use a friendly, clear tone. No corporate jargon.
+
+New hire question: {question}
+```
+</Tab>
+<Tab>
+```
+Generate an IT provisioning request for a new employee with the following details:
+
+Name: {name}
+Role: {role}
+Department: {department}
+Start date: {start_date}
+Work location: {location}
+Manager: {manager}
+
+Use the role-to-system mapping below to determine which systems to request access for.
+Format the output as a JSON object with fields: employee_name, start_date, systems (array), 
+priority (use "high" for start date within 5 business days), and notes.
+
+Role-to-system mapping:
+{mapping}
+```
+</Tab>
+<Tab>
+```
+Generate a daily manager briefing for the hiring manager of a new employee.
+
+New hire: {hire_name}
+Start date: {start_date}
+Today: Day {day_number} of onboarding
+Manager: {manager_name}
+
+Pending checklist items for today: {pending_items}
+
+Write a short, friendly Slack message (under 100 words) that:
+1. States which day of onboarding it is
+2. Lists the 1–2 most important checklist items for today
+3. Asks the manager to reply with a simple confirmation when done
+4. Includes one tip or talking point relevant to this day (e.g., Day 3 is good 
+   for a team lunch introduction)
+```
+</Tab>
+</Tabs>
+
+## Expected Results
 
 | Metric | Before | After |
 |---|---|---|
-| Time to complete onboarding tasks | 20 hours (HR) | 8–12 hours |
-| System access provisioning | 15–20 minutes | &lt;1 minute |
-| New hire question response time | Hours (during business hours) | Seconds (24/7) |
-| HR staff time per new hire | 20 hours | 4–6 hours |
+| Total HR time per new hire | 20 hours | 4–6 hours |
+| System access provisioning time | 15–20 minutes | Under 1 minute |
+| New hire question response time | Hours (business hours only) | Seconds (24/7) |
+| Onboarding task completion rate | ~60% | 90%+ |
 | 90-day retention rate | Baseline | +15–20% |
 
 <Callout type="info">
-**Real-world result:** Epiq saved 2,000 hours monthly and $500,000 annually by automating their onboarding workflow. Texans Credit Union reduced system provisioning from 15–20 minutes to under 1 minute.
+**Real-world result:** Epiq reduced onboarding-related manual work by 2,000 hours per month and saved $500,000 annually by automating their onboarding workflow. Texans Credit Union reduced system provisioning time from 15–20 minutes to under 1 minute per new hire.
 </Callout>
 
-## Getting started
+## Tips & Variations
 
-1. **Map your current onboarding steps** — write down every task that happens between offer acceptance and day 30. Most teams are surprised how many there are.
-2. **Identify the handoff points** — where does information move between systems? That's where automation adds the most value.
-3. **Write the FAQ document** — the most impactful quick win is training the agent on your actual policies so it can answer new hire questions accurately.
-4. **Pilot with one hire** — run the next new hire through the automated workflow and collect feedback before rolling out broadly.
+**Offboarding mirror:** The same architecture works in reverse for offboarding — revoke access, collect equipment, send exit survey, and trigger knowledge transfer tasks.
+
+**Contractor onboarding:** Create a separate, lighter-weight flow for contractors and freelancers with a shorter provisioning list and a different policy document set.
+
+**Multi-country support:** Add a location field to the trigger and branch the policy documents and benefits guides by country. The agent selects the right materials automatically.
+
+**Buddy program:** On day one, the agent randomly pairs the new hire with an onboarding buddy from the same department and sends both parties an introduction message with three suggested conversation starters.
+
+**Rehire detection:** Add a check against your HRIS history to detect rehires. They get a shortened onboarding flow that skips already-known cultural context but refreshes policies and tools.
+
+## Getting Started
+
+1. **Map your current onboarding steps** — list every task that happens between offer acceptance and day 30. Most teams are surprised how many there are (20–40 is common).
+2. **Identify the highest-friction handoffs** — where does information move between systems? These are your highest-value automation targets.
+3. **Build the FAQ document first** — the fastest ROI is training the agent on your actual policies so it can answer new hire questions accurately. Start with the 20 most common HR questions.
+4. **Wire up IT provisioning** — connect to your ticketing system and create a role-to-system mapping spreadsheet. This alone saves 15+ minutes per hire.
+5. **Pilot with one hire** — run the next new employee through the automated workflow end to end, then collect feedback before expanding.
