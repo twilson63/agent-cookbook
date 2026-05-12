@@ -23,42 +23,87 @@ Think of Claude less like a search engine (which retrieves facts) and more like 
 
 | Model | Speed | Context | Best for |
 |-------|-------|---------|----------|
-| Claude Haiku | ⚡ Fast | 200K tokens | High-volume tasks, classification, extraction |
-| Claude Sonnet | ⚖️ Balanced | 200K tokens | Most production workloads |
-| Claude Opus | 🧠 Deep | 200K tokens | Complex multi-step reasoning, research |
+| Claude Haiku | Fast | 200K tokens | High-volume tasks, classification, extraction |
+| Claude Sonnet | Balanced | 200K tokens | Most production workloads |
+| Claude Opus | Deep | 200K tokens | Complex multi-step reasoning, research |
 
 A **200K token context window** means Claude can read roughly 150,000 words in a single conversation — that's an entire book, a quarter's worth of contracts, or a full codebase.
 
-## What makes it different
+## What makes it different for agent development
 
-**Extended thinking** — Claude Sonnet and Opus can "think before answering." For hard problems, they work through reasoning steps internally before producing a response. This dramatically improves accuracy on maths, logic, and multi-step tasks.
+**Tool use** — Claude can call external tools (web search, code execution, APIs, databases) and reason about the results before continuing. This is the foundation of agentic behaviour. Claude returns structured tool call requests that your agent harness executes, then passes results back for the next reasoning step.
+
+**Extended thinking** — Claude Sonnet and Opus can "think before answering." For hard agentic tasks — multi-step planning, ambiguous requirements, debugging — extended thinking works through reasoning steps internally before producing a response. This dramatically improves accuracy on logic and multi-step tasks.
 
 **Constitutional AI** — Anthropic trains Claude to be honest and avoid harmful outputs. This matters in enterprise settings where a hallucinating agent can cause real damage.
 
-**Tool use** — Claude can call external tools (web search, code execution, APIs, databases) and reason about the results before continuing. This is the foundation of agentic behaviour.
-
 **Computer use (beta)** — Claude Sonnet can control a computer — clicking, typing, navigating browsers — making it possible to automate tasks in any legacy system with a GUI, no API required.
+
+## Prompting patterns for agents
+
+### System prompt structure
+
+A clear system prompt is the most important lever for agent reliability. Include:
+
+1. *Role* — what the agent is and what it's responsible for
+2. *Capabilities* — which tools it has and when to use them
+3. *Constraints* — what it must never do
+4. *Output format* — how it should structure responses
+
+```text
+You are a contract review agent for Acme Corp.
+
+You have access to:
+- search_contracts: search the contract database
+- extract_clauses: pull specific clauses from a document
+- flag_risk: record a risk flag for human review
+
+Rules:
+- Never approve a contract; only flag for human review
+- Always cite the clause number when flagging a risk
+- If a document is not a contract, say so and stop
+
+Output each risk as: RISK [severity: low/medium/high] — [clause] — [reason]
+```
+
+### Agentic loop pattern
+
+Most agents follow a loop: receive task → reason → call tool → observe result → reason again → repeat until done. Design your prompts so Claude knows when to stop:
+
+```text
+Work through the task step by step. After each tool call, reflect on whether you have enough information to complete the task or whether you need another tool call. When you have a final answer, respond with DONE: followed by your answer.
+```
+
+### Structured output
+
+For agents that feed results into downstream systems, ask Claude to respond in JSON:
+
+```bash
+curl https://api.anthropic.com/v1/messages \
+  -H "x-api-key: YOUR_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-sonnet-4-5",
+    "max_tokens": 1024,
+    "messages": [{
+      "role": "user",
+      "content": "Extract the key dates from this contract. Respond as JSON with keys: effective_date, expiry_date, notice_period."
+    }]
+  }'
+```
 
 ## 200K tokens — what does that actually mean?
 
-import { Callout as Note } from 'nextra/components'
-
-<Note type="info">
-**Token ≈ ¾ of a word.** 200,000 tokens ≈ 150,000 words ≈ 500 pages.
+<Callout type="info">
+**Token ≈ 3/4 of a word.** 200,000 tokens ≈ 150,000 words ≈ 500 pages.
 
 Practical examples:
-- 📄 A 50-page contract: ~25K tokens — fits easily
-- 📊 A year of weekly reports: ~100K tokens — fits in one call
-- 📚 *War and Peace*: ~580K tokens — would need chunking
-</Note>
+- A 50-page contract: ~25K tokens — fits easily
+- A year of weekly reports: ~100K tokens — fits in one call
+- *War and Peace*: ~580K tokens — would need chunking
+</Callout>
 
-## Typical enterprise use cases
-
-- **Document analysis** — read a 100-page RFP and pull out key obligations, deadlines, risks
-- **Contract review** — compare against standard terms, flag deviations
-- **Research synthesis** — take 20 analyst reports and produce an executive summary
-- **Customer support** — read full conversation history and draft nuanced replies
-- **Code review** — analyse a PR with full context of the surrounding codebase
+For agent development, large context means you can pass Claude the full conversation history, all relevant documents, and your tool definitions in a single call — without worrying about what to leave out.
 
 ## How to access Claude
 
@@ -84,7 +129,54 @@ Practical examples:
   </Tab>
 </Tabs>
 
-## Pricing at a glance
+## Integration patterns
+
+### Tool use (function calling)
+
+Define tools as JSON schemas. Claude decides when to call them and with what arguments:
+
+```json
+{
+  "name": "search_database",
+  "description": "Search the contract database for documents matching a query",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string", "description": "Search terms" },
+      "date_after": { "type": "string", "description": "ISO date — only return docs after this date" }
+    },
+    "required": ["query"]
+  }
+}
+```
+
+Pass this in the `tools` array of your API request. Claude returns a `tool_use` block when it wants to call it. Your code executes the function and returns a `tool_result` block. Claude then continues reasoning.
+
+### Memory pattern
+
+Claude has no built-in persistent memory. For agents that need to remember across sessions, inject relevant history into the system prompt or user message:
+
+```text
+[AGENT MEMORY]
+Last interaction: 2024-01-15
+User preference: prefers bullet-point summaries
+Previous tasks: reviewed Q3 contracts, flagged 3 risks
+[END MEMORY]
+```
+
+### Multi-agent pattern
+
+Claude can act as an orchestrator that delegates subtasks to specialist agents. The orchestrator calls a tool like `run_agent(name, task)`, which spins up a sub-agent and returns its result. Claude then reasons about the result and decides what to do next.
+
+## Typical use cases for agents
+
+- **Document analysis** — read a 100-page RFP and pull out key obligations, deadlines, risks
+- **Contract review** — compare against standard terms, flag deviations
+- **Research synthesis** — take 20 analyst reports and produce an executive summary
+- **Customer support** — read full conversation history and draft nuanced replies
+- **Code review** — analyse a PR with full context of the surrounding codebase
+
+## Pricing
 
 Anthropic charges per token (input + output). As a rough guide:
 
