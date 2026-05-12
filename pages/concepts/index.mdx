@@ -15,6 +15,16 @@ import { VideoEmbed } from '../../components/VideoEmbed'
 
 Before building with agents, it helps to have clear mental models for the key pieces. Think of these concepts like understanding the parts of a car before you learn to drive.
 
+Understanding these concepts lets you:
+- **Choose the right tool** for a given problem instead of guessing
+- **Debug faster** — when something breaks, you'll know which layer to look at
+- **Compose systems confidently** — knowing how pieces fit together makes you a better architect
+- **Communicate clearly** with teammates, docs, and AI assistants
+
+---
+
+## The five core concepts
+
 <Cards>
   <Card title="🧠 Models" href="/concepts/models" arrow>
     The AI "brain" — what language models are, how they work, and how to choose one.
@@ -35,6 +45,22 @@ Before building with agents, it helps to have clear mental models for the key pi
 
 ---
 
+## Concept map — how they relate
+
+Every agent system is built from these five pieces, each playing a distinct role:
+
+| Concept | Role | Analogy |
+|---|---|---|
+| **Model** | Reasons and generates text | The brain |
+| **Agent** | Model + goals + decision loop | The person |
+| **Harness** | Orchestrates the agent in a workflow | The job description |
+| **Memory** | Stores and retrieves context | The notebook |
+| **Tools** | Lets the agent act on the world | The hands |
+
+A minimal agent needs only a *model* and a *goal*. As you add *memory* and *tools*, the agent becomes more capable. The *harness* is what ties it all together into something you can actually ship.
+
+---
+
 ## The three-layer mental model
 
 Every AI agent system has three layers:
@@ -50,3 +76,17 @@ Every AI agent system has three layers:
 ```
 
 You don't have to build all three yourself — that's what the tools in this cookbook are for. But understanding what lives at each layer makes you dramatically better at both using and building agent systems.
+
+---
+
+## Where to start
+
+If you're new to agents, read the concepts in this order:
+
+1. [Models](/concepts/models) — understand what the model actually does
+2. [Agents](/concepts/agents) — see how a model becomes an agent
+3. [Tools](/concepts/tools) — learn how agents take action
+4. [Memory](/concepts/memory) — learn how agents maintain context
+5. [Harnesses](/concepts/harnesses) — see how it all gets wired together
+
+Once you have a feel for these building blocks, head to the [Recipes](/recipes) section to see them in action.
