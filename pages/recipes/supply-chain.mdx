@@ -2,7 +2,7 @@
 title: Supply Chain Monitoring
 ---
 
-import { Steps, Callout } from 'nextra/components'
+import { Steps, Callout, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../../components/ConceptVideo'
 
 # Recipe: Supply Chain Monitoring
@@ -17,7 +17,9 @@ import { ConceptVideo } from '../../components/ConceptVideo'
 
 Operations managers spend their mornings chasing late shipments, answering vendor emails about payment status, and manually checking dashboards across multiple supplier portals. It's reactive, time-consuming, and the important exceptions often surface too late.
 
-## The agent's job
+The result: stockouts that could have been prevented, expedite fees that erode margins, and procurement teams spending 40-50% of their time on status lookups instead of strategic work.
+
+## What the agent does
 
 <Steps>
 
@@ -42,12 +44,218 @@ Based on demand signals, lead time variability, and inventory levels, it automat
 
 </Steps>
 
+## Agent architecture
+
+This recipe uses a two-agent architecture: a **coordinator** that handles communication and routing, and a **data agent** that queries your ERP and supply chain systems.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Coordinator Agent                     │
+│  - Receives alerts and vendor emails                    │
+│  - Routes to appropriate tools/sub-agents               │
+│  - Drafts and sends responses                           │
+│  - Escalates edge cases to humans                       │
+└──────────────────┬──────────────────────────────────────┘
+                   │ delegates to
+┌──────────────────▼──────────────────────────────────────┐
+│                     Data Agent                           │
+│  - Queries ERP (SAP/Oracle/NetSuite)                    │
+│  - Checks shipment tracking APIs                        │
+│  - Reads inventory levels                               │
+│  - Looks up supplier performance scores                 │
+└─────────────────────────────────────────────────────────┘
+```
+
+## System prompt
+
+The coordinator agent's system prompt is the core of this recipe. Here is a production-ready version:
+
+```
+You are a supply chain operations agent for [Company Name].
+
+Your primary responsibilities:
+1. Monitor open purchase orders for delays, exceptions, and risks
+2. Handle routine vendor inquiries autonomously
+3. Proactively alert the procurement team to issues before they become crises
+4. Recommend actions with specific alternatives when exceptions occur
+
+EXCEPTION DETECTION RULES:
+- Flag any PO where confirmed delivery date is more than 2 days past due
+- Flag any PO where no shipment tracking update has occurred in 72+ hours
+- Flag any SKU where projected inventory will drop below safety stock within 10 days
+- Flag any supplier with on-time delivery rate below 85% this quarter
+
+VENDOR EMAIL HANDLING:
+You may respond autonomously to:
+- Payment status inquiries (query ERP for payment date)
+- Invoice receipt confirmations (query ERP for receipt date)
+- PO status inquiries (query ERP for current status)
+- Delivery confirmation requests
+
+Always escalate to a human:
+- Vendor complaints or disputes
+- Requests for order modifications
+- Any email with legal language
+- Any situation you are uncertain about
+
+RESPONSE FORMAT for exceptions:
+1. What happened (specific PO, supplier, SKU, quantity)
+2. Business impact (days until stockout, financial exposure)
+3. Root cause if determinable
+4. 2-3 recommended actions with tradeoffs
+5. Recommended action with reasoning
+
+TONE: Professional, specific, no filler. Operations people are busy.
+```
+
 ## Tools needed
 
-- An ERP or inventory management system (SAP, Oracle, NetSuite)
-- Supplier portals or EDI connections
-- Email access for vendor communication
-- Shipment tracking data (FedEx, UPS, freight carrier APIs)
+```yaml
+# openclaw.yaml
+agent:
+  name: supply-chain-coordinator
+  model: claude-sonnet-4-5
+  system_prompt_file: ./prompts/coordinator.txt
+
+channels:
+  - type: email
+    imap: "${EMAIL_IMAP_CONFIG}"
+    smtp: "${EMAIL_SMTP_CONFIG}"
+    watch_folder: "Vendor Inbox"
+  - type: slack
+    token: "${SLACK_BOT_TOKEN}"
+    alert_channel: "#supply-chain-alerts"
+
+tools:
+  - type: delegate
+    agent: data-agent
+    config: ./agents/data-agent.yaml
+
+schedule:
+  - cron: "*/30 * * * *"   # Every 30 minutes
+    task: "Check all open POs for new exceptions and send alerts if found"
+  - cron: "0 7 * * 1-5"    # 7am weekdays
+    task: "Generate morning supply chain briefing and post to #supply-chain-alerts"
+  - cron: "0 16 * * 5"     # Friday 4pm
+    task: "Generate weekly supplier performance report and email to procurement@company.com"
+
+memory:
+  type: sqlite
+  path: ./supply-chain.db
+```
+
+```yaml
+# agents/data-agent.yaml
+agent:
+  name: data-agent
+  model: claude-haiku-4-5
+  system_prompt: |
+    You query supply chain data systems and return structured results.
+    Always return data in a consistent JSON format.
+    If a query fails, explain why and what data you could not retrieve.
+
+tools:
+  - type: http
+    name: erp_api
+    base_url: "${ERP_API_URL}"
+    auth: "Bearer ${ERP_API_KEY}"
+
+  - type: http
+    name: fedex_tracking
+    base_url: "https://apis.fedex.com"
+    auth: "Bearer ${FEDEX_API_KEY}"
+
+  - type: http
+    name: ups_tracking
+    base_url: "https://onlinetools.ups.com"
+    auth: "Bearer ${UPS_API_KEY}"
+
+  - type: database
+    connection: "${INVENTORY_DB_URL}"
+    readonly: true
+```
+
+## Key tool implementations
+
+### ERP PO status lookup
+
+```javascript
+// tools/get-po-status.js
+module.exports = {
+  name: "get_po_status",
+  description: "Get the current status of a purchase order from the ERP",
+  parameters: {
+    type: "object",
+    properties: {
+      po_number: { type: "string", description: "Purchase order number e.g. PO-4421" }
+    },
+    required: ["po_number"]
+  },
+  async execute({ po_number }) {
+    const response = await fetch(
+      `${process.env.ERP_API_URL}/purchase-orders/${po_number}`,
+      { headers: { "Authorization": `Bearer ${process.env.ERP_API_KEY}` } }
+    );
+    if (!response.ok) return `PO ${po_number} not found`;
+    const po = await response.json();
+    return JSON.stringify({
+      po_number: po.id,
+      supplier: po.supplier_name,
+      status: po.status,
+      ordered_date: po.created_at,
+      expected_delivery: po.expected_delivery_date,
+      confirmed_delivery: po.confirmed_delivery_date,
+      items: po.line_items.map(i => ({
+        sku: i.sku,
+        description: i.description,
+        quantity: i.quantity,
+        unit_cost: i.unit_cost
+      }))
+    }, null, 2);
+  }
+};
+```
+
+### Inventory level check
+
+```javascript
+// tools/check-inventory.js
+module.exports = {
+  name: "check_inventory",
+  description: "Check current inventory levels and days-of-stock for a SKU",
+  parameters: {
+    type: "object",
+    properties: {
+      sku: { type: "string" },
+      warehouse: { type: "string", description: "Warehouse code, or 'all' for total" }
+    },
+    required: ["sku"]
+  },
+  async execute({ sku, warehouse = "all" }) {
+    const rows = await db.query(
+      `SELECT warehouse_code, on_hand, on_order, safety_stock,
+              avg_daily_demand, reorder_point
+       FROM inventory
+       WHERE sku = $1 AND ($2 = 'all' OR warehouse_code = $2)`,
+      [sku, warehouse]
+    );
+    if (!rows.length) return `No inventory record found for SKU ${sku}`;
+    return rows.map(r => ({
+      warehouse: r.warehouse_code,
+      on_hand: r.on_hand,
+      on_order: r.on_order,
+      safety_stock: r.safety_stock,
+      days_of_stock: r.avg_daily_demand > 0
+        ? Math.floor(r.on_hand / r.avg_daily_demand)
+        : null,
+      reorder_point: r.reorder_point,
+      status: r.on_hand <= r.safety_stock ? "BELOW_SAFETY_STOCK"
+            : r.on_hand <= r.reorder_point ? "REORDER_SOON"
+            : "OK"
+    }));
+  }
+};
+```
 
 ## Expected results
 
@@ -60,12 +268,70 @@ Based on demand signals, lead time variability, and inventory levels, it automat
 | Stockout incidents | Baseline | -30–40% |
 
 <Callout type="info">
-**Real-world result:** C.H. Robinson's agent network captured 318,000 freight tracking updates from a single call type in one month. An AWS logistics AI agent eliminated up to 50% of manual lookup and reconciliation workload.
+*Real-world result:* C.H. Robinson's agent network captured 318,000 freight tracking updates from a single call type in one month. An AWS logistics AI agent eliminated up to 50% of manual lookup and reconciliation workload.
 </Callout>
 
-## Getting started
+## Getting started: the phased approach
 
-1. **Start with one exception type** — late shipments are the most common pain point and the easiest to automate first.
-2. **Map your vendor communication patterns** — what are the 5 most common emails your team receives from suppliers? Write the responses. That's your first training data.
-3. **Connect one system at a time** — ERP first, then shipment tracking, then supplier portals. Don't try to boil the ocean.
-4. **Set the alert thresholds carefully** — too many alerts and the team ignores them. Too few and exceptions slip through. Tune over the first two weeks.
+Don't try to automate everything at once. Follow this sequence:
+
+<Steps>
+
+### Week 1: Late shipment detection only
+
+Start with one exception type — late shipments are the most common pain point and the easiest to automate first.
+
+Configure the agent to:
+- Query your ERP for all open POs every 30 minutes
+- Flag any PO where the expected delivery date has passed
+- Post alerts to a Slack channel
+
+This alone saves 30-60 minutes of manual dashboard checking per day.
+
+### Week 2: Vendor email routing
+
+Map your vendor communication patterns. What are the 5 most common emails your team receives from suppliers? Write sample responses. That's your training data.
+
+Add email monitoring and configure the agent to:
+- Automatically respond to payment status inquiries
+- Automatically respond to PO status inquiries
+- Forward anything complex to the appropriate human
+
+### Week 3: Inventory risk scoring
+
+Connect your inventory system. Configure the agent to:
+- Check projected inventory levels against current PO delivery dates
+- Calculate days-of-stock remaining for top 100 SKUs
+- Include stockout risk in every exception alert
+
+### Week 4: Tune and expand
+
+By now you have real data on alert volume and quality. Tune the thresholds:
+- Too many alerts? Raise the delay threshold from 2 days to 4 days
+- Missing real exceptions? Lower safety stock trigger from 10 days to 14 days
+
+Then expand to additional exception types: supplier performance scoring, quality holds, receiving discrepancies.
+
+</Steps>
+
+<Callout type="warning">
+Set the alert thresholds carefully. Too many alerts and the team starts ignoring them. Too few and exceptions slip through. Plan to spend the first two weeks tuning. A good starting target is no more than 5-10 meaningful alerts per day.
+</Callout>
+
+## Measuring success
+
+Track these metrics weekly during rollout:
+
+```
+Week 1 baseline:
+- Number of stockout events this week: ___
+- Hours spent on manual status checks: ___
+- Vendor emails handled manually: ___
+- Average time to detect a late shipment: ___
+
+Target at 90 days:
+- Stockout events: -30%
+- Manual status check time: -40%
+- Vendor emails auto-handled: >60%
+- Average detection time: same day (vs. day after)
+```
