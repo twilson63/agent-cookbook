@@ -31,16 +31,16 @@ export function VideoEmbed({ src, title, description }: VideoEmbedProps) {
       {(title || description) && (
         <div style={{
           padding: '12px 16px',
-          background: 'rgba(0,0,0,0.3)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          background: 'var(--ac-surface, #fff)',
+          borderTop: '1px solid var(--ac-border, rgba(255,255,255,0.06))',
         }}>
           {title && (
-            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: description ? 4 : 0 }}>
+            <div style={{ color: 'var(--ac-text, #1A1714)', fontWeight: 600, fontSize: 14, marginBottom: description ? 4 : 0 }}>
               {title}
             </div>
           )}
           {description && (
-            <div style={{ fontSize: 13, opacity: 0.6 }}>{description}</div>
+            <div style={{ color: 'var(--ac-sub, #888070)', fontSize: 13 }}>{description}</div>
           )}
         </div>
       )}

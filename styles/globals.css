@@ -91,8 +91,8 @@ aside.nextra-sidebar {
 
 /* ── Main content area ─────────────────────────────────────── */
 .nextra-content,
-main article,
-.nx-w-full {
+main.nx-w-full,
+main article {
   background-color: var(--ac-bg) !important;
 }
 
@@ -144,11 +144,53 @@ article a:hover {
   text-underline-offset: 2px !important;
 }
 
-/* ── Callouts / blockquotes ────────────────────────────────── */
+/* ── Nextra components ─────────────────────────────────────── */
+.nextra-cards {
+  gap: 1rem !important;
+}
+
+.nextra-card {
+  background-color: var(--ac-surface) !important;
+  border: 1px solid var(--ac-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04) !important;
+}
+
+.nextra-card:hover {
+  background-color: var(--ac-surface2) !important;
+  border-color: rgba(34, 84, 200, 0.35) !important;
+  box-shadow: 0 8px 24px rgba(26, 23, 20, 0.08) !important;
+}
+
+.nextra-card span {
+  color: var(--ac-text) !important;
+}
+
+.nextra-card:hover span {
+  color: var(--ac-accent) !important;
+}
+
+/* Callouts / blockquotes */
 .nextra-callout {
   background-color: var(--ac-surface) !important;
   border: 1px solid var(--ac-border) !important;
+  border-left: 4px solid var(--ac-accent) !important;
   border-radius: 8px !important;
+  color: var(--ac-text) !important;
+}
+
+.nextra-callout svg {
+  color: var(--ac-accent) !important;
+}
+
+.nextra-callout p,
+.nextra-callout div {
+  color: inherit !important;
+}
+
+.nextra-callout p {
+  margin-top: 0 !important;
+  line-height: 1.65 !important;
 }
 
 /* ── Tables ────────────────────────────────────────────────── */
@@ -245,11 +287,33 @@ article :not(pre) > code {
   background-color: rgba(34, 84, 200, 0.05) !important;
 }
 
-/* Fix the edit link section border-top to use ARCA token */
-.nextra-toc .nx-border-t {
+/* Fix sticky Nextra footer panels in TOC/sidebar to use ARCA tokens */
+.nextra-toc .nx-sticky.nx-bottom-0,
+.nextra-sidebar-container .nx-sticky.nx-bottom-0 {
+  background-color: var(--ac-bg) !important;
   border-color: var(--ac-border) !important;
+  box-shadow: none !important;
+}
+
+.nextra-toc .nx-sticky.nx-bottom-0 {
   padding-top: 1rem !important;
   margin-top: 0.5rem !important;
+}
+
+.nextra-sidebar-container .nx-sticky.nx-bottom-0 {
+  margin-left: 1rem !important;
+  margin-right: 1rem !important;
+  padding: 0.75rem 0 !important;
+}
+
+.nextra-sidebar-container .nx-sticky.nx-bottom-0 button {
+  color: var(--ac-sub) !important;
+  border-radius: 6px !important;
+}
+
+.nextra-sidebar-container .nx-sticky.nx-bottom-0 button:hover {
+  color: var(--ac-text) !important;
+  background-color: rgba(34, 84, 200, 0.06) !important;
 }
 
 /* ── Footer ────────────────────────────────────────────────── */
@@ -276,21 +340,37 @@ footer.nextra-footer {
 }
 
 /* ── Tabs (nextra/components) ──────────────────────────────── */
-.nextra-tabs [role="tab"] {
-  font-weight: 500 !important;
+article [role="tablist"] {
+  border-color: var(--ac-border) !important;
+}
+
+article [role="tab"] {
+  font-weight: 600 !important;
   color: var(--ac-sub) !important;
   border-bottom: 2px solid transparent !important;
 }
 
-.nextra-tabs [role="tab"][aria-selected="true"] {
+article [role="tab"]:hover {
+  color: var(--ac-text) !important;
+  border-bottom-color: var(--ac-border) !important;
+}
+
+article [role="tab"][aria-selected="true"] {
   color: var(--ac-accent) !important;
   border-bottom-color: var(--ac-accent) !important;
 }
 
+article [role="tabpanel"] {
+  color: var(--ac-text) !important;
+}
+
 /* ── Steps ─────────────────────────────────────────────────── */
-.nextra-steps h3::before {
+.nextra-steps h3::before,
+article h3::before {
   background-color: var(--ac-accent) !important;
   color: #fff !important;
+  border: 3px solid var(--ac-bg) !important;
+  box-shadow: 0 0 0 1px var(--ac-border) !important;
   font-weight: 700 !important;
 }
 
@@ -312,15 +392,29 @@ footer.nextra-footer {
   color: var(--ac-muted) !important;
 }
 
-/* Dark mode — keep warm tones */
+/* Dark mode — keep warm tones
+   Nextra uses next-themes classes, so support both explicit .dark and system media. */
+html.dark,
+html[data-theme='dark'] {
+  --ac-bg:       #1A1714;
+  --ac-surface:  #242119;
+  --ac-surface2: #2A2723;
+  --ac-text:     #F4F1EC;
+  --ac-sub:      #B8AE9E;
+  --ac-muted:    #8A8074;
+  --ac-border:   #3A3730;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --ac-bg:       #1A1714;
     --ac-surface:  #242119;
     --ac-surface2: #2A2723;
     --ac-text:     #F4F1EC;
-    --ac-sub:      #9A9080;
-    --ac-muted:    #6A6058;
+    --ac-sub:      #B8AE9E;
+    --ac-muted:    #8A8074;
     --ac-border:   #3A3730;
+    color-scheme: dark;
   }
 }
