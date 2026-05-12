@@ -7,7 +7,7 @@ import { VideoEmbed } from '../../components/VideoEmbed'
 
 # AI Agents
 
-An **agent** is an AI model that can *act* — not just respond. It can use tools, make decisions across multiple steps, and pursue a goal autonomously.
+An **agent** is an AI model that can *act* — not just respond. It can use tools, make decisions across multiple steps, and pursue a goal autonomously. Where a model gives you an answer, an agent gets something done.
 
 <VideoEmbed 
   src="/videos/agents.mp4" 
@@ -40,49 +40,104 @@ Every agent runs the same basic cycle, over and over until the task is done:
 └─────────────────────────────────────────┘
 ```
 
-1. **Observe** — what's the current state of things? What information do I have?
-2. **Think** — what does this mean? What do I need to do next?
-3. **Plan** — break the goal into steps
+1. **Observe** — what is the current state? What information is available?
+2. **Think** — what does this mean? What needs to happen next?
+3. **Plan** — break the goal into concrete steps
 4. **Act** — call a tool, write something, make a decision
 5. **Observe** — what happened? Update the plan if needed
 
-This loop runs until the goal is reached or the agent gets stuck and asks for help.
+This loop runs until the goal is reached or the agent needs human input to continue.
+
+### A concrete example
+
+Goal: "Find the top 3 competitors to Acme Corp and summarize their pricing."
+
+```
+Loop 1: Search the web for "Acme Corp competitors"
+Loop 2: Browse competitor A website, extract pricing page
+Loop 3: Browse competitor B website, extract pricing page
+Loop 4: Browse competitor C website, extract pricing page
+Loop 5: Synthesize findings into a structured summary
+→ Done
+```
+
+Each loop the agent decides what to do next based on what it found. It adapts — if a website blocks scraping, it tries a different source.
+
+## Anatomy of an agent
+
+Every agent has four core components:
+
+### 1. A model (the brain)
+The language model that does the reasoning — Claude, GPT-4, Gemini, or another frontier model. This is what understands your goal and decides what to do at each step.
+
+### 2. Tools (the hands)
+What the agent can actually do in the world — search the web, run code, call APIs, read and write files. Tools are what make agents useful beyond just generating text. See [Tools & Actions](/concepts/tools).
+
+### 3. Memory (the context)
+What the agent knows and remembers — the current conversation, past interactions, stored facts, and retrieved knowledge. Memory determines how well the agent maintains context across a long task. See [Memory & Context](/concepts/memory).
+
+### 4. A harness (the infrastructure)
+The execution environment that wires everything together — handling the agent loop, tool calls, memory persistence, scheduling, and observability. See [Agent Harnesses](/concepts/harnesses).
 
 ## Types of agents
 
 ### Reactive agents
-Triggered by an event (a message, a file upload, a schedule) — do one thing and stop. Simple, predictable, great for automating specific tasks.
+Triggered by an event — a message, a file upload, a webhook, a schedule. They respond, complete one job, and stop. Simple, predictable, and excellent for automating specific recurring tasks.
 
-*Example: An agent that monitors your inbox and drafts replies to customer questions.*
+**Example:** An agent that monitors your inbox and drafts replies to customer support questions, flagging anything it is not confident about for human review.
+
+**When to use:** You have a well-defined trigger and a clear, bounded task. You want predictable behavior with low risk.
 
 ### Autonomous agents
-Given a high-level goal and left to figure out the steps. More powerful, requires more oversight for high-stakes work.
+Given a high-level goal and left to determine the steps independently. More powerful for open-ended work, but requires more oversight, especially for anything consequential.
 
-*Example: An agent that monitors your ad spend, identifies underperforming campaigns, and pauses them automatically.*
+**Example:** An agent that monitors ad spend across channels, identifies underperforming campaigns using your defined KPIs, and pauses or reallocates budget automatically.
+
+**When to use:** The task requires multiple steps that you cannot fully specify upfront, and the agent has access to reversible or low-stakes actions.
 
 ### Multi-agent systems
-Multiple specialized agents working together, each handling a different part of a workflow. A "manager" agent routes tasks to specialist agents.
+Multiple specialized agents working together. A coordinator (or "manager") agent routes tasks to specialist agents, each optimized for a specific job. Results flow back up and get synthesized.
 
-*Example: A research agent that finds information + a writing agent that drafts the report + a review agent that checks accuracy.*
+**Example:** A research pipeline where a search agent finds sources, a reading agent extracts key claims, a fact-check agent verifies them, and a writing agent composes the final report.
+
+**When to use:** The task is large or complex enough that a single agent would struggle — either due to context length limits, the need for parallelism, or the benefit of specialization.
+
+```
+Manager Agent
+├── Research Agent  →  finds sources
+├── Analysis Agent  →  extracts data
+└── Writing Agent   →  drafts output
+```
 
 ---
 
 ## What agents are good at (and not)
 
 **Great for:**
-- Repetitive tasks with clear rules (invoice processing, data extraction)
-- Research and synthesis (gathering information from many sources)
-- First drafts (emails, reports, code)
-- Monitoring and alerting (watching for anomalies, sending notifications)
-- Multi-step workflows that currently require human hand-offs
+- Repetitive tasks with clear rules (invoice processing, data extraction, report generation)
+- Research and synthesis (gathering information from many sources and combining it)
+- First drafts (emails, reports, code, summaries)
+- Monitoring and alerting (watching for anomalies, sending notifications on triggers)
+- Multi-step workflows that currently require human hand-offs between systems
 
 **Still needs human oversight:**
-- High-stakes irreversible decisions (large financial transactions, legal commitments)
-- Tasks requiring genuine judgment in novel, complex situations
-- Anything where being wrong has serious consequences
+- High-stakes irreversible decisions (large financial transactions, legal commitments, sending mass communications)
+- Tasks requiring genuine judgment in genuinely novel or ethically ambiguous situations
+- Anything where a confident wrong answer is worse than asking for help
 
 <Callout type="warning">
-Think of current agents as a very capable, very fast intern. They do remarkable work but you still review anything important before it goes out.
+Think of current agents as a very capable, very fast junior colleague. They do remarkable work but you still review anything important before it goes out — especially anything that touches money, legal obligations, or external communications.
 </Callout>
+
+## Building your first agent: a checklist
+
+Before you build, answer these questions:
+
+- **What is the goal?** Write it as a one-sentence outcome, not a list of steps.
+- **What triggers the agent?** A message, a schedule, an event, or a user action?
+- **What tools does it need?** Web, code, APIs — be specific and apply least-privilege.
+- **What does success look like?** How will you know the agent did its job correctly?
+- **What can go wrong?** Identify the failure modes before you deploy.
+- **Who reviews the output?** For any consequential action, define a human checkpoint.
 
 **Next: [Agent harnesses →](/concepts/harnesses)**
