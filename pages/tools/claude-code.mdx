@@ -83,10 +83,74 @@ When you're happy, Claude Code commits the changes with a generated commit messa
 
 **Work in CI** — You can run Claude Code non-interactively in a CI/CD pipeline to automate things like dependency updates, generated code regeneration, or changelog writing.
 
+## Agentic workflows with Claude Code
+
+### Non-interactive (CI/CD) mode
+
+Run Claude Code in a pipeline without human approval prompts:
+
 ```bash
 # Non-interactive CI mode
 claude -p "Update all npm dependencies and fix any breaking changes" --no-confirm
 ```
+
+This is useful for:
+- Automated dependency updates
+- Regenerating generated files (GraphQL types, API clients, proto bindings)
+- Automated changelog or release notes generation
+- Nightly code health fixes (lint, formatting, dead code removal)
+
+### CLAUDE.md — project instructions
+
+Create a `CLAUDE.md` file in the root of your repository. Claude Code reads it on startup and uses it as persistent context for every session:
+
+```markdown
+# Project: payments-service
+
+## Stack
+- Node.js 20, TypeScript, Fastify
+- PostgreSQL via Prisma
+- Jest for tests
+
+## Conventions
+- All API handlers in src/handlers/
+- Zod schemas in src/schemas/
+- Always run `npm test` after changes
+- Never edit generated files in src/generated/ — run `npm run generate` instead
+
+## Common tasks
+- Add a route: create handler in src/handlers/, add schema in src/schemas/, register in src/app.ts
+```
+
+Good `CLAUDE.md` files dramatically improve the quality and consistency of Claude Code's output on your codebase.
+
+### Chaining tasks
+
+For complex multi-step agent development work, chain tasks in sequence:
+
+```bash
+# Step 1: scaffold the tool
+claude -p "Create a new tool file src/tools/email-sender.ts. It should export a sendEmail function that accepts to, subject, body. Use nodemailer. Add types."
+
+# Step 2: integrate it
+claude -p "Integrate the email-sender tool into the agent in src/agent.ts. Register it in the tools array and add it to the system prompt description."
+
+# Step 3: test it
+claude -p "Write integration tests for the email-sender tool in src/tools/__tests__/email-sender.test.ts."
+```
+
+### Exploration without changes
+
+Use read-only mode to explore a codebase before making changes:
+
+```bash
+claude --no-edits
+```
+
+Useful prompts in read-only mode:
+- *"How does authentication work in this codebase? Trace the flow from request to response."*
+- *"Where are all the places we make external API calls? List them with file and line number."*
+- *"What would break if I removed the UserSession class?"*
 
 ## Practical uses
 
@@ -96,6 +160,7 @@ claude -p "Update all npm dependencies and fix any breaking changes" --no-confir
 - **Code review** — *"Review this PR diff for security issues and performance problems."*
 - **Documentation** — *"Generate JSDoc comments for every exported function in /src/lib."*
 - **Test writing** — *"Write unit tests for the payment module. Aim for 90% coverage."*
+- **Agent scaffolding** — *"Scaffold a new Scout agent that monitors our Slack channel for mentions and logs them to our database."*
 
 ## Permissions and safety
 
@@ -114,6 +179,8 @@ claude --no-edits
 ## Tips
 
 - **Be specific about scope.** *"Fix the auth bug"* is harder than *"Fix the 401 error in src/api/auth.ts line 47."*
+- **Use CLAUDE.md.** A well-written project context file is worth more than a detailed prompt on every task.
 - **Use it for the boring stuff.** Migrations, boilerplate, docs, test writing — tasks you'd procrastinate on are perfect for Claude Code.
 - **Trust but verify.** Always review the diff before committing. Claude Code is good, not infallible.
 - **Pair it with Scout** for teams — Scout adds shared history, audit logging, and cost visibility across your engineering team.
+- **Start tasks from a clean state.** Commit or stash your current changes before running Claude Code so diffs are easy to review.
