@@ -8,5 +8,6 @@
   "content-repurposing": "Content Repurposing",
   "employee-onboarding": "Employee Onboarding",
   "supply-chain": "Supply Chain Monitoring",
-  "sre-watchdog": "SRE Watchdog"
+  "sre-watchdog": "SRE Watchdog",
+  "pi-goal-command": "The /goal Command (Pi)"
 }

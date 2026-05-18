@@ -1,0 +1,151 @@
+---
+title: The /goal Command — PRD-Driven Execution with Pi
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Recipe: The `/goal` Command — PRD-Driven Execution with Pi
+
+**Tool:** Pi
+**Difficulty:** Beginner
+**Time to set up:** 5 minutes
+
+## The problem
+
+Agents are good at following instructions but bad at staying on track across a long implementation plan. Give an agent a PRD with ten steps and it tends to race through them — skipping validation, glossing over failures, and delivering something that technically touched every step but didn't actually verify any of them.
+
+The `/goal` command fixes this by forcing a loop: define success criteria, implement one step, evaluate against criteria, fix failures, move on only when the step passes. No skipping. No self-reported success without evidence.
+
+## What `/goal` does
+
+Use it with any PRD or goal file:
+
+```
+/goal path/to/PRD.md
+```
+
+Pi reads the PRD, extracts an ordered plan, and works through it step by step using this loop:
+
+```
+criteria → implement → evaluate → pass? next : fix and repeat
+```
+
+For each step, Pi:
+- Ensures testable success criteria exist (adds them if missing)
+- Implements the step
+- Runs the smallest relevant validation commands
+- Records pass/fail status before touching the next step
+
+The loop continues until every step in the PRD is complete.
+
+## Install it
+
+<Steps>
+
+### Create Pi's global prompt directory
+
+```bash
+mkdir -p ~/.pi/agent/prompts
+```
+
+### Add the goal template
+
+```bash
+cat > ~/.pi/agent/prompts/goal.md <<'EOF'
+---
+description: Execute a PRD/goal step-by-step with success criteria and verification
+argument-hint: "<PRD-file-or-goal>"
+---
+Use this PRD/goal as the source of truth: $ARGUMENTS
+
+If a PRD file path is provided, read it completely before planning or implementing. If the PRD is not provided or cannot be found, ask for the PRD file/path before proceeding.
+
+Execute the work with this loop:
+
+1. Extract the PRD into an ordered implementation plan.
+2. Ensure every step has explicit, testable success criteria.
+   - If a step lacks success criteria, add reasonable criteria derived from the PRD before implementation.
+   - Keep criteria concrete: files changed, behavior observed, tests passing, build passing, UI/API behavior verified.
+3. Start implementing the first incomplete step.
+4. Parallelize with sub-agents whenever useful:
+   - use reviewers/scouts for codebase discovery, risk review, and test gap review;
+   - use workers for independent implementation slices;
+   - keep one agent/session as orchestrator and merge/evaluate results deliberately.
+5. After each step, evaluate its success criteria.
+   - Run the smallest relevant validation commands that exist.
+   - Inspect outputs and changed files.
+   - Record whether each criterion passed or failed.
+6. If the step passes, mark it complete and move to the next step.
+7. If the step fails, repeat that step: diagnose, fix, and re-run evaluation until it passes.
+8. Continue until every step in the PRD is complete.
+9. Finish with a concise summary:
+   - completed steps;
+   - validation commands run;
+   - any intentionally deferred work;
+   - changed files and PR/branch status if applicable.
+
+Do not skip evaluation. Do not proceed past a failed step. Do not overfit tests or cheat the requested behavior.
+EOF
+```
+
+### Reload Pi
+
+```
+/reload
+```
+
+Typing `/` in Pi should now show `goal` in the command list.
+
+</Steps>
+
+## Use it
+
+```
+/goal docs/telegram-onboarding-prd.md
+```
+
+Pi will turn the PRD into a step-by-step execution loop. For each step, it reports the criteria, implementation result, validation command, and pass/fail status before moving forward.
+
+## Write better PRDs
+
+The command adds missing success criteria, but better PRDs make better runs. A well-structured step looks like this:
+
+```markdown
+## Step 2 — Add inline Telegram button
+
+Implement an inline "Open my bot" button in the onboarding bot completion message.
+
+Success criteria:
+- Final onboarding reply includes an inline keyboard button.
+- Button text is "Open my bot".
+- Button URL points to the user's Telegram bot link.
+- Existing plain-text replies still work.
+- Onboarding bot tests pass.
+```
+
+Keep criteria concrete: files changed, behavior observed, tests passing, build passing, UI or API behavior verified. Vague objectives ("it works") produce vague evaluations.
+
+## Why global, not project-local?
+
+Pi loads prompt templates from three places:
+
+| Location | When to use |
+|---|---|
+| `~/.pi/agent/prompts/` | Personal workflow habits that apply across all projects |
+| `.pi/prompts/` | Commands that belong to one specific repo |
+| Configured package directories | Shared team prompts distributed via package |
+
+`/goal` is a workflow habit, not a project artifact. Store it globally so it's available in every repo, every session.
+
+## Expected results
+
+| What changes | How |
+|---|---|
+| Agent skipping steps | Blocked — agent cannot advance past a failed step |
+| Self-reported success | Replaced by actual validation command output |
+| Vague completion | Replaced by a summary with pass/fail per step |
+| Re-doing work | Reduced — criteria are defined before implementation |
+
+<Callout type="tip">
+The loop is the point. The slash command is just how you invoke it. The important thing is that the agent defines criteria before it touches code, evaluates after, and stays on the failing step until it passes.
+</Callout>
