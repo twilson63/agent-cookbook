@@ -5,8 +5,9 @@
 set -e
 
 SUBDOMAIN="cookbook"
-# Key stored in ~/.scoutos-deploy-key  (never commit the key itself)
+# Keys stored locally — never commit these files
 DEPLOY_KEY="${SCOUTOS_KEY:-$(cat ~/.scoutos-deploy-key 2>/dev/null)}"
+PUBLISH_CODE="${SCOUTOS_PUBLISH_CODE:-$(cat ~/.scoutos-cookbook-publish-code 2>/dev/null)}"
 
 if [ -z "$DEPLOY_KEY" ]; then
   echo "❌ No deploy key found."
@@ -29,8 +30,12 @@ tar -czf /tmp/${SUBDOMAIN}.tar.gz \
   .
 
 echo "🚀 Uploading to scoutos.live..."
+BUILD_URL="https://scoutos.live/api/build?subdomain=${SUBDOMAIN}"
+if [ -n "$PUBLISH_CODE" ]; then
+  BUILD_URL="${BUILD_URL}&code=${PUBLISH_CODE}"
+fi
 RESPONSE=$(curl -s -X POST \
-  "https://scoutos.live/api/build?subdomain=${SUBDOMAIN}" \
+  "$BUILD_URL" \
   -H "Authorization: Bearer ${DEPLOY_KEY}" \
   --data-binary @/tmp/${SUBDOMAIN}.tar.gz)
 
