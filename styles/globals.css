@@ -235,9 +235,22 @@ article table tr:hover td {
 
 /* ── Code blocks ───────────────────────────────────────────── */
 article pre {
-  background-color: var(--ac-text) !important;
-  border: 1px solid var(--ac-border) !important;
+  background-color: #0d1117 !important;
+  color: #e6edf3 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 8px !important;
+  padding: 1.25rem 1.5rem !important;
+  overflow-x: auto !important;
+  font-size: 0.875em !important;
+  line-height: 1.7 !important;
+}
+
+article pre code {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  font-size: inherit !important;
 }
 
 article :not(pre) > code {
