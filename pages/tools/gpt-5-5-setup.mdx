@@ -1,0 +1,120 @@
+---
+title: GPT-5.5 Setup
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Setup: GPT-5.5 via OpenAI Codex OAuth
+
+**Platform:** HyperClaw / OpenClaw
+**Difficulty:** Intermediate
+**Time to set up:** 10–15 minutes
+
+## The problem
+
+OpenClaw ships with a default model, but for serious development work you want GPT-5.5 — OpenAI's strongest coding model. The cleanest way to connect it is through OpenAI Codex OAuth, which means no raw API key ever touches your chat transcript.
+
+This guide walks through the full setup: OAuth authorization, provider configuration, and verifying the model survives a restart.
+
+<Callout type="warning">
+Never paste raw API keys into chat. Use OAuth or environment variables so credentials stay out of transcripts and logs.
+</Callout>
+
+## Before you start
+
+You need:
+
+- A HyperClaw Claw that is running
+- A ChatGPT Plus or Pro account (required for Codex OAuth)
+- Access to your Claw's console or Telegram chat
+
+## Steps
+
+<Steps>
+
+### Open the OpenAI OAuth flow
+
+In your Claw's chat, run:
+
+```text
+Set up OpenAI Codex OAuth so I can use GPT-5.5 as my default model.
+```
+
+Your Claw will give you an OAuth URL. Open it in a browser, sign in with your OpenAI account, and authorize the Codex integration. The flow redirects back with an authorization code your Claw picks up automatically.
+
+If your Claw can't initiate the flow directly, go to [platform.openai.com](https://platform.openai.com), navigate to **Integrations → Codex**, and authorize from there.
+
+### Set GPT-5.5 as the default model
+
+Once OAuth is authorized, configure the provider:
+
+```text
+Set openai/codex-mini-latest as my default model for new sessions.
+```
+
+Or via the console API:
+
+```bash
+curl -s -X PUT \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"provider": "openai", "model": "codex-mini-latest"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/provider | jq
+```
+
+### Verify the model is active
+
+Check that the current session is actually using GPT-5.5:
+
+```text
+What model are you using right now? Show me your session status.
+```
+
+The response should confirm `openai/codex-mini-latest` or the GPT-5.5 variant your account has access to.
+
+### Confirm the config survives a restart
+
+Restart your Claw:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/restart | jq
+```
+
+After the pod is back up, check the model again:
+
+```text
+Which model are you using?
+```
+
+If it still shows GPT-5.5, the provider config is persistent. If it has fallen back to the default, the OAuth credentials may not have been stored correctly — repeat the OAuth flow and store the refresh token in an environment variable.
+
+### Store credentials in env if needed
+
+If the model resets on restart, expose the OAuth refresh token as an environment variable:
+
+```bash
+curl -s -X PUT \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"env": "OPENAI_REFRESH_TOKEN=your_token_here\nOPENAI_DEFAULT_MODEL=codex-mini-latest"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/env
+```
+
+Then restart and verify again.
+
+</Steps>
+
+## Success criteria
+
+- [ ] GPT-5.5 is the active model in the current session
+- [ ] Model identity confirmed without pasting a raw API key
+- [ ] Config survives a pod restart
+- [ ] OAuth credentials stored outside of chat transcripts
+
+## Common mistakes
+
+- Pasting an API key directly into chat — use OAuth or env vars instead
+- Assuming the model is set because you typed the command — always verify with a status check
+- Forgetting to restart after changing the provider config — the new setting takes effect after restart

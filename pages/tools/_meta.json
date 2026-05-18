@@ -1,4 +1,8 @@
 {
   "index": "Overview",
-  "hyperclaw-developer-agent": "Developer Agent Setup"
+  "gpt-5-5-setup": "GPT-5.5 Setup",
+  "zenbin-setup": "ZenBin Setup",
+  "sre-agent-setup": "SRE Agent Setup",
+  "hyperclaw-developer-agent": "Developer Agent Setup",
+  "gbrain-setup": "G-Brain Setup"
 }

@@ -1,0 +1,195 @@
+---
+title: G-Brain Setup
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Setup: G-Brain Knowledge Base
+
+**Platform:** HyperClaw / OpenClaw
+**Difficulty:** Intermediate
+**Time to set up:** 20–30 minutes
+
+## The problem
+
+A Claw without memory is stateless. It can remember things within a session using `MEMORY.md`, but it can't search across a large body of knowledge. G-Brain solves this: it gives your Claw a local semantic search index over a wiki-style knowledge base. Ask your Claw a question, and it can retrieve relevant context from hundreds of documents before answering.
+
+This is the difference between a Claw that knows what you tell it right now and one that knows everything you've ever documented.
+
+## What you'll end up with
+
+- A `brain/` wiki directory in your Claw's workspace
+- A local embeddings proxy for generating vectors
+- G-Brain installed and indexing your documents
+- Semantic search that returns relevant pages when your Claw needs context
+
+## How G-Brain works
+
+G-Brain maintains a local vector index of your markdown documents. When your Claw needs to answer a question, it:
+
+1. Embeds the query using a local embeddings model
+2. Searches the index for semantically similar pages
+3. Retrieves the top results and uses them as context
+4. Answers with the retrieved knowledge rather than guessing
+
+The index lives in your Claw's workspace — no external API needed for search.
+
+## Steps
+
+<Steps>
+
+### Create the brain directory structure
+
+In your Claw's workspace:
+
+```bash
+mkdir -p brain/wiki
+mkdir -p brain/categories
+```
+
+The `wiki/` directory holds your knowledge pages. The `categories/` directory holds resolver files that help G-Brain route queries to the right category.
+
+### Add a category resolver
+
+Create a `brain/categories/README.md` that describes what's in the brain:
+
+```markdown
+# Knowledge Base
+
+## Categories
+
+- `engineering/` — architecture decisions, system design, runbooks
+- `product/` — feature specs, roadmap context, user research
+- `team/` — people, processes, meeting notes, decisions
+- `tools/` — setup guides, credentials references, workflows
+
+## How to query
+
+Ask your Claw directly: "What do we know about [topic]?"
+The brain returns relevant pages and your Claw synthesizes an answer.
+```
+
+### Seed the brain with your first documents
+
+Create a few markdown pages to start. Each page should be focused — one topic per file:
+
+```markdown
+# brain/wiki/engineering/our-stack.md
+
+## Tech Stack
+
+- Backend: Node.js / Express
+- Database: PostgreSQL with read replicas
+- Cache: Redis
+- Deployments: Kubernetes on DigitalOcean
+- Monitoring: Datadog + PagerDuty
+
+## Key architecture decisions
+
+- All services communicate via REST, not gRPC — decided 2024-Q1 for simplicity
+- No microservices yet — monolith until we hit clear scaling limits
+- Each environment (dev, staging, prod) is fully isolated
+```
+
+Add as many pages as you have — the brain becomes more useful as it grows.
+
+### Install G-Brain in the workspace
+
+Ask your Claw to install G-Brain:
+
+```text
+Install G-Brain in my workspace so I have local semantic search over the brain/ directory.
+```
+
+Or manually, via the console:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "npm install -g gbrain || pip install gbrain"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+The exact install command depends on the G-Brain package manager. Check the G-Brain docs for the current install method.
+
+### Set up the local embeddings proxy
+
+G-Brain needs an embeddings model to vectorize your documents. The simplest option is a local proxy that uses an available model:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "gbrain embeddings init --model local"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+If your Claw's model provider supports embeddings natively, you can configure G-Brain to use it directly.
+
+### Index your documents
+
+Run the initial index:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "gbrain index brain/wiki --recursive"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+This generates embeddings for every markdown file under `brain/wiki/` and stores the index locally. On a fresh brain with a handful of files, this takes a few seconds. On a large wiki, it may take a few minutes.
+
+### Test semantic search
+
+Run a search to confirm the index is working:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "gbrain search \"what database do we use\""}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+The response should return your `our-stack.md` page with a relevance score. If it does, the brain is working.
+
+Now test it through your Claw's chat:
+
+```text
+What database do we use and why?
+```
+
+Your Claw will search the brain, retrieve the relevant page, and answer from your actual documentation — not from its training data.
+
+</Steps>
+
+## Success criteria
+
+- [ ] `brain/wiki/` directory created with at least one document
+- [ ] Category resolver in `brain/categories/README.md`
+- [ ] G-Brain installed and index initialized
+- [ ] Embeddings proxy running
+- [ ] `gbrain search` returns relevant results for a test query
+- [ ] Chat-based query retrieves the right document and gives a grounded answer
+
+## Keeping the brain current
+
+G-Brain's index doesn't auto-update. When you add new documents, re-index:
+
+```bash
+gbrain index brain/wiki --recursive
+```
+
+A good habit: whenever your Claw writes something worth keeping — a decision, a runbook, a setup guide — have it save the page to `brain/wiki/` and run a re-index.
+
+```text
+Save what we just decided about the caching strategy to the brain.
+```
+
+Over time, the brain becomes a searchable record of everything your Claw has learned and everything you've documented together.
+
+<Callout type="tip">
+Start small. Five focused documents are more useful than fifty disorganized ones. Add more as you identify gaps in what your Claw can recall.
+</Callout>

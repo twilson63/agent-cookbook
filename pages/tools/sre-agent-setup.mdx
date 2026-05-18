@@ -1,0 +1,213 @@
+---
+title: SRE Agent Setup
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Setup: SRE Agent
+
+**Platform:** HyperClaw
+**Difficulty:** Intermediate
+**Time to set up:** 20–30 minutes
+
+## The problem
+
+Infrastructure doesn't keep business hours. Outages happen at 2am. Runbooks sit in wikis nobody checks. On-call rotations burn people out. An SRE agent on HyperClaw runs 24/7, knows your systems, and can triage, escalate, and document incidents without waking anyone up for a false alarm.
+
+This guide walks through setting up a HyperClaw Claw as a dedicated SRE agent — with its own identity, monitoring hooks, Telegram alerting, and a runbook it can actually follow.
+
+## What you'll end up with
+
+- A Claw with an SRE identity and operating style
+- Workspace files that describe your infrastructure and runbooks
+- A Telegram alert flow for real incidents
+- A skeleton runbook your Claw follows when something breaks
+
+## Steps
+
+<Steps>
+
+### Create a dedicated SRE Claw
+
+Create a new Claw for SRE — keep it separate from your personal assistant so its context stays focused on infrastructure.
+
+Via dashboard: **New Claw → Name it `sre` or `watchdog`**
+
+Or via API:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "sre", "provider": "openrouter"}' \
+  $CLAWS_BASE_URL/api/claws | jq
+```
+
+Wait for `status: "running"` before continuing.
+
+### Give it an SRE identity
+
+Upload a `SOUL.md` that frames the agent as an SRE:
+
+```bash
+cat > /tmp/SOUL.md << 'EOF'
+# SOUL.md
+
+You are an SRE agent. Your job is to monitor systems, triage incidents, follow runbooks, and keep humans informed without waking them up unnecessarily.
+
+## Operating principles
+
+Assess severity before escalating. A spike that recovers in 60 seconds is noise. A spike that sustains for 5 minutes is an incident.
+
+Follow the runbook. If the runbook doesn't cover the situation, document what you did and flag it for the human to review.
+
+Be terse in alerts. Nobody wants a wall of text at 3am. Lead with: what broke, impact, what you did, what's needed.
+
+Verify before resolving. Do not mark an incident closed until you have confirmed the symptom is gone.
+EOF
+
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -F "file=@/tmp/SOUL.md" \
+  -F "path=SOUL.md" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/files
+```
+
+### Upload your infrastructure map
+
+Create an `INFRA.md` that describes what your SRE agent is responsible for:
+
+```markdown
+# INFRA.md — Infrastructure Map
+
+## Services
+
+| Service | URL | Owner | Criticality |
+|---|---|---|---|
+| API | https://api.example.com/health | Platform | High |
+| Dashboard | https://app.example.com | Frontend | High |
+| Worker queue | internal | Backend | Medium |
+
+## Alert thresholds
+
+- API p99 latency > 2s for 3 minutes → incident
+- Error rate > 1% sustained → incident
+- Health check failing for 2+ consecutive checks → incident
+
+## On-call contacts
+
+- Primary: [Name] via Telegram @handle
+- Secondary: [Name] via Telegram @handle
+- Escalation: [Name] for severity 1 only
+```
+
+Upload it the same way as `SOUL.md`.
+
+### Upload your runbook
+
+Your SRE agent is only as good as its runbooks. Start simple:
+
+```markdown
+# RUNBOOK.md
+
+## High API latency
+
+1. Check recent deploys — was anything pushed in the last 30 minutes?
+2. Check database connection pool saturation.
+3. Check downstream service health.
+4. If cause is clear: rollback or hotfix, document in INCIDENTS.md.
+5. If cause is unclear: escalate to primary on-call with: symptom, duration, what was checked.
+
+## Health check failing
+
+1. Verify the failure is real (check from a second location if possible).
+2. Check pod/process status.
+3. Check for OOM kills or disk pressure.
+4. Attempt a pod restart if the service is stateless.
+5. If not recovering after one restart: escalate immediately.
+
+## High error rate
+
+1. Sample recent error logs — categorize the error types.
+2. Check for upstream failures causing cascades.
+3. If a single bad deploy is the cause: rollback.
+4. Document error samples and timeline in INCIDENTS.md.
+```
+
+### Connect Telegram for alerts
+
+Connect your SRE Claw to Telegram the same way as a personal Claw, but use a dedicated group or channel for alerts — not your personal chat.
+
+Set up the connection via **Dashboard → Integrations → Telegram**.
+
+Then set a startup instruction so the Claw knows where to send alerts:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "echo \"SRE agent online. Monitoring active.\" "}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+### Hook in your monitoring source
+
+The SRE agent needs to receive signals. The simplest approach: use a webhook that fires when your monitoring system detects a problem.
+
+Most monitoring tools (Datadog, Grafana, PagerDuty, UptimeRobot) support outbound webhooks. Point the webhook at your Claw's chat API endpoint:
+
+```bash
+# Get the chat API key
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/chat-api-key/enable | jq
+
+curl -s \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/chat-api-key | jq
+```
+
+Use the returned key to call the Claw's OpenAI-compatible endpoint from your alerting pipeline:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer CLAW_CHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "openclaw:main",
+    "messages": [{
+      "role": "user",
+      "content": "ALERT: API health check failing. p99 latency 4.2s. Started 3 minutes ago. Follow runbook."
+    }]
+  }' \
+  https://your-claw-endpoint/v1/chat/completions
+```
+
+The Claw receives the alert, consults the runbook, and sends a triage summary to Telegram.
+
+</Steps>
+
+## Success criteria
+
+- [ ] Dedicated SRE Claw running and separate from personal Claws
+- [ ] `SOUL.md` uploaded with SRE operating principles
+- [ ] `INFRA.md` describes services, thresholds, and contacts
+- [ ] `RUNBOOK.md` covers your most common failure modes
+- [ ] Telegram connected to a dedicated alert channel
+- [ ] At least one test alert sent and triaged correctly
+
+## Day-to-day
+
+Once running, your SRE agent:
+
+- Receives alerts from your monitoring system
+- Follows the runbook to assess severity
+- Posts a triage summary to Telegram
+- Escalates only when the runbook is exhausted or severity is clear
+- Documents incidents in `INCIDENTS.md` for post-mortems
+
+Refine the runbook over time based on what the agent gets right and wrong. The more specific the runbook, the fewer 3am phone calls.
+
+<Callout type="tip">
+Start with one service and one failure mode. Prove the alert → triage → Telegram flow works end-to-end before expanding coverage.
+</Callout>

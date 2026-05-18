@@ -6,35 +6,40 @@ import { Cards, Card, Callout } from 'nextra/components'
 
 # HyperClaw Setup
 
-Everything you need to turn a fresh Claw into a powerful, production-ready agent.
+Everything you need when spinning up a new HyperClaw Claw — from model configuration to memory and monitoring. Follow these guides in order for a complete setup, or jump to the one you need.
 
-<Callout type="info">
-New to HyperClaw? Start with the [Quick Start](/quick-start) to get your first Claw running before diving into the setup guide here.
+<Callout type="tip">
+New to HyperClaw? Start with the [Quick Start](/quick-start) to get your first Claw running before diving into these guides.
 </Callout>
 
-## What's in this section
+## Setup guides
 
 <Cards>
+  <Card title="GPT-5.5 Setup" href="/tools/gpt-5-5-setup" arrow>
+    Connect your Claw to GPT-5.5 via OpenAI Codex OAuth — no raw API key in chat.
+  </Card>
+  <Card title="ZenBin Setup" href="/tools/zenbin-setup" arrow>
+    Give your Claw a publishing path. Generate an Ed25519 keypair and publish pages with a single prompt.
+  </Card>
+  <Card title="SRE Agent Setup" href="/tools/sre-agent-setup" arrow>
+    Configure a dedicated Claw for infrastructure monitoring, runbook execution, and Telegram alerting.
+  </Card>
   <Card title="Developer Agent Setup" href="/tools/hyperclaw-developer-agent" arrow>
-    Full walkthrough: identity files, model configuration, GitHub access, memory workflow, publishing path, and a day-one acceptance test.
+    Full walkthrough: identity files, GitHub access, memory workflow, and a day-one acceptance test.
+  </Card>
+  <Card title="G-Brain Setup" href="/tools/gbrain-setup" arrow>
+    Give your Claw a local semantic search index over a markdown knowledge base.
   </Card>
 </Cards>
 
-## What a well-configured Claw looks like
+## Recommended setup order for a new Claw
 
-Out of the box, a Claw is a capable general assistant. A configured Claw is something more specific — it has a name, a voice, persistent memory, and the tools it needs to do real work.
+| Step | Guide | What it gives you |
+|---|---|---|
+| 1 | [GPT-5.5 Setup](/tools/gpt-5-5-setup) | A strong coding model, restart-safe |
+| 2 | [ZenBin Setup](/tools/zenbin-setup) | A publishing path for docs and demos |
+| 3 | [Developer Agent Setup](/tools/hyperclaw-developer-agent) | Identity, memory, GitHub access |
+| 4 | [G-Brain Setup](/tools/gbrain-setup) | Semantic search over your knowledge base |
+| 5 | [SRE Agent Setup](/tools/sre-agent-setup) | 24/7 monitoring on a dedicated Claw |
 
-The Developer Agent Setup guide walks through:
-
-| What to set up | Why it matters |
-|---|---|
-| `SOUL.md` — identity and tone | Defines how your Claw sounds and decides |
-| `IDENTITY.md` — stable facts | Name, role, emoji — consistent across sessions |
-| `USER.md` — about you | Preferences, name, timezone, working style |
-| `TOOLS.md` — local environment | GitHub org, publishing targets, conventions |
-| `MEMORY.md` — durable memory | Things your Claw should never forget |
-| Model configuration | The right model for your use case, restart-safe |
-| GitHub access | Clone, edit, commit, and open PRs |
-| Publishing path | Share guides, demos, and artifacts publicly |
-
-The guide ends with a day-one acceptance test — a real task that proves every piece of the setup actually works.
+Steps 1–4 are for your primary working Claw. Step 5 is a separate Claw dedicated to SRE — spin it up when you're ready to monitor something.
