@@ -1,0 +1,185 @@
+---
+title: OpenClaw GPT-5.5 Setup
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Connect OpenClaw to GPT-5.5
+
+Use OpenAI Codex OAuth to run GPT-5.5 inside OpenClaw with a ChatGPT Plus or Pro account. No OpenAI API key required.
+
+<Callout type="warning">
+If a setup flow asks for an OpenAI API key, it is the wrong workflow. This guide uses the `openai-codex` OAuth provider.
+</Callout>
+
+## Before you start
+
+You need:
+
+- A running OpenClaw environment
+- A ChatGPT Plus or Pro account
+- Terminal access to the OpenClaw host
+- An agent or terminal session that can keep a PTY process open while you complete OAuth
+
+## Prompt to give your OpenClaw agent
+
+Paste this into your OpenClaw agent when you want it to perform the setup for you:
+
+```text
+Set up OpenAI Codex GPT-5.5 in OpenClaw starting from GLM-5.
+
+Do not ask for an OpenAI API key. This uses the user's ChatGPT Plus/Pro account via OpenAI Codex OAuth.
+
+Steps:
+
+1. Start the OAuth login flow in a PTY:
+openclaw models auth login --provider openai-codex --method oauth
+
+2. When the CLI prints an OpenAI OAuth URL, send that full URL to the user.
+
+3. Tell the user:
+- Open the link in their local browser
+- Sign in with their ChatGPT Plus or Pro account
+- Complete authorization
+- Copy the full localhost callback URL, for example:
+  http://localhost:1455/auth/callback?code=...&state=...
+- Paste it back into chat
+
+4. Keep the PTY process running while waiting.
+
+5. When the user sends the callback URL, paste the full callback URL into the waiting CLI prompt:
+"Paste the authorization code (or full redirect URL):"
+Then press Enter.
+
+6. Wait for the CLI to finish. Success should mention an auth profile like:
+openai-codex:<email> (openai-codex/oauth)
+and a model like:
+openai-codex/gpt-5.5
+
+7. Set GPT-5.5 as the default model:
+openclaw models set openai-codex/gpt-5.5
+
+8. Make the setup restart-safe by verifying ~/.openclaw/openclaw.json contains:
+- a models.providers.openai-codex entry using auth: "oauth"
+- agents.defaults.model.primary set to openai-codex/gpt-5.5
+
+The OAuth profile and provider config are separate. Do not assume OAuth success alone is enough.
+
+9. Restart OpenClaw, then verify with session status. If the current session is still on GLM-5, switch the current session or model override to:
+openai-codex/gpt-5.5
+
+10. Confirm to the user only after:
+- OAuth auth profile was saved
+- openclaw.json contains the openai-codex provider
+- default model was updated
+- current session status shows openai-codex/gpt-5.5
+```
+
+## Manual setup steps
+
+<Steps>
+
+### Start the OAuth login flow
+
+Run the login command in a PTY so it can wait for the callback URL:
+
+```bash
+openclaw models auth login --provider openai-codex --method oauth
+```
+
+### Open the OAuth URL
+
+When the CLI prints the OpenAI OAuth URL, open it in your local browser.
+
+Sign in with the ChatGPT account that has Plus or Pro, then complete authorization.
+
+### Paste the callback URL
+
+After authorization, the browser redirects to a localhost callback URL. Copy the full URL, including `code` and `state` query parameters.
+
+It should look something like this:
+
+```text
+http://localhost:1455/auth/callback?code=...&state=...
+```
+
+Paste that full URL into the waiting CLI prompt and press Enter.
+
+### Set GPT-5.5 as the default
+
+After OAuth succeeds, set the model:
+
+```bash
+openclaw models set openai-codex/gpt-5.5
+```
+
+### Verify the current session
+
+Check session status and confirm the active model is:
+
+```text
+openai-codex/gpt-5.5
+```
+
+</Steps>
+
+## Make it restart-safe
+
+The OAuth login and the model provider config are two different pieces of state.
+
+- **OAuth auth state** lives in `~/.openclaw/agents/main/agent/auth-profiles.json` and `~/.openclaw/agents/main/agent/auth-state.json`.
+- **Model availability** lives in `~/.openclaw/openclaw.json` under `models.providers`.
+
+That distinction matters. OAuth can succeed and persist, but GPT-5.5 can still disappear after a restart if `openclaw.json` loses the `openai-codex` provider declaration.
+
+Make sure `~/.openclaw/openclaw.json` contains this provider entry under `models.providers`:
+
+```json
+"openai-codex": {
+  "baseUrl": "https://api.openai.com/v1",
+  "api": "openai-completions",
+  "auth": "oauth",
+  "models": [
+    {
+      "id": "gpt-5.5",
+      "name": "GPT-5.5",
+      "reasoning": false,
+      "input": ["text", "image"],
+      "contextWindow": 200000,
+      "maxTokens": 32768
+    }
+  ]
+}
+```
+
+Then make the default model explicit:
+
+```json
+"agents": {
+  "defaults": {
+    "model": {
+      "primary": "openai-codex/gpt-5.5"
+    }
+  }
+}
+```
+
+<Callout type="tip">
+If GPT-5.5 disappears after a restart, check `openclaw.json` first. If `auth-profiles.json` still has your `openai-codex:&lt;email&gt;` profile, you probably did not lose auth — you only lost the provider declaration.
+</Callout>
+
+## What success looks like
+
+A successful setup should show all three:
+
+- OAuth profile saved, usually named `openai-codex:&lt;email&gt; (openai-codex/oauth)`
+- Default model set to `openai-codex/gpt-5.5`
+- Current session status showing `openai-codex/gpt-5.5`
+
+## Common mistakes
+
+- Asking for an OpenAI API key
+- Closing the PTY before pasting the callback URL
+- Stopping after OAuth login without setting the default model
+- Assuming OAuth success means the provider declaration is restart-safe
+- Confirming success before session status actually shows `openai-codex/gpt-5.5`
