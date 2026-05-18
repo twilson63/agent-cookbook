@@ -1,0 +1,198 @@
+---
+title: Manage Claws via API
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Recipe: Manage Claws via API
+
+**Platform:** Hyperclaw
+**Difficulty:** Intermediate
+**Time to set up:** 15–30 minutes
+
+## The problem
+
+The Hyperclaw dashboard is great for managing one or two Claws by hand. But if you're building a product on top of Hyperclaw — provisioning Claws for your own users, automating configuration, or integrating Claw management into existing workflows — you need the API.
+
+Hyperclaw exposes a full REST API for creating, configuring, and managing Claws programmatically.
+
+## Authentication
+
+Get your API key from the Hyperclaw dashboard under **Account → API Keys**. All requests use Bearer token auth:
+
+```bash
+Authorization: Bearer claws_YOUR_API_KEY
+```
+
+Set it once in your terminal session:
+
+```bash
+export CLAWS_API_KEY="claws_YOUR_API_KEY"
+export CLAWS_BASE_URL="https://claws.hyper.io"
+```
+
+## Core operations
+
+### List your Claws
+
+```bash
+curl -s \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws | jq
+```
+
+Returns an array of Claw records with `id`, `name`, `status`, `provider`, and connection state.
+
+### Create a Claw
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my-assistant",
+    "provider": "openrouter",
+    "providerApiKey": "sk-or-YOUR_OPENROUTER_KEY"
+  }' \
+  $CLAWS_BASE_URL/api/claws | jq
+```
+
+The response includes the new Claw's `id`. The pod starts provisioning immediately. Poll `GET /api/claws/:id` until `status` is `"running"`.
+
+### Get a specific Claw
+
+```bash
+curl -s \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID | jq
+```
+
+### Update environment variables
+
+Use this to inject secrets, configure integrations, or set custom variables your skills depend on:
+
+```bash
+curl -s -X PUT \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "env": "MY_CUSTOM_VAR=hello\nANOTHER_VAR=world"
+  }' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/env
+```
+
+The body is a dotenv-formatted string. Existing variables not in the payload are preserved.
+
+### Run a console command
+
+Execute any shell command inside the Claw pod without needing `kubectl`:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "openclaw agents list"}' \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/console/run | jq
+```
+
+Response includes `stdout`, `stderr`, `exitCode`, and `durationMs`. Commands time out at 15 seconds.
+
+### Upload a file to your Claw
+
+Push a skill file, config, or any other file directly into the Claw's workspace:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  -F "file=@./my-skill.md" \
+  -F "path=skills/my-skill.md" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/files
+```
+
+### Download a file from your Claw
+
+```bash
+curl -s \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  "$CLAWS_BASE_URL/api/claws/CLAW_ID/files/SOUL.md" \
+  -o SOUL.md
+```
+
+### Restart a Claw
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/restart | jq
+```
+
+Use this after updating environment variables or uploading new skill files to pick up changes.
+
+### Enable the chat API key
+
+Each Claw exposes an OpenAI-compatible chat endpoint. Enable the key to use it:
+
+```bash
+# Enable
+curl -s -X POST \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/chat-api-key/enable | jq
+
+# Get the key
+curl -s \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID/chat-api-key | jq
+```
+
+Use the returned key to call your Claw's OpenAI-compatible endpoint directly:
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer CLAW_CHAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "openclaw:main", "messages": [{"role": "user", "content": "Hello!"}]}' \
+  https://your-claw-endpoint/v1/chat/completions
+```
+
+### Delete a Claw
+
+```bash
+curl -s -X DELETE \
+  -H "Authorization: Bearer $CLAWS_API_KEY" \
+  $CLAWS_BASE_URL/api/claws/CLAW_ID | jq
+```
+
+This begins the deletion process. The pod and all associated resources are removed from the cluster.
+
+## Full API reference
+
+| Method | Path | What it does |
+|---|---|---|
+| `GET` | `/api/claws` | List all your Claws |
+| `POST` | `/api/claws` | Create a new Claw |
+| `GET` | `/api/claws/:id` | Get a specific Claw |
+| `DELETE` | `/api/claws/:id` | Delete a Claw |
+| `GET` | `/api/claws/:id/env` | Get environment variables |
+| `PUT` | `/api/claws/:id/env` | Update environment variables |
+| `PUT` | `/api/claws/:id/provider` | Change the model provider |
+| `PUT` | `/api/claws/:id/email` | Configure email (AgentMail) |
+| `POST` | `/api/claws/:id/email/inboxes` | Create an AgentMail inbox |
+| `PUT` | `/api/claws/:id/telegram` | Configure Telegram |
+| `GET` | `/api/claws/:id/files` | List workspace files |
+| `POST` | `/api/claws/:id/files` | Upload a file |
+| `GET` | `/api/claws/:id/files/:name` | Download a file |
+| `DELETE` | `/api/claws/:id/files/:name` | Delete a file |
+| `POST` | `/api/claws/:id/console/run` | Run a shell command |
+| `POST` | `/api/claws/:id/restart` | Restart the Claw pod |
+| `GET` | `/api/claws/:id/chat-api-key` | Get the chat API key |
+| `POST` | `/api/claws/:id/chat-api-key/enable` | Enable the chat API key |
+| `POST` | `/api/claws/:id/chat-api-key/disable` | Disable the chat API key |
+| `POST` | `/api/claws/:id/transfer` | Transfer ownership by email |
+
+<Callout type="info">
+All endpoints require a valid Bearer token. The `console/run` endpoint is only available when `ENABLE_INTERACTIVE_CONSOLE=true` is set on the control plane.
+</Callout>
+
+## Getting started
+
+Get your API key from **Account → API Keys** in the Hyperclaw dashboard and start with `GET /api/claws` to see your existing Claws.

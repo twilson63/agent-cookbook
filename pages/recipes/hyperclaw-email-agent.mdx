@@ -1,0 +1,97 @@
+---
+title: Give Your Claw an Email Address
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Recipe: Give Your Claw an Email Address
+
+**Platform:** Hyperclaw
+**Difficulty:** Beginner
+**Time to set up:** 5 minutes
+
+## The problem
+
+Most AI assistants can't send or receive email on your behalf. They can draft text, but they can't actually touch your inbox — and connecting your real Gmail carries real risk.
+
+Hyperclaw solves this by provisioning a dedicated AI inbox through [AgentMail](https://agentmail.to). Your Claw gets its own email address. It can send messages, read replies, and act on incoming mail — all from an address that's clearly linked to your agent, not your personal account.
+
+## The agent's job
+
+<Steps>
+
+### Enable email on your Claw
+
+Open your Claw in the Hyperclaw dashboard and click the **Email** tab. Click **Enable Email**. Hyperclaw calls the AgentMail API in the background and provisions a dedicated inbox for your Claw.
+
+Your Claw receives two environment variables automatically:
+- `AGENTMAIL_API_KEY` — authenticates all API calls
+- `AGENTMAIL_INBOX_ID` — identifies your Claw's inbox
+- `AGENTMAIL_EMAIL_ADDRESS` — the inbox's email address
+
+### Confirm the inbox is live
+
+Ask your Claw:
+
+> What's my email address? Check your inbox and tell me if there are any messages.
+
+It will read `$AGENTMAIL_EMAIL_ADDRESS` from its environment and call the AgentMail API to list messages.
+
+### Send your first email
+
+Ask your Claw to send a test message:
+
+> Send a test email to me at [your personal email]. Subject: "Hello from my Claw". Keep it short.
+
+Your Claw composes and sends the email via the AgentMail API. You should receive it within seconds.
+
+### Reply handling
+
+When someone replies to an email your Claw sent, the reply lands in the AgentMail inbox. Your Claw can check for new mail on demand or on a schedule:
+
+> Check my inbox every morning and summarize any replies I've received overnight.
+
+### (Optional) Set up real-time notifications
+
+For instant reply handling, ask your Claw to configure a webhook so incoming emails trigger an automatic response:
+
+> Set up a webhook so you're notified the moment a new email arrives in your inbox.
+
+</Steps>
+
+## What you need
+
+- A Hyperclaw account with an active Claw
+- Email enabled on the Claw (one click in the dashboard — no external API key required)
+
+<Callout type="info">
+Hyperclaw manages the AgentMail API key for you. You don't need to create an AgentMail account or configure anything outside the dashboard.
+</Callout>
+
+## What your Claw can do with email
+
+| Task | How to ask |
+|---|---|
+| Send an email | "Email [person] about [topic]" |
+| Check the inbox | "Any new emails?" |
+| Reply to a thread | "Reply to the last email from Sarah and let her know I'll follow up Friday" |
+| Summarize overnight mail | "Summarize everything in my inbox from the last 12 hours" |
+| Forward a message | "Forward the invoice from Acme to accounting@company.com" |
+| Draft and hold for review | "Draft a reply but don't send it yet — show me first" |
+
+## Expected results
+
+| Metric | Value |
+|---|---|
+| Setup time | Under 5 minutes |
+| Inbox provisioned | Automatically by Hyperclaw |
+| Send latency | Under 10 seconds |
+| No external accounts needed | ✓ |
+
+## Getting started
+
+Open your Claw in the Hyperclaw dashboard, click the **Email** tab, and hit **Enable Email**. That's it.
+
+<Callout type="tip">
+Your Claw's email address is persistent — it stays the same across pod restarts and updates. Share it with people who should be able to reach your agent directly.
+</Callout>

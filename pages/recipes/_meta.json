@@ -1,5 +1,8 @@
 {
   "index": "Overview",
+  "hyperclaw-launch-your-claw": "Launch Your First Claw",
+  "hyperclaw-email-agent": "Give Your Claw an Email Address",
+  "hyperclaw-manage-via-api": "Manage Claws via API",
   "invoice-automation": "Invoice Processing",
   "sales-prospecting": "Sales Prospecting",
   "content-repurposing": "Content Repurposing",
