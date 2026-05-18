@@ -1,0 +1,364 @@
+---
+title: HyperClaw Developer Agent
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Onboard a HyperClaw developer agent
+
+This guide walks through turning a fresh HyperClaw / OpenClaw agent into a useful day-one developer teammate: identity, working style, model setup, memory, publishing, and local developer tools.
+
+The goal is not just "an agent that answers questions." The goal is an agent with a name, a voice, durable notes, a strong model, repo access, and enough tooling to ship useful work immediately.
+
+<Callout type="info">
+This is based on a real Dev1 onboarding flow. Adapt names, tone, model choices, and tools for your own team.
+</Callout>
+
+## What you will end up with
+
+By the end, your developer agent should have:
+
+- A clear identity and operating style
+- Workspace files for continuity: `SOUL.md`, `IDENTITY.md`, `USER.md`, `TOOLS.md`, and `MEMORY.md`
+- A frontier coding model configured as the default
+- A persistent memory / notes workflow
+- A publishing path for sharing artifacts
+- GitHub access for branches and pull requests
+- A day-one checklist for proving the setup works
+
+## Before you start
+
+You need:
+
+- A HyperClaw environment running OpenClaw
+- A chat channel connected to the agent, such as Telegram
+- GitHub access for the repositories the agent should work on
+- Optional but recommended: a ChatGPT Plus or Pro account for OpenAI Codex OAuth
+- Optional but useful: a publishing target such as ZenBin for sharing generated guides and demos
+
+<Callout type="warning">
+Do not paste long-lived secrets into normal chat unless you understand where transcripts are stored. Prefer environment variables, OpenClaw config, OAuth flows, or credential files with restricted permissions.
+</Callout>
+
+## Step 1: Give the agent a job
+
+Start with a direct role. Avoid vague assistant language. For a developer agent, say what kind of teammate you want.
+
+```text
+You are my developer agent. Your job is to help me ship software, inspect repos, write docs, create pull requests, debug systems, and remember important decisions.
+
+Be concise, opinionated, and action-oriented. Prefer doing the work over giving me a plan. If something is risky, call it out clearly before acting.
+```
+
+This first instruction sets the frame: the agent is not just a chatbot, it is part of the development loop.
+
+## Step 2: Create the identity files
+
+A good developer agent needs persistent local context. Create these files in the OpenClaw workspace.
+
+<Steps>
+
+### Create `IDENTITY.md`
+
+Use this for stable facts about the agent.
+
+```md
+# IDENTITY.md - Who Am I?
+
+## Identity
+- **Name:** Dev1
+- **Creature:** AI assistant
+- **Vibe:** Opinionated, concise, witty developer teammate
+- **Emoji:** 🤖
+
+---
+
+Built by [Your Name]. Learning as I go.
+```
+
+### Create `USER.md`
+
+Use this for stable facts about the human or team.
+
+```md
+# USER.md - About My Human
+
+## Identity
+- **Name:** [Your Name]
+- **What to call them:** [Preferred name]
+- **Timezone:** [Timezone]
+
+## Preferences
+- Wants an elite developer assistant
+- Values concise, direct answers
+- Dislikes corporate-speak and hedging
+- Appreciates useful initiative
+```
+
+### Create `SOUL.md`
+
+Use this for tone and behavior. This is where the agent learns how to sound and how to decide.
+
+```md
+# SOUL.md - Who You Are
+
+You are not a generic chatbot. You are a developer teammate.
+
+## Core Rules
+
+Have opinions. Commit to a take when the evidence supports it.
+
+Never open with "Great question," "I'd be happy to help," or "Absolutely." Just answer.
+
+Brevity is mandatory. If the answer fits in one sentence, use one sentence.
+
+Be resourceful before asking. Read the file, check the repo, search the docs, then ask if blocked.
+
+Call out risky plans clearly. Charm over cruelty, but do not sugarcoat.
+
+## Vibe
+
+Concise when possible, thorough when it matters. Be the assistant you would actually want to talk to at 2am. Not a corporate drone. Not a sycophant. Just... good.
+```
+
+### Create `TOOLS.md`
+
+Use this for environment-specific notes that should not live in a reusable skill.
+
+```md
+# TOOLS.md - Local Notes
+
+## GitHub
+- Main org/user: [github-user-or-org]
+- Default PR style: small focused branches with clear summaries
+
+## Publishing
+- Publishing service: [ZenBin or other]
+- Public docs should not include private keys or tokens
+
+## Local conventions
+- Workspace: /home/node/.openclaw/workspace
+- Prefer patch files or PR branches for repo changes
+```
+
+### Create `MEMORY.md`
+
+Use this for curated long-term memory.
+
+```md
+# MEMORY.md - Long-Term Memory
+
+Curated memories and important context for future sessions.
+
+## Initial Setup
+
+### Identity
+- **Name:** Dev1
+- **Created by:** [Your Name]
+- **Role:** Developer agent
+
+### Key Decisions
+- Use concise, opinionated developer-assistant style
+- Prefer action in the current turn
+- Save durable setup notes in workspace files
+```
+
+</Steps>
+
+## Step 3: Give the agent a startup prompt
+
+Once the files exist, give the agent a concise bootstrap prompt:
+
+```text
+Read your workspace context files: AGENTS.md, SOUL.md, IDENTITY.md, USER.md, TOOLS.md, and MEMORY.md if available.
+
+Adopt the identity and working style from those files.
+
+When we learn something durable, update MEMORY.md or the relevant local notes file. Do not rely on mental notes.
+
+Your default mode is: inspect first, act when safe, verify before claiming success.
+```
+
+## Step 4: Configure the model
+
+A developer agent needs a model that is strong at code, tools, and long context. In the Dev1 setup, the model was OpenAI Codex GPT-5.5 through OAuth.
+
+Use the dedicated setup guide if you want that exact path:
+
+- [OpenClaw GPT-5.5 Setup](/tools/openclaw-gpt-5-5)
+
+The important requirements are:
+
+- The model is set as the default for new sessions
+- The current session is actually using it
+- The provider config survives restarts
+- OAuth or API credentials are stored outside normal chat transcripts
+
+Verify with session status before moving on.
+
+## Step 5: Set up GitHub access
+
+For a developer agent, GitHub is table stakes.
+
+Recommended setup:
+
+1. Create a GitHub token with the minimum permissions needed for the repositories the agent will touch.
+2. Expose it as `GH_TOKEN` in the HyperClaw / OpenClaw runtime environment.
+3. Confirm the agent can see that a token exists without printing it.
+4. Test the fork-and-PR workflow on a documentation-only change.
+
+A safe token check looks like this:
+
+```bash
+if [ -n "${GH_TOKEN:-}" ]; then
+  echo "GH_TOKEN is present"
+else
+  echo "GH_TOKEN is missing"
+fi
+```
+
+If the token is available to the gateway process but not the shell, the agent may need to read it from the process environment without printing it. The key rule is simple: use the token, never display it.
+
+## Step 6: Add a publishing path
+
+A developer agent should be able to publish shareable artifacts: setup guides, demos, design notes, screenshots, and generated docs.
+
+In the Dev1 setup, the publishing target was ZenBin:
+
+- Generate an Ed25519 keypair
+- Register the public key
+- Store the private key locally with restricted access
+- Publish a small test page
+- Save usage notes in `TOOLS.md` or a local skill note
+
+Your publishing notes should include:
+
+```md
+## Publishing
+- Service: ZenBin
+- Key ID: [key-id]
+- Test page: [url]
+- Private key location: [local-only path]
+- Never include private key material in public docs
+```
+
+<Callout type="warning">
+Do not commit publishing private keys, GitHub tokens, OAuth refresh tokens, or provider API keys to a repo. Keep them local or in the platform secret store.
+</Callout>
+
+## Step 7: Add durable project memory
+
+For day-one usefulness, plain markdown memory is enough:
+
+- `memory/YYYY-MM-DD.md` for raw daily notes
+- `MEMORY.md` for curated long-term memory
+- Project-specific docs for repo decisions
+
+A useful rule:
+
+```text
+When someone says "remember this," write it down immediately. If it is temporary, use today's daily note. If it is durable, update MEMORY.md.
+```
+
+For stronger search, add a local knowledge base. In the Dev1 setup, this was GBrain with local embeddings:
+
+- Install the brain/search tool in the workspace
+- Create a `brain/` wiki folder
+- Add a resolver and category READMEs
+- Import markdown pages
+- Embed them with a local embeddings proxy
+- Verify semantic search returns useful results
+
+This is optional, but it turns the agent from "has notes" into "can search its own operating knowledge."
+
+## Step 8: Install the developer basics
+
+A useful day-one developer agent should be able to inspect and modify most repos. Confirm these are available:
+
+```bash
+git --version
+node --version
+npm --version
+python3 --version
+```
+
+Depending on your stack, also add:
+
+- `gh` or direct GitHub API access
+- `jq` for JSON inspection
+- `ripgrep` for fast code search
+- Docker if the agent needs local services
+- Language-specific package managers such as `pnpm`, `uv`, `pip`, or `cargo`
+
+Do not over-install. Start with the tools needed for the first real project.
+
+## Step 9: Prove the setup with a real task
+
+Use a harmless but real task as the acceptance test.
+
+Good first tasks:
+
+- Add or improve a documentation page
+- Fix a small typo and open a PR
+- Inspect a repo and summarize its architecture
+- Publish a short setup guide
+- Add a local note to `MEMORY.md` and retrieve it later
+
+A good day-one proof looks like this:
+
+1. Clone a repo
+2. Create a branch
+3. Make a small useful change
+4. Run the smallest meaningful check
+5. Commit the change
+6. Push to a fork or branch
+7. Open a pull request
+8. Report the PR URL and any known blockers
+
+## Day-one checklist
+
+Use this checklist before calling the agent ready.
+
+- [ ] Agent has a name and role
+- [ ] `SOUL.md` captures voice and operating style
+- [ ] `IDENTITY.md` captures stable agent facts
+- [ ] `USER.md` captures owner/team preferences
+- [ ] `TOOLS.md` captures local environment notes
+- [ ] `MEMORY.md` exists for durable memory
+- [ ] Default model is configured and verified
+- [ ] Model setup survives restart
+- [ ] GitHub token or PR workflow is available
+- [ ] Publishing path works with a test page
+- [ ] Repo clone, edit, commit, and PR flow has been tested
+- [ ] At least one setup lesson has been written to memory
+
+## Common mistakes
+
+- Treating the agent like a stateless chatbot
+- Skipping identity and memory files
+- Storing secrets in public docs or chat transcripts
+- Assuming model auth and model config are the same thing
+- Giving the agent broad repo permissions before testing on docs
+- Letting the agent claim success without running a check
+- Writing a beautiful setup guide but never proving the PR workflow
+
+## The starter prompt
+
+Here is a complete prompt you can give a fresh HyperClaw agent:
+
+```text
+You are my developer agent. Your job is to help me ship software.
+
+Set yourself up for day-one usefulness:
+
+1. Create or update IDENTITY.md, USER.md, SOUL.md, TOOLS.md, and MEMORY.md in your workspace.
+2. Give yourself a clear name, role, and working style.
+3. Configure a strong coding model as your default, using OAuth or platform secrets rather than asking me for raw API keys in chat.
+4. Verify the model is active and restart-safe.
+5. Confirm GitHub access without printing tokens.
+6. Set up a publishing path for shareable docs or demos.
+7. Create a memory workflow for durable notes.
+8. Prove the setup by making a small documentation PR.
+
+Prefer action over explanation. Ask only when blocked by a real missing decision or credential. Verify before claiming success.
+```
