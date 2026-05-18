@@ -4,7 +4,7 @@ import { DocsThemeConfig } from 'nextra-theme-docs'
 const config: DocsThemeConfig = {
   logo: (
     <span style={{ fontWeight: 700, fontSize: '1.2rem' }}>
-      🍳 Agent Cookbook
+      🦀 HyperClaw Cookbook
     </span>
   ),
   project: {
@@ -14,13 +14,13 @@ const config: DocsThemeConfig = {
   footer: {
     text: (
       <span>
-        Agent Cookbook — built with{' '}
+        HyperClaw Cookbook — built with{' '}
         <a href="https://nextra.site" target="_blank" rel="noreferrer">
           Nextra
         </a>{' '}
         · Powered by{' '}
-        <a href="https://scoutos.live" target="_blank" rel="noreferrer">
-          Scout
+        <a href="https://hyper.io" target="_blank" rel="noreferrer">
+          HyperClaw
         </a>
       </span>
     ),
@@ -28,8 +28,8 @@ const config: DocsThemeConfig = {
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta property="og:title" content="Agent Cookbook" />
-      <meta property="og:description" content="A practical guide to AI models, agents, and agent harnesses — from beginner to builder." />
+      <meta property="og:title" content="HyperClaw Cookbook" />
+      <meta property="og:description" content="Your practical guide to building, automating, and scaling with HyperClaw — from your first Claw to production workflows." />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -37,7 +37,7 @@ const config: DocsThemeConfig = {
   ),
   useNextSeoProps() {
     return {
-      titleTemplate: '%s – Agent Cookbook',
+      titleTemplate: '%s – HyperClaw Cookbook',
     }
   },
   primaryHue: 220,

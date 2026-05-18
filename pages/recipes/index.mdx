@@ -6,32 +6,17 @@ import { Cards, Card, Callout } from 'nextra/components'
 
 # Recipes
 
-Recipes are ready-to-follow blueprints for automating real business tasks with AI agents. Each recipe explains exactly what the agent does, what tools it needs, and what results to expect.
-
-<Callout type="info">
-These recipes are written for **business users** — no coding required. Each one can be implemented using the tools in the [Tools](/tools) section, most without writing a single line of code.
-</Callout>
-
-## The recipes
+Step-by-step playbooks for getting real work done with HyperClaw. Each recipe explains the problem, walks through the setup, and tells you exactly what to expect.
 
 <Cards>
-  <Card title="Invoice Processing" href="/recipes/invoice-automation" arrow>
-    Finance — automate accounts payable from inbox to approval. Cut processing time from 9 minutes to 30 seconds.
+  <Card title="Launch Your First Claw" href="/recipes/hyperclaw-launch-your-claw" arrow>
+    Sign up, create a Claw, connect Telegram, and personalize your agent's identity — from zero to live in minutes.
   </Card>
-  <Card title="Sales Prospecting" href="/recipes/sales-prospecting" arrow>
-    Sales — research prospects, enrich CRM data, and draft personalized outreach automatically.
+  <Card title="Give Your Claw an Email Address" href="/recipes/hyperclaw-email-agent" arrow>
+    Provision an AgentMail inbox so your Claw can send and receive email automatically.
   </Card>
-  <Card title="Content Repurposing" href="/recipes/content-repurposing" arrow>
-    Marketing — turn one piece of content into a week's worth of social posts, emails, and more.
-  </Card>
-  <Card title="Employee Onboarding" href="/recipes/employee-onboarding" arrow>
-    HR / Ops — automate provisioning, documentation, and new hire Q&A from day one.
-  </Card>
-  <Card title="Supply Chain Monitoring" href="/recipes/supply-chain" arrow>
-    Operations — track shipments, flag exceptions, and handle vendor communication automatically.
-  </Card>
-  <Card title="🔧 SRE Watchdog" href="/recipes/sre-watchdog" arrow>
-    Platform Engineering — 24/7 infrastructure monitoring, auto-remediation, and smart alerting.
+  <Card title="Manage Claws via API" href="/recipes/hyperclaw-manage-via-api" arrow>
+    Create, configure, and control Claws programmatically with the full HyperClaw REST API.
   </Card>
 </Cards>
 
@@ -39,45 +24,13 @@ These recipes are written for **business users** — no coding required. Each on
 
 ## How to read a recipe
 
-Each recipe follows the same format so you always know what to expect:
+Each recipe follows the same structure:
 
-1. **Overview** — a one-paragraph summary of what the recipe does and why it matters
-2. **Use Case** — the specific business problem this agent solves and who it is for
-3. **Agent Architecture** — the agents, tools, and integrations required to run this workflow
-4. **Implementation Steps** — a step-by-step walkthrough of exactly what the agent does
-5. **Example Prompts** — real prompt examples you can copy, adapt, and use immediately
-6. **Expected Results** — time savings and outcomes from real-world deployments
-7. **Tips & Variations** — ways to extend or adapt the recipe for your situation
-8. **Getting Started** — the fastest path to running this today
-
----
-
-## Choosing your first recipe
-
-Not sure where to start? Here is a simple guide:
-
-| Your biggest pain point | Start here |
-|---|---|
-| Finance team drowning in invoices | [Invoice Processing](/recipes/invoice-automation) |
-| Reps spending mornings on research | [Sales Prospecting](/recipes/sales-prospecting) |
-| Marketing producing less content than planned | [Content Repurposing](/recipes/content-repurposing) |
-| Chaotic, inconsistent new hire experience | [Employee Onboarding](/recipes/employee-onboarding) |
-| Supply chain surprises derailing operations | [Supply Chain Monitoring](/recipes/supply-chain) |
+1. *The problem* — what you're trying to solve and why it matters
+2. *Steps* — exactly what to do, in order, with commands you can copy
+3. *What to expect* — what success looks like when you're done
+4. *Tips* — common mistakes to avoid and ways to extend the recipe
 
 <Callout type="tip">
-**Recommended starting point:** The [Content Repurposing](/recipes/content-repurposing) recipe requires no external system integrations — just a piece of content and an AI agent. It is the fastest way to see real value and build confidence before tackling more complex workflows.
+Start with [Launch Your First Claw](/recipes/hyperclaw-launch-your-claw) if you haven't created a Claw yet. The other recipes assume you already have one running.
 </Callout>
-
----
-
-## What makes a good recipe candidate?
-
-The best processes to automate with agents share a few traits:
-
-- **Repetitive** — the same steps happen over and over, triggered by the same inputs
-- **Rule-based** — there are clear criteria for what "correct" looks like
-- **High volume** — the time savings compound across many instances
-- **Multi-system** — the task requires pulling information from or pushing data to multiple tools
-- **Human bottleneck** — a person is currently the glue connecting different systems
-
-If the process you have in mind checks at least three of these boxes, it is a strong recipe candidate.

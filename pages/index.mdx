@@ -3,92 +3,51 @@ title: Welcome
 ---
 
 import { Callout, Cards, Card } from 'nextra/components'
-import { VideoEmbed } from '../components/VideoEmbed'
 
-# Welcome to the Agent Cookbook
+# Welcome to the HyperClaw Cookbook
 
-<VideoEmbed
-  src="/videos/agent-cookbook-intro.mp4"
-  title="Introduction to AI Agents"
-  description="Learn what AI agents are, who they're for, and how to think about them as team members"
-/>
-
-You've probably heard the buzz — *AI agents*, *large language models*, *autonomous workflows*. But what does any of it actually mean, and more importantly, **what can it do for you?**
-
-This cookbook is your guided tour. Whether you're completely new to AI or you've been tinkering for a while, we'll take you from the very basics all the way to building real autonomous agents that do useful work.
+HyperClaw gives you a personal AI agent — your Claw — that lives in the cloud, connects to Telegram and email, and gets smarter the more you use it. This cookbook shows you how to set it up, extend it, and put it to work.
 
 ## What you'll find here
 
 <Cards>
   <Card title="Quick Start" href="/quick-start" arrow>
-    Get up and running with your first agent in under 10 minutes.
+    Launch your first Claw and send your first message in under 10 minutes.
   </Card>
-  <Card title="History" href="/history" arrow>
-    Where did all this come from? A brief journey from rule-based systems to today's AI.
+  <Card title="Recipes" href="/recipes" arrow>
+    Step-by-step playbooks for connecting your Claw to email, managing Claws via API, and more.
+  </Card>
+  <Card title="HyperClaw Setup" href="/tools" arrow>
+    Set up a full developer agent with identity, memory, GitHub access, and a publishing workflow.
   </Card>
   <Card title="Concepts" href="/concepts" arrow>
     Understand the building blocks — models, agents, harnesses, and how they fit together.
   </Card>
-  <Card title="Recipes" href="/recipes" arrow>
-    Real-world playbooks for automating work across finance, sales, marketing, and ops.
-  </Card>
-  <Card title="Tools" href="/tools" arrow>
-    A practical guide to every major tool in the ecosystem — what each does and when to use it.
+  <Card title="AI Literacy Course" href="/ai-literacy" arrow>
+    A structured course from prompting basics to multi-agent teams. No coding required.
   </Card>
 </Cards>
 
-## Who this is for
+## What is HyperClaw?
 
-<Callout type="info">
-No coding experience required for most of this cookbook. Concepts and Recipes are written for anyone. The Tools section goes deeper for those who want to build.
+HyperClaw is an agent platform. Each Claw is your own dedicated AI pod — running OpenClaw, connected to your channels, and ready to take on work:
+
+| What your Claw can do | How |
+|---|---|
+| Chat with you on Telegram | Connected during setup, always on |
+| Receive and send email | AgentMail gives your Claw its own inbox |
+| Run custom skills | Markdown skill files define repeatable behaviors |
+| Remember things between sessions | Workspace files persist across restarts |
+| Be managed programmatically | Full REST API for create, configure, and deploy |
+
+Your Claw starts as a general assistant. The recipes and setup guides here show you how to make it specific — a developer agent, an email responder, an automation worker — whatever your workflow needs.
+
+## Where to start
+
+<Callout type="tip">
+New to HyperClaw? Go to [Quick Start](/quick-start) first — it takes less than 10 minutes and gets you to a live, talking Claw.
 </Callout>
 
-This cookbook is for **three types of people**:
+Already have a Claw and want to extend it? Jump to [Recipes](/recipes) for concrete playbooks, or [HyperClaw Setup](/tools) for the full developer agent walkthrough.
 
-- **The curious newcomer** — you've heard about AI and want to actually understand it, not just the hype. Start with [History](/history) and [Concepts](/concepts) to build a solid mental model before diving in.
-- **The business operator** — you want to save your team hours every week by putting agents to work. Head straight to [Recipes](/recipes) for step-by-step playbooks you can run today without writing any code.
-- **The builder** — you're ready to ship something and need to pick the right stack. The [Tools](/tools) section breaks down every major platform, when to use each, and how they fit together.
-
-Not sure which one you are? Start with [Quick Start](/quick-start) — it takes less than 10 minutes and shows you concretely what agents can do.
-
-## What is an AI agent, exactly?
-
-An AI agent is a program that uses a language model as its "brain" and connects it to tools — so instead of just answering questions, it can *take action*.
-
-A plain chatbot responds. An agent **acts**.
-
-Here's the difference in practice:
-
-| Chatbot | Agent |
-|---|---|
-| "Here's how you could draft that email." | Drafts the email and sends it. |
-| "Here's a summary of that document." | Reads the document, summarizes it, and files it in the right folder. |
-| "Here are some leads that might fit your criteria." | Searches the web, scores each lead, and adds them to your CRM. |
-
-The underlying model is the same — what changes is whether you've connected it to tools and given it the ability to act on your behalf.
-
-## How to think about agents
-
-Think of an AI agent like a **new team member** who never sleeps, never forgets, and can work across dozens of tools at once — but needs clear instructions. This cookbook teaches you how to give those instructions well, and which tools to put in their hands.
-
-A few principles that will serve you throughout:
-
-**Clarity beats cleverness.** The more specific your instructions, the better the output. Vague prompts produce vague results — good briefs produce good work.
-
-**Start narrow, then expand.** Don't try to automate your entire business in one go. Pick one well-defined task, get it working reliably, then build from there.
-
-**Agents work best with structure.** Give them a defined input, a clear goal, and a known output format. The more ambiguous any of those are, the more likely you'll need to iterate.
-
-**Oversight matters early on.** Modern agents are impressively capable, but they're not infallible. Build in review steps for anything consequential until you've established trust in a workflow.
-
-## A note on how to read this
-
-This cookbook is organized so you can jump around based on what you need. But if you're new to this space, the recommended order is:
-
-1. [Quick Start](/quick-start) — get hands-on immediately
-2. [History](/history) — understand how we got here
-3. [Concepts](/concepts) — learn the building blocks
-4. [Recipes](/recipes) — apply it to your real work
-5. [Tools](/tools) — go deeper when you're ready to build
-
-Let's start cooking.
+New to AI agents in general? The [AI Literacy Course](/ai-literacy) and [Concepts](/concepts) section will give you the mental models to get more out of everything else.

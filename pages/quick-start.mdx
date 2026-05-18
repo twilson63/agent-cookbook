@@ -2,136 +2,86 @@
 title: Quick Start
 ---
 
-import { Callout, Steps, Tabs, Tab } from 'nextra/components'
-import { ConceptVideo } from '../components/ConceptVideo'
+import { Callout, Steps } from 'nextra/components'
 
 # Quick Start
 
-Let's go from zero to your first working AI agent in under 10 minutes. No code required for steps 1–3.
-
-<ConceptVideo id="quick-start" title="Your first 10 minutes with AI agents" />
+Launch your first Claw and send your first message — takes about 10 minutes.
 
 <Steps>
 
-### Pick your starting point
+### Sign up for HyperClaw
 
-An AI model is the "brain" of your agent. Pick whichever feels most familiar — they all work for the steps that follow.
+Go to [hyper.io](https://hyper.io) and create an account. HyperClaw provisions a dedicated pod for each Claw — your agent runs 24/7 in the cloud, not on your machine.
 
-<Tabs items={['Claude', 'ChatGPT', 'Scout']}>
-  <Tab>
-    **Claude** by Anthropic — excellent at reasoning, long documents, and nuanced writing. Great default choice for tasks that require careful analysis or careful instruction-following.
+Once your account is ready, you'll land on the Claws dashboard.
 
-    Go to [claude.ai](https://claude.ai) and create a free account.
+### Create your first Claw
 
-    Free tier available. No credit card required to start.
+Click **New Claw** and give it a name. Choose a model provider — OpenRouter is the easiest starting point if you don't have an OpenAI key yet.
 
-    **Best for:** Writing, analysis, summarization, working with long documents, step-by-step reasoning.
-  </Tab>
-  <Tab>
-    **ChatGPT** by OpenAI — the most widely recognised AI assistant. Familiar to most people and works great for everyday tasks.
+The pod starts provisioning immediately. It will be ready in about 30 seconds. The status changes from `provisioning` to `running` when it's live.
 
-    Go to [chat.openai.com](https://chat.openai.com) and create a free account.
+<Callout type="info">
+Each Claw is its own isolated pod. You can create multiple Claws for different purposes — a personal assistant, a developer agent, a team bot — and manage them all from the same dashboard.
+</Callout>
 
-    Free tier available. GPT-4o included on the free plan.
+### Connect Telegram
 
-    **Best for:** General-purpose tasks, image understanding, browsing the web, generating images with DALL-E.
-  </Tab>
-  <Tab>
-    **Scout** — a platform built for deploying agents, not just chatting. If you already know you want to build and automate, start here.
+In the Claw settings, go to **Integrations → Telegram**. Follow the steps to connect your Telegram account — you'll be talking to your Claw through a bot in a few clicks.
 
-    Go to [scoutos.live](https://scoutos.live) and sign up.
+Once connected, open Telegram and send your Claw a message:
 
-    Scout is web-based — no installs required. Connects directly to Claude and other models.
+```
+Hello! What can you do?
+```
 
-    **Best for:** Building multi-step automated workflows, connecting to external tools and APIs, deploying agents your team can use repeatedly.
-  </Tab>
-</Tabs>
+Your Claw will respond. That's it — you have a live AI agent.
 
 ### Give it a real task
 
-Don't just say "tell me about AI." Give it a task you actually do at work. The key is specificity — the more context you provide, the more useful the response.
+Your Claw is a general assistant out of the box. Try something concrete:
 
-Here are some concrete examples you can use right now:
+```
+Summarize the key differences between REST and GraphQL APIs in plain English.
+```
 
-**Customer communications:**
-> "Here are my last 5 customer emails [paste them]. Draft a professional response to each one that acknowledges their concern, provides a clear next step, and maintains a friendly tone."
+Or something personal:
 
-**Meeting follow-up:**
-> "Here's the transcript from today's team meeting [paste it]. Summarize the key decisions made, list all action items with the responsible person's name, and flag any unresolved questions."
+```
+I need to write a follow-up email to a client who hasn't responded in two weeks.
+The context: we quoted them on a website redesign project last month.
+Draft something warm but direct.
+```
 
-**Data and spreadsheets:**
-> "I have a spreadsheet of invoices with columns: Invoice Number, Client, Date, Amount, and Status. Write an Excel formula that flags any invoice where Status is 'Open' and the Date is more than 30 days ago."
+The more specific you are, the more useful the response. Think of it like briefing a new teammate — give them the context they need to do the work well.
 
-**Research and synthesis:**
-> "Here are three articles about [topic]. Identify the main points of agreement, any areas where the authors disagree, and summarize the overall picture in 3 bullet points for a non-expert audience."
+### Customize your Claw (optional but recommended)
 
-Notice how the model completes the work — not just answers a question. **That's the shift from chatbot to agent.**
+Your Claw reads its identity from a `SOUL.md` file in its workspace. You can set its name, personality, and operating style by uploading one:
 
-The pattern in each example: provide the raw material, describe the task clearly, specify the format you want back.
+```markdown
+# SOUL.md
 
-### Level up: use a tool-enabled agent
+You are my personal assistant. Be concise and direct.
+Never open with "Great question!" or "Absolutely!" — just answer.
+When I ask you to remember something, write it to MEMORY.md immediately.
+```
 
-Claude and other models can be given **tools** — the ability to browse the web, run code, read files, or call APIs. This is where agents become genuinely autonomous.
+Upload the file via **Dashboard → Files → Upload**, then restart your Claw for it to take effect.
 
-Try **Claude.ai Projects** (free tier available):
-1. Create a new project
-2. Upload a document (a PDF, a spreadsheet, meeting notes — anything)
-3. Ask it to analyze, extract, or act on the content
+### What's next
 
-For example, upload your company's pricing sheet and ask: *"A customer wants X units of product A and Y units of product B with a 15% enterprise discount. Calculate the total and draft a quote email."*
+Your Claw is running. Here are the natural next steps:
 
-The agent reads the document and uses that knowledge to complete the task — you didn't have to copy-paste the pricing information manually.
-
-**What tool use unlocks:**
-- Agents that can look things up rather than relying only on what they were trained on
-- Agents that can run calculations and verify their own work
-- Agents that can interact with other software on your behalf
-
-### Automate a workflow
-
-Ready to go further? Pick one of the [Recipes](/recipes) and follow it step by step. Each recipe shows exactly how to set up an agent for a specific business task — no coding required for most of them.
-
-Good starting points based on your role:
-
-- **Sales:** [Sales Prospecting](/recipes/sales-prospecting) — research leads and draft outreach automatically
-- **Operations:** [Invoice Automation](/recipes/invoice-automation) — flag, categorize, and route invoices
-- **Marketing:** [Content Repurposing](/recipes/content-repurposing) — turn one piece of content into many formats
-- **HR:** [Employee Onboarding](/recipes/employee-onboarding) — guide new hires through your process
-
-### Build your own
-
-If you want to build custom agents and deploy them — either for yourself or for your team — head to the [Tools](/tools) section. We'll walk you through the full stack: picking a model, choosing a harness or platform, wiring up tools, and deploying something your team can actually use.
+- **[Give your Claw an email address](/recipes/hyperclaw-email-agent)** — AgentMail gives your Claw its own inbox so it can receive and respond to email automatically.
+- **[Manage Claws via API](/recipes/hyperclaw-manage-via-api)** — create, configure, and control Claws programmatically with the full REST API.
+- **[Set up a developer agent](/tools/hyperclaw-developer-agent)** — identity files, GitHub access, memory workflow, and a day-one acceptance test.
 
 </Steps>
 
 ---
 
 <Callout type="warning" emoji="💡">
-**The most common beginner mistake:** being too vague. An agent is only as good as your instructions. The more specific and contextual your prompt, the better the output. Think of it like briefing a smart contractor — they need to know *what* you want, *why* it matters, and *what good looks like*.
-
-If you get a disappointing result, don't assume the model isn't capable. Try adding more context, specifying the format you want, or breaking the task into smaller steps.
+*The most common mistake:* being too vague. Your Claw is only as good as your instructions. Add context, specify the format you want back, and break big tasks into steps. If you get a disappointing result, try adding more detail — not a different Claw.
 </Callout>
-
-## What just happened?
-
-You just experienced the core loop of every AI agent:
-
-```
-Instruction → Model thinks → Model acts → Result
-```
-
-As you add tools, memory, and automation, that loop becomes more powerful. But it's always that same structure. Everything in this cookbook builds on that foundation.
-
-Here's how those layers stack up:
-
-| Layer | What it adds | Example |
-|---|---|---|
-| Base model | Understands language, reasons, writes | Answer a question |
-| + Instructions | Consistent behavior, persona, constraints | Always reply in Spanish |
-| + Context/Memory | Remembers past interactions and documents | "Based on our last meeting..." |
-| + Tools | Can take action in the world | Browse the web, send an email |
-| + Automation | Runs on a schedule or trigger without you | Every Monday at 9am, send the report |
-
-Each recipe and guide in this cookbook sits somewhere on that stack. You'll know exactly which layer you're working with at every step.
-
-**Next:** [Understanding the history of AI](/history)

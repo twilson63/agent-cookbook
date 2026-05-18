@@ -1,85 +1,40 @@
 ---
-title: Tools
+title: HyperClaw Setup
 ---
 
-import { Cards, Card } from 'nextra/components'
-import { ConceptVideo } from '../../components/ConceptVideo'
+import { Cards, Card, Callout } from 'nextra/components'
 
-# Tools
+# HyperClaw Setup
 
-<ConceptVideo id="tools-overview" title="The AI tools landscape" />
+Everything you need to turn a fresh Claw into a powerful, production-ready agent.
 
-Every agent needs a harness — software that connects the model to the real world. This section covers the tools most commonly used to build agents, from the models themselves to the platforms that run and orchestrate them.
+<Callout type="info">
+New to HyperClaw? Start with the [Quick Start](/quick-start) to get your first Claw running before diving into the setup guide here.
+</Callout>
 
-We've organised them into three tiers:
-
-**Frontier Models** — The AI brains you give instructions to.
-
-**Coding Assistants** — Tools that use AI models to help you write and ship software faster.
-
-**Agent Platforms** — Full environments for deploying, running, and managing autonomous agents.
-
-## Which tool do I need?
-
-Different stages of agent development call for different tools:
-
-| Stage | Recommended Tool | Why |
-|-------|-----------------|-----|
-| Designing agent logic | Claude (API) | Direct model access, fast iteration on prompts |
-| Writing agent code | Cursor or Claude Code | AI-assisted coding in the environment you prefer |
-| Delegating bulk tasks | Claude Code | Autonomous multi-file engineering without babysitting |
-| Deploying to production | Scout | Infrastructure, monitoring, scheduling out of the box |
-| Automating in CI/CD | Claude Code | Non-interactive mode for pipelines |
-
-Most agent projects use tools from more than one tier. A common stack: Claude as the model brain, Claude Code or Cursor to write the integration code, and Scout to run it in production.
-
-## Frontier Models
-
-These are the large language models your agents are built on. They receive instructions, reason about them, and produce outputs — text, code, tool calls, decisions.
-
-The key variables when choosing a model are: reasoning depth, context window size, cost per token, and latency. Claude is optimised for long-context reasoning and safe enterprise use.
-
-## Coding Assistants
-
-These tools use AI models to help you write the agent infrastructure itself — the code that wires models to tools, data sources, and workflows.
-
-- **Cursor** — best for active development sessions where you want a pair programmer in the loop
-- **Claude Code** — best for delegating tasks end-to-end, running in CI, or handling bulk engineering work
-
-## Agent Platforms
-
-Once your agent works locally, you need infrastructure to run it reliably. Agent platforms handle deployment, scheduling, secrets management, monitoring, and scaling.
-
-- **Scout** — purpose-built for agent deployment with observability and team features built in
-
----
+## What's in this section
 
 <Cards>
-  <Card title="Claude" href="/tools/claude" arrow>
-    Anthropic's frontier model family — the brain behind many enterprise agents.
-  </Card>
-  <Card title="Claude Code" href="/tools/claude-code" arrow>
-    An autonomous coding agent that reads, writes, and ships code from your terminal.
-  </Card>
-  <Card title="Cursor" href="/tools/cursor" arrow>
-    The AI-first IDE — pair-programming with a model that understands your whole codebase.
-  </Card>
-  <Card title="OpenCode" href="/tools/open-code" arrow>
-    An open-source terminal coding agent. Lightweight, local-first, fully scriptable.
-  </Card>
-  <Card title="Scout" href="/tools/scout" arrow>
-    A platform for building, deploying, and monitoring production AI agents.
-  </Card>
-  <Card title="OpenClaw" href="/tools/openclaw" arrow>
-    Open-source agent harness with 50+ integrations and a plugin architecture.
-  </Card>
-  <Card title="HyperClaw Developer Agent" href="/tools/hyperclaw-developer-agent" arrow>
-    Onboard a developer agent with identity, memory, model setup, publishing, and GitHub PR workflow.
-  </Card>
-  <Card title="OpenClaw GPT-5.5 Setup" href="/tools/openclaw-gpt-5-5" arrow>
-    Connect OpenClaw to GPT-5.5 through OpenAI Codex OAuth, no API key required.
-  </Card>
-  <Card title="NanoClaw" href="/tools/nanoclaw" arrow>
-    Ultra-lightweight agent runtime — 678KB binary, &lt;2ms startup, runs anywhere.
+  <Card title="Developer Agent Setup" href="/tools/hyperclaw-developer-agent" arrow>
+    Full walkthrough: identity files, model configuration, GitHub access, memory workflow, publishing path, and a day-one acceptance test.
   </Card>
 </Cards>
+
+## What a well-configured Claw looks like
+
+Out of the box, a Claw is a capable general assistant. A configured Claw is something more specific — it has a name, a voice, persistent memory, and the tools it needs to do real work.
+
+The Developer Agent Setup guide walks through:
+
+| What to set up | Why it matters |
+|---|---|
+| `SOUL.md` — identity and tone | Defines how your Claw sounds and decides |
+| `IDENTITY.md` — stable facts | Name, role, emoji — consistent across sessions |
+| `USER.md` — about you | Preferences, name, timezone, working style |
+| `TOOLS.md` — local environment | GitHub org, publishing targets, conventions |
+| `MEMORY.md` — durable memory | Things your Claw should never forget |
+| Model configuration | The right model for your use case, restart-safe |
+| GitHub access | Clone, edit, commit, and open PRs |
+| Publishing path | Share guides, demos, and artifacts publicly |
+
+The guide ends with a day-one acceptance test — a real task that proves every piece of the setup actually works.
