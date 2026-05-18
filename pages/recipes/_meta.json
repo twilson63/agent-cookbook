@@ -4,5 +4,6 @@
   "sales-prospecting": "Sales Prospecting",
   "content-repurposing": "Content Repurposing",
   "employee-onboarding": "Employee Onboarding",
-  "supply-chain": "Supply Chain Monitoring"
+  "supply-chain": "Supply Chain Monitoring",
+  "sre-watchdog": "SRE Watchdog"
 }
