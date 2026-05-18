@@ -5,156 +5,50 @@ title: SRE Watchdog
 import { Steps, Callout, Tabs, Tab } from 'nextra/components'
 import { ConceptVideo } from '../../components/ConceptVideo'
 
-# Recipe: SRE Watchdog
 
-**Department:** Platform Engineering / DevOps
-**Difficulty:** Intermediate
-**Time to set up:** 1–2 hours
+Your infrastructure breaks at 3am. You wake up to a pager alert, log in, restart a pod, and go back to sleep. Tomorrow night, it happens again. The fix is always the same — but you're the one doing it.
 
-<ConceptVideo id="recipe-sre-watchdog" title="A 24/7 agent that monitors infrastructure, auto-remediates issues, and alerts you when humans need to step in" />
+What if an agent could handle this? Not a fancy ML monitoring platform with a per-seat license. Just an OpenClaw agent that runs `kubectl` commands every 5 minutes, fixes what it can, and only wakes you up when it can't.
 
-## Overview
+I set one up this week. Here's how.
 
-The SRE Watchdog agent runs 24/7, continuously monitoring your Kubernetes cluster and services. It detects crashes, resource pressure, and service degradation — fixes what it can silently, and alerts you only when human intervention is needed. The result is faster incident response, fewer 3am pages, and infrastructure that largely maintains itself.
+## What It Does
 
-## Use Case
+The SRE watchdog agent:
 
-**Who this is for:** Platform engineers, DevOps teams, and solo founders running production infrastructure who are tired of being the only one awake at 3am when a pod crashes.
+- **Wakes up every 5 minutes** and runs a health check across your Kubernetes cluster
+- **Auto-remediates** common issues — restarting crashed pods, cleaning up disk space, retrying failed deployments
+- **Alerts you** only when it can't fix something, or when something looks genuinely dangerous (OOM kills, security anomalies, disk >90%)
+- **Stays quiet** during resolved incidents — it tracks state so it doesn't page you about the same problem twice
+- **Documents everything** — every action it takes goes into daily memory files with timestamps
 
-**The problem it solves:** Infrastructure monitoring requires constant attention — pod crashes, disk filling up, services degrading, error logs piling up. Traditional alerting systems wake you up for everything, including things that could have been auto-fixed. Manual toil consumes engineering time that should go toward building, not babysitting.
+The key insight: most "incidents" are repetitive and fixable. The agent handles 80-90% of them silently. You only hear about the ones that actually need a human.
 
-**Trigger:** A heartbeat that runs every 5 minutes (configurable), checking cluster health and service endpoints.
+## The Architecture
 
-## Agent Architecture
+It's one OpenClaw agent running on a pod in your cluster with three workspace files:
 
-| Component | Purpose |
-|---|---|
-| Kubernetes (kubectl) | Monitors pod health, crash loops, PVCs, node resources |
-| Messaging (Telegram, Slack) | Sends alerts and remediation summaries |
-| Model provider (Ollama, OpenRouter) | Powers the agent's reasoning and decision-making |
-| Playbooks (memory) | Defines remediation steps for common failure patterns |
-| Heartbeat scheduler | Runs health checks on a configurable interval |
-| Persistent storage (PVC) | Keeps state, logs, and playbooks across restarts |
+1. **`SOUL.md`** — who the agent is and how it thinks
+2. **`HEARTBEAT.md`** — the checklist it follows every 5 minutes
+3. **`memory/playbooks/`** — specific remediation steps for common failures
 
-This recipe uses a **heartbeat-driven orchestration pattern**: the agent wakes up every few minutes, runs a checklist, compares results against known state, and only acts or alerts when something changed.
+The heartbeat is the engine. Every 5 minutes, the agent reads `HEARTBEAT.md`, runs the checks, takes action, and writes results to `memory/heartbeat-state.json`. If something needs your attention, it sends you a Telegram message.
 
-## Implementation Steps
+## Step 1: Create a Telegram Bot
 
-<Steps>
+Message [@BotFather](https://t.me/BotFather) on Telegram:
 
-### Set up the OpenClaw configuration
-
-Create an `openclaw.json` configuration file. This is the main config that defines your agent's model, messaging channel, tools, and heartbeat interval.
-
-Key settings:
-- **Model:** Use a cloud model like `glm-5.1:cloud` on Ollama or `z-ai/glm-5.1` on OpenRouter for reliable 24/7 availability
-- **Heartbeat interval:** `300` seconds (5 minutes) — frequent enough to catch issues, sparse enough to keep costs low
-- **Exec security:** `full` — the agent needs shell access to run `kubectl` and diagnostic commands
-- **Channel:** Telegram or Slack for alerts
-
-<Callout type="warning">
-Never commit real API keys, bot tokens, or gateway tokens to source control. Use `<PLACEHOLDER>` values in your config and inject secrets through your deployment mechanism (Kubernetes Secrets, environment variables, or a secrets manager).
-</Callout>
-
-```json
-{
-  "gateway": {
-    "mode": "local",
-    "bind": "lan",
-    "auth": {
-      "mode": "token",
-      "token": "<GATEWAY_TOKEN>"
-    }
-  },
-  "commands": {
-    "native": "auto",
-    "nativeSkills": "auto",
-    "restart": true,
-    "ownerAllowFrom": ["<OWNER_TELEGRAM_ID>"],
-    "allowFrom": {
-      "telegram": ["<OWNER_TELEGRAM_ID>"]
-    }
-  },
-  "tools": {
-    "exec": {
-      "security": "full",
-      "ask": "off"
-    },
-    "web": {
-      "search": {
-        "provider": "duckduckgo"
-      }
-    }
-  },
-  "agents": {
-    "defaults": {
-      "workspace": "/home/node/.openclaw/workspace",
-      "elevatedDefault": "full",
-      "model": {
-        "primary": "ollama/glm-5.1:cloud"
-      },
-      "heartbeat": {
-        "interval": 300,
-        "model": "openrouter/free"
-      }
-    }
-  },
-  "env": {
-    "OLLAMA_API_KEY": "<OLLAMA_KEY>"
-  },
-  "models": {
-    "providers": {
-      "ollama": {
-        "baseUrl": "https://ollama.com",
-        "apiKey": "<OLLAMA_KEY>",
-        "api": "ollama",
-        "models": [
-          {
-            "id": "glm-5.1:cloud",
-            "name": "glm-5.1:cloud",
-            "reasoning": false,
-            "input": ["text"],
-            "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
-            "contextWindow": 200000,
-            "maxTokens": 32768
-          }
-        ]
-      }
-    }
-  },
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "botToken": "<TELEGRAM_BOT_TOKEN>",
-      "dmPolicy": "allowlist",
-      "allowFrom": ["<OWNER_TELEGRAM_ID>"],
-      "defaultTo": "<OWNER_TELEGRAM_ID>",
-      "groupPolicy": "disabled"
-    }
-  },
-  "cron": {
-    "enabled": true
-  },
-  "skills": {
-    "entries": {
-      "healthcheck": { "enabled": true },
-      "github": { "enabled": true }
-    }
-  },
-  "browser": {
-    "enabled": true,
-    "defaultProfile": "openclaw",
-    "headless": true,
-    "noSandbox": true
-  }
-}
+```
+/newbot
+Name: SRE Watchdog
+Username: sre_watchdog_<yourteam>_bot
 ```
 
-### Write the agent's personality
+Save the bot token. Then message [@userinfobot](https://t.me/userinfobot) to get your Telegram user ID.
 
-Create a `SOUL.md` file in the workspace. This defines how the agent thinks and communicates.
+## Step 2: Write the Agent's Brain
 
-The SRE Watchdog should be terse, action-oriented, and prefer fixing things silently over waking you up at 3am.
+Create `SOUL.md`:
 
 ```markdown
 # SRE Watchdog
@@ -164,10 +58,10 @@ You are an always-on Site Reliability Engineer. Your job: keep infrastructure he
 ## Principles
 
 - **Prefer auto-remediation** over alerts. Fix it, then tell the human what you fixed.
-- **Be concise in alerts.** Include: what broke, what you did, what to check. No fluff.
+- **Be concise in alerts.** What broke, what you did, what to check. No fluff.
 - **Don't over-alert.** If you restarted a pod at 3am and it came back fine, leave a note, not a page.
 - **Know your limits.** Never delete production data, rotate certs, or change security policy without explicit approval.
-- **Document everything.** Write remediation actions to memory/daily notes with timestamps.
+- **Document everything.** Write remediation actions to memory with timestamps.
 - **Stay calm.** Infrastructure breaks. That's normal. Fix it methodically.
 
 ## Tone
@@ -175,9 +69,9 @@ You are an always-on Site Reliability Engineer. Your job: keep infrastructure he
 Short, technical, precise. You're a pager-duty responder, not a chatbot.
 ```
 
-### Define the heartbeat checklist
+## Step 3: Write the Heartbeat Checklist
 
-Create a `HEARTBEAT.md` file. This is the script the agent follows every time it wakes up.
+Create `HEARTBEAT.md`:
 
 ```markdown
 # SRE Watchdog Heartbeat
@@ -197,12 +91,10 @@ Create a `HEARTBEAT.md` file. This is the script the agent follows every time it
 
 ### Disk & Resources
 - Check node disk usage: `df -h`
-- Check memory pressure: `kubectl top nodes` (if metrics-server available)
 - If >85% disk → clean up logs, alert owner
 
 ### Log Analysis
-- Recent errors: `kubectl logs -l app=<service> --tail=50` for each critical service
-- Pattern detection: recurring errors, new error types
+- Recent errors: `kubectl logs -l app=<service> --tail=50`
 - If new critical errors → investigate, attempt fix, alert
 
 ## Escalation Rules
@@ -210,32 +102,16 @@ Create a `HEARTBEAT.md` file. This is the script the agent follows every time it
 - **Silent fix**: Restart a crashed pod, clear temp files, retry failed deploys
 - **Alert owner**: Disk >90%, repeated OOM kills, service down >5 min, security anomalies
 - **Never act on**: Production data deletion, force-push main branch, cert rotation
-- **Quiet hours (23:00-07:00)**: Only alert for P0 incidents (service down, security breach)
+- **Quiet hours (23:00-07:00)**: Only alert for P0 incidents
 
 ## State Tracking
 
-Write results to `memory/heartbeat-state.json`:
-```json
-{
-  "lastChecks": {
-    "pods": 1747579200,
-    "endpoints": 1747579200,
-    "disk": 1747578900,
-    "logs": 1747579200
-  },
-  "knownIssues": [],
-  "silencedAlerts": []
-}
+Write results to `memory/heartbeat-state.json`. Do NOT repeat alerts for known issues.
 ```
 
-Do NOT repeat alerts for known issues that are already tracked.
-```
+## Step 4: Write Playbooks
 
-### Write remediation playbooks
-
-Create playbook files under `memory/playbooks/` in the agent workspace. These give the agent specific steps for common failure scenarios.
-
-**`memory/playbooks/pod-crashloop.md`:**
+Create `memory/playbooks/pod-crashloop.md`:
 
 ```markdown
 # Playbook: Pod CrashLoopBackOff
@@ -250,7 +126,7 @@ Create playbook files under `memory/playbooks/` in the agent workspace. These gi
 5. If persistent: alert owner with logs summary
 ```
 
-**`memory/playbooks/service-down.md`:**
+Create `memory/playbooks/service-down.md`:
 
 ```markdown
 # Playbook: Service Down
@@ -260,12 +136,11 @@ Create playbook files under `memory/playbooks/` in the agent workspace. These gi
 3. Check endpoints: `kubectl get endpoints <service> -n <ns>`
 4. If no pods running: check deployment events
 5. If crash loop: follow pod-crashloop playbook
-6. If pods running but unhealthy: check readiness probes
-7. Auto-remediation: restart deployment if no config change needed
-8. Alert owner with: service name, status, action taken, logs snippet
+6. Auto-remediation: restart deployment if no config change needed
+7. Alert owner with: service name, status, action taken, logs snippet
 ```
 
-**`memory/playbooks/disk-full.md`:**
+Create `memory/playbooks/disk-full.md`:
 
 ```markdown
 # Playbook: Disk Full
@@ -274,20 +149,104 @@ Create playbook files under `memory/playbooks/` in the agent workspace. These gi
 2. `du -sh /var/log/* | sort -rh | head -10` — find large logs
 3. Safe cleanups:
    - Old logs: `find /var/log -name "*.log" -mtime +7 -delete`
-   - Docker: `docker system prune -f` (if available)
    - K8s: `kubectl delete pods --field-selector=status.phase=Failed -A`
 4. If still >85%: alert owner
 ```
 
-### Deploy to Kubernetes
+## Step 5: Configure openclaw.json
 
-Create a Kubernetes manifest with a Secret for configuration and a Deployment for the agent.
+This is the main config. Replace the `<PLACEHOLDER>` values with your own:
 
-Key deployment details:
-- **Persistent storage:** Use a PVC so state, playbooks, and memory survive restarts
-- **Probes:** Health/readiness probes at `/healthz` and `/readyz` ensure K8s restarts the agent if it becomes unresponsive
-- **Init container:** Merges config from the Secret with any runtime state on the PVC
-- **Resource limits:** 1Gi request / 4Gi limit — enough for model inference
+```json
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "auth": {
+      "mode": "token",
+      "token": "<GATEWAY_TOKEN>"
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerAllowFrom": ["<YOUR_TELEGRAM_ID>"],
+    "allowFrom": {
+      "telegram": ["<YOUR_TELEGRAM_ID>"]
+    }
+  },
+  "tools": {
+    "exec": {
+      "security": "full",
+      "ask": "off"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/home/node/.openclaw/workspace",
+      "elevatedDefault": "full",
+      "model": {
+        "primary": "ollama/glm-5.1:cloud"
+      },
+      "heartbeat": {
+        "interval": 300,
+        "model": "openrouter/free"
+      }
+    }
+  },
+  "env": {
+    "OLLAMA_API_KEY": "<YOUR_OLLAMA_KEY>"
+  },
+  "models": {
+    "providers": {
+      "ollama": {
+        "baseUrl": "https://ollama.com",
+        "apiKey": "<YOUR_OLLAMA_KEY>",
+        "api": "ollama",
+        "models": [
+          {
+            "id": "glm-5.1:cloud",
+            "name": "glm-5.1:cloud",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+            "contextWindow": 200000,
+            "maxTokens": 32768
+          }
+        ]
+      }
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "<YOUR_BOT_TOKEN>",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["<YOUR_TELEGRAM_ID>"],
+      "defaultTo": "<YOUR_TELEGRAM_ID>",
+      "groupPolicy": "disabled"
+    }
+  },
+  "cron": { "enabled": true },
+  "skills": {
+    "entries": {
+      "healthcheck": { "enabled": true },
+      "github": { "enabled": true }
+    }
+  }
+}
+```
+
+Key settings:
+- **`heartbeat.interval: 300`** — wakes up every 5 minutes (adjust to 60 for aggressive, 900 for chill)
+- **`heartbeat.model: "openrouter/free"`** — uses a free model for routine checks, only fires the primary model when it detects an issue
+- **`exec.security: "full"`** — the agent needs shell access to run `kubectl`
+- **`elevatedDefault: "full"` — allows the agent to act on elevated commands without asking
+
+## Step 6: Deploy to Kubernetes
+
+Create `sre-watchdog.yaml`:
 
 ```yaml
 apiVersion: v1
@@ -299,7 +258,7 @@ type: Opaque
 stringData:
   openclaw.json: |
     <paste your openclaw.json here>
-  OLLAMA_API_KEY: "<OLLAMA_KEY>"
+  OLLAMA_API_KEY: "<YOUR_OLLAMA_KEY>"
   OPENCLAW_GATEWAY_TOKEN: "<GATEWAY_TOKEN>"
 ---
 apiVersion: apps/v1
@@ -330,7 +289,6 @@ spec:
       containers:
         - name: openclaw
           image: ghcr.io/openclaw/openclaw:latest
-          imagePullPolicy: IfNotPresent
           env:
             - name: OLLAMA_API_KEY
               valueFrom:
@@ -385,111 +343,67 @@ spec:
       storage: 5Gi
 ```
 
-Deploy with:
+Deploy it:
 
 ```bash
 kubectl apply -f sre-watchdog.yaml
 kubectl get pods -n claws-runtime -w
 ```
 
-### Verify it's running
+Wait for `1/1 Running`. Then message your Telegram bot to confirm it responds.
 
-Once the pod is `1/1 Running`, message your Telegram bot to confirm it responds. Then watch the logs for heartbeat activity:
+## Step 7: Verify the Heartbeat
+
+Watch the logs for the first heartbeat cycle:
 
 ```bash
-kubectl logs -n claws-runtime -l claws.io/claw-id=sre-watchdog --tail=20
+kubectl logs -n claws-runtime -l claws.io/claw-id=sre-watchdog --tail=30
 ```
 
 You should see:
-- `[gateway] agent model: ollama/glm-5.1:cloud`
-- `[heartbeat] started`
-- `[telegram] [default] starting provider`
-
-The agent will begin its first heartbeat check within 5 minutes.
-
-</Steps>
-
-## Example Prompts
-
-<Tabs items={["Pod crash check", "Service health probe", "Disk pressure alert"]}>
-<Tab>
 ```
-You are an SRE watchdog agent. Every 5 minutes you perform a health check.
-
-Run: kubectl get pods -A | grep -v Running | grep -v Completed
-
-If any pods are in CrashLoopBackOff, Error, or OOMKilled:
-1. Get the last 100 lines of logs
-2. Check events with kubectl describe pod
-3. If OOMKilled: note it and alert the owner
-4. If config error: check the related secret/configmap
-5. If transient: delete the pod and monitor restart
-6. Log all actions to memory with timestamps
+[gateway] agent model: ollama/glm-5.1:cloud
+[heartbeat] started
+[telegram] [default] starting provider (@sre_watchdog_yourteam_bot)
 ```
-</Tab>
-<Tab>
+
+Within 5 minutes, the agent will run its first health check. If everything is green, it stays quiet. If something's wrong, you'll get a Telegram message with a summary.
+
+## What Happens in Practice
+
+**Scenario 1: Pod crashes at 3am**
+
+The heartbeat detects `CrashLoopBackOff`. The agent reads the pod's logs, identifies the cause (let's say an OOM kill), deletes the pod to force a restart, and logs the action. Pod comes back. You wake up to a Telegram message: *"Pod api-server-7f8d9 in production namespace crashed (OOMKilled). Deleted pod to force restart. Pod is now Running. Memory limit may need adjustment."*
+
+**Scenario 2: Disk filling up**
+
+The agent sees node disk at 87%. It runs the disk-full playbook — finds 2GB of old logs, cleans them up, rechecks. Disk drops to 72%. No alert needed. The next morning you see a note in memory: *"Cleaned 2GB of logs from node-1. Disk at 72%."*
+
+**Scenario 3: Service genuinely down**
+
+The agent can't restart a service because the deployment itself has a bad config. It tries once, fails, and sends you a message: *"Service payment-api is down. Attempted restart — pods not coming up. Last error: ConfigMap 'payment-config' references missing key. Check your deployment."* Now you're not starting from scratch — you already know what's wrong.
+
+## Cost Optimization
+
+The heartbeat model runs every 5 minutes but it's mostly executing shell commands. Use `"openrouter/free"` for the heartbeat model — it only needs to read the output and decide whether to act. The primary model (`glm-5.1:cloud` on Ollama) only fires when there's an actual issue to diagnose or an alert to compose.
+
+At 5-minute intervals with free-tier heartbeat model, you're looking at roughly $0.02-0.05/day on Ollama for the primary model calls (only triggered when something breaks). Compare that to a $20-50/month monitoring SaaS.
+
+## Making It Yours
+
+**Add your services:** Edit `HEARTBEAT.md` to add service-specific checks:
+
+```markdown
+### Payment API
+- Probe: `curl -sf https://api.example.com/health || echo DOWN`
+- Pods: `kubectl get pods -n production -l app=payment-api`
+- If down → restart deployment, alert owner
 ```
-Check the health of the gateway service:
 
-1. kubectl get pods -n claws-runtime -l app=openclaw
-2. curl -sf http://localhost:18789/healthz || echo GATEWAY_DOWN
-3. kubectl logs -n claws-runtime -l app=openclaw --tail=20
+**Add Slack alongside Telegram:** Drop a Slack channel config into `openclaw.json` for team visibility. Auto-remediation notes go to Slack; only P0 pages go to Telegram.
 
-If the gateway is down or unhealthy:
-- Restart the deployment: kubectl rollout restart deployment
-- Wait 60 seconds, re-check
-- If still down after restart: alert the owner immediately
-- Log all findings to memory/heartbeat-state.json
-```
-</Tab>
-<Tab>
-```
-Disk usage has exceeded 85% on a node. Follow this playbook:
+**Tune the escalation:** Adjust the quiet hours and thresholds to match your team's on-call schedule. The playbooks are plain markdown — edit them anytime, the agent picks up changes on the next heartbeat.
 
-1. df -h — identify which partition is full
-2. du -sh /var/log/* | sort -rh | head -10 — find the largest log files
-3. Safe cleanup actions:
-   - Delete logs older than 7 days: find /var/log -name "*.log" -mtime +7 -delete
-   - Remove completed pods: kubectl delete pods --field-selector=status.phase=Failed -A
-   - Docker prune if available: docker system prune -f
-4. Re-check disk usage after cleanup
-5. If still above 90%: alert the owner with the partition, usage %, and top 5 largest files
-```
-</Tab>
-</Tabs>
+---
 
-## Expected Results
-
-| Metric | Before | After |
-|---|---|---|
-| Mean time to detect pod crash | 15–30 min (human notices alert) | <5 min (heartbeat detects) |
-| Mean time to remediate transient crash | 30–60 min (human logs in, restarts) | <5 min (auto-restart, log note) |
-| False positive pages per week | 5–10 (noisy alerting) | 0–1 (suppressed known issues) |
-| Disk full incidents per quarter | 2–3 (unexpected) | 0 (proactive cleanup at 85%) |
-| On-call engineer wake-ups per month | 8–12 | 1–2 (only P0) |
-
-<Callout type="info">
-**Real-world result:** Teams running SRE watchdog agents report 80–90% reduction in manual toil for infrastructure management. Most pod crashes and disk pressure events are resolved before any human is paged, and the ones that do require attention come with a full diagnostic summary attached.
-</Callout>
-
-## Tips & Variations
-
-**Multi-cluster monitoring:** Point `kubectl` at different clusters using `KUBECONFIG` context switching. Add a cluster field to your heartbeat state so the agent tracks which cluster it's checking.
-
-**Slack integration:** Add a Slack channel alongside Telegram for team-wide visibility. Alert messages go to both channels; auto-remediation notes go to Slack only (no need to wake someone up for a fix already applied).
-
-**Escalation tiers:** Add a second heartbeat that runs every 30 minutes for deeper checks — log pattern analysis, certificate expiry warnings, and drift detection. Use a cheaper model for the 30-min tier to keep costs down.
-
-**Webhook probes:** Extend the heartbeat to `curl` your public endpoints and API health routes. The agent can detect 5xx responses and correlate them with pod restarts.
-
-**Cost optimization:** Use a free/cheap model for the heartbeat tier (the agent is mostly running `kubectl` commands, not reasoning) and only invoke the primary model when an anomaly is detected. Set `heartbeat.model` to `"openrouter/free"` for the health check loop.
-
-## Getting Started
-
-1. **Create a Telegram bot** — message @BotFather on Telegram, run `/newbot`, and save the token. Message @userinfobot to get your Telegram user ID.
-2. **Generate a gateway token** — run `openssl rand -hex 16` and save it. This authenticates the agent.
-3. **Get a model API key** — sign up at ollama.com (free tier available) or openrouter.ai for your inference provider.
-4. **Fill in the config** — replace all `<PLACEHOLDER>` values in `openclaw.json` with your real tokens and IDs.
-5. **Deploy to Kubernetes** — `kubectl apply -f sre-watchdog.yaml` and watch the pod come up.
-6. **Message the bot** — send any message on Telegram to confirm the agent responds.
-7. **Wait for the first heartbeat** — within 5 minutes, check the logs for your first health check results. The agent will alert you if anything is wrong, or stay quiet if everything is healthy.
+That's it. One agent, three config files, a Kubernetes deployment, and your infrastructure watches itself. The setup takes about an hour, and the payback starts the first night you sleep through a pod restart.
