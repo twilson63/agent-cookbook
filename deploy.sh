@@ -58,7 +58,7 @@ for i in $(seq 1 20); do
     -H "Authorization: Bearer ${DEPLOY_KEY}")
   STATE=$(echo "$STATUS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status',''))" 2>/dev/null)
   echo "[$i] $STATE"
-  if [ "$STATE" = "succeeded" ] || [ "$STATE" = "complete" ] || [ "$STATE" = "success" ]; then
+  if [ "$STATE" = "succeeded" ] || [ "$STATE" = "complete" ] || [ "$STATE" = "success" ] || [ "$STATE" = "deployed" ]; then
     echo ""
     echo "✅ Deployed successfully!"
     echo "🌐 https://${SUBDOMAIN}.scoutos.live"
