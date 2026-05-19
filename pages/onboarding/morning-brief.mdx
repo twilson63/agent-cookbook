@@ -24,43 +24,116 @@ When the morning brief works, your Claw is fully operational.
 
 ### Create the morning brief skill
 
+Copy this complete starter template. It's ready to run — just fill in your city and ZenBin key ID.
+
 ```bash
 mkdir -p ~/skills
-cat > ~/skills/morning-brief.md << 'EOF'
+cat > ~/skills/morning-brief.md << 'SKILL'
 ---
 name: morning-brief
-description: Compile and publish a morning brief covering news, weather, and the day's priorities
+description: Compile and publish a morning brief covering weather, news, and today's priorities
 argument-hint: "<date or 'today'>"
+timeout: 120
 ---
 
-Compile a morning brief for $ARGUMENTS (default: today).
+Compile a morning brief for $ARGUMENTS (use today's date if not specified).
 
-## What to include
+## Step 1 — Gather
 
-**Weather** — Search the web for current weather in [USER's city from USER.md].
-Keep it to one line: conditions and temperature.
+Search the web for each of these. Run searches in parallel if possible.
 
-**Top news** — Search the web for today's top 3 headlines.
-Keep each headline to one sentence with the source name.
+1. Current weather in [YOUR CITY] — one line: conditions and temperature
+2. Top 3 news headlines from today — headline text + source name + URL
+3. Read ~/MEMORY.md — extract anything relevant to today (projects, priorities, decisions)
+4. Read ~/memory/$(date +%Y-%m-%d).md if it exists — any notes from this morning
 
-**What's on today** — Read MEMORY.md for any context about today's priorities,
-ongoing projects, or scheduled items.
+## Step 2 — Build the HTML
 
-**One thing to remember** — A single useful fact, tip, or reminder worth knowing today.
-Draw from memory, recent context, or a quick web search for something relevant to the user's work.
+Format the brief using this exact HTML structure:
 
-## Format
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morning Brief — [DAY], [DATE]</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    .date { color: #888; font-size: 0.85rem; margin-bottom: 0.25rem; }
+    h1 { font-size: 1.5rem; margin-top: 0; border-bottom: 2px solid #e5e5e5; padding-bottom: 0.5rem; }
+    h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; color: #555; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+    ul { padding-left: 1.25rem; margin: 0; }
+    li { margin-bottom: 0.4rem; }
+    a { color: #0070f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .weather { font-size: 1.1rem; }
+    .today { background: #f7f7f7; border-left: 3px solid #ddd; padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; }
+  </style>
+</head>
+<body>
+  <p class="date">[FULL DAY OF WEEK], [MONTH DAY YEAR]</p>
+  <h1>Morning Brief</h1>
 
-Publish as clean HTML to ZenBin. Structure:
+  <h2>☁️ Weather</h2>
+  <p class="weather">[CONDITIONS], [TEMP]°[F/C] — [any notable forecast, e.g. "rain expected this afternoon"]</p>
 
-- Date and day of week as the title
-- Four sections: Weather, News, Today, One Thing
-- Each section short — the whole brief should take under 3 minutes to read
-- Link to source URLs for news items
+  <h2>📰 News</h2>
+  <ul>
+    <li>[HEADLINE 1] — <a href="[URL1]">[SOURCE1]</a></li>
+    <li>[HEADLINE 2] — <a href="[URL2]">[SOURCE2]</a></li>
+    <li>[HEADLINE 3] — <a href="[URL3]">[SOURCE3]</a></li>
+  </ul>
 
-After publishing, send the ZenBin URL via Telegram with the message:
-"☀️ Morning brief ready: [url]"
-EOF
+  <h2>📋 Today</h2>
+  <div class="today">
+    <p>[CURRENT PRIORITY from MEMORY.md — one sentence]</p>
+    <ul>
+      [BULLET ITEMS from memory relevant to today — 2 to 4 items max]
+    </ul>
+  </div>
+
+  <h2>💡 One thing</h2>
+  <p>[A single useful tip, fact, or reminder — something worth knowing today]</p>
+</body>
+</html>
+```
+
+## Step 3 — Publish to ZenBin
+
+Read your ZenBin credentials from TOOLS.md or these files:
+- Key ID: ~/.zenbin-key-id
+- Private key: ~/.zenbin-private-key.pem
+
+Sign and publish the HTML:
+
+```bash
+KEY_ID=$(cat ~/.zenbin-key-id)
+ENCODED=$(echo "$HTML_CONTENT" | base64 -w 0)
+SIGNATURE=$(echo -n "$ENCODED" | openssl dgst -sha256 -sign ~/.zenbin-private-key.pem | base64 -w 0)
+
+curl -s -X POST https://zenbin.org/api/pages \
+  -H "Content-Type: application/json" \
+  -d "{\"keyId\":\"$KEY_ID\",\"encoding\":\"base64\",\"html\":\"$ENCODED\",\"signature\":\"$SIGNATURE\"}"
+```
+
+Extract the `url` from the response. That is the brief URL.
+
+## Step 4 — Deliver
+
+Send via Telegram: "☀️ Morning brief ready: [URL]"
+
+Include the weather summary in the message so it's visible without opening the link:
+"☀️ [CONDITIONS], [TEMP]° — Brief ready: [URL]"
+SKILL
+echo "Skill created at ~/skills/morning-brief.md"
 ```
 
 ### Run the brief manually

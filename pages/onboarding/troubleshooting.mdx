@@ -1,0 +1,275 @@
+---
+title: Troubleshooting
+---
+
+import { Callout } from 'nextra/components'
+
+# Troubleshooting
+
+Common issues and fixes across all seven onboarding steps.
+
+---
+
+## Quick verification table
+
+Run these to confirm each step completed correctly:
+
+| Step | What to run | Expected output |
+|---|---|---|
+| 1 — Identity | `cat ~/SOUL.md \| head -5` | Your operating rules |
+| 1 — Identity | `cat ~/USER.md \| head -5` | Your name and timezone |
+| 2 — ZenBin | `curl -s https://zenbin.org/p/$(cat ~/.zenbin-key-id)/test` | Your test page HTML |
+| 3 — Web Search | Ask: "Search for today's top headline" | Current result with URL |
+| 4 — Memory | `cat ~/MEMORY.md` | Your name, preferences, decisions |
+| 5 — Scheduling | Ask: "List my scheduled tasks" | morning-brief in the list |
+| 6 — Morning Brief | Ask: "Run my morning-brief skill for today" | ZenBin URL returned |
+| 7 — Clawvisor | Ask: "What are my last 3 emails?" | Real email subjects |
+
+---
+
+## Environment differences (OpenClaw vs HyperClaw)
+
+Some steps work differently depending on which environment you're on. Check first:
+
+```bash
+openclaw status
+```
+
+Key differences:
+
+| Feature | HyperClaw | OpenClaw |
+|---|---|---|
+| Scheduling | Built-in task scheduler | `cron` tool via skill |
+| Browser | Enabled by default | Disabled by default — run `openclaw tools enable browser` |
+| Google Workspace | Clawvisor OAuth | `openclaw configure` → Google Workspace |
+| GitHub | Clawvisor OAuth | `GH_TOKEN` environment variable |
+
+If you're on OpenClaw and a step refers to a dashboard setting, look for the equivalent `openclaw configure` command instead.
+
+---
+
+## Step 1 — Identity
+
+### Identity files aren't being read
+
+The files exist but your Claw responds generically. Most common cause: files are uploaded but not at the workspace root.
+
+Check where your workspace is:
+
+```bash
+echo $OPENCLAW_WORKSPACE
+ls $OPENCLAW_WORKSPACE/SOUL.md
+```
+
+If the file isn't there, copy it:
+
+```bash
+cp ~/SOUL.md $OPENCLAW_WORKSPACE/SOUL.md
+```
+
+Then restart your Claw and re-verify.
+
+### Changes to SOUL.md not taking effect
+
+A running Claw doesn't re-read its context files mid-session. Always restart after editing identity files.
+
+---
+
+## Step 2 — ZenBin
+
+### ZenBin publish fails with 401
+
+Your key isn't registered or the signature is wrong. Verify the key is registered:
+
+```bash
+curl -s https://zenbin.org/api/keys/$(cat ~/.zenbin-key-id)
+```
+
+If you get a 404, the key ID is wrong or the key wasn't registered. Re-run the registration step:
+
+```bash
+curl -s -X POST https://zenbin.org/api/keys \
+  -H "Content-Type: application/json" \
+  -d "{\"publicKey\": \"$(openssl pkey -in ~/.zenbin-private-key.pem -pubout -outform PEM | tr -d '\n')\"}"
+```
+
+Update `~/.zenbin-key-id` with the returned key ID.
+
+### ZenBin publish fails with 403
+
+The signature doesn't match. The most common cause is encoding mismatch — the base64 encoding must match what was signed exactly. Use `-w 0` to prevent line wrapping:
+
+```bash
+ENCODED=$(echo "$CONTENT" | base64 -w 0)   # correct
+ENCODED=$(echo "$CONTENT" | base64)         # may fail — wrapped lines
+```
+
+### Private key not found
+
+```bash
+ls -la ~/.zenbin-private-key.pem
+```
+
+If missing, you need to regenerate the keypair and re-register. Your old publish code won't work after re-keying.
+
+---
+
+## Step 3 — Web Search
+
+### "I don't have the ability to browse the web"
+
+On OpenClaw, the browser/search tool is disabled by default:
+
+```bash
+openclaw tools enable browser
+openclaw tools enable search
+```
+
+Then restart and verify.
+
+### Search returns stale or training-data results
+
+The search MCP may not be configured. Check:
+
+```bash
+openclaw tools list
+```
+
+If `brave-search` or equivalent isn't in the list, add it. See the [web search step](/onboarding/web-search) for setup.
+
+---
+
+## Step 4 — Memory
+
+### Claw doesn't remember things between sessions
+
+Memory only persists if the Claw is actively writing to files. Confirm the memory rule is in SOUL.md:
+
+```bash
+grep -i "memory" ~/SOUL.md
+```
+
+If nothing appears, add the memory rules from Step 4 and restart.
+
+### MEMORY.md keeps getting overwritten
+
+Your Claw may be re-initializing it on each session. Check if there's a startup script that resets workspace files. If so, add MEMORY.md to the exclusion list.
+
+---
+
+## Step 5 — Scheduling
+
+### Cron job isn't running
+
+Check the scheduler's status:
+
+```bash
+# HyperClaw
+openclaw schedule list
+
+# OpenClaw
+openclaw cron list
+```
+
+If the job is listed but not running, check the gateway logs:
+
+```bash
+openclaw gateway logs --tail 50
+```
+
+Look for the job name and any error messages.
+
+### Scheduled task runs but Telegram message isn't delivered
+
+The task is running but the Telegram integration is broken. Test independently:
+
+```text
+Send me a test message on Telegram right now.
+```
+
+If that fails, reconnect Telegram in your Claw's settings.
+
+### Timezone mismatch
+
+Jobs running at the wrong time are almost always a timezone issue. Verify what timezone your Claw thinks it's in:
+
+```text
+What timezone are you in? What time is it right now?
+```
+
+If it's wrong, set the timezone explicitly in the schedule configuration and update USER.md.
+
+---
+
+## Step 6 — Morning Brief
+
+### Morning brief skill times out
+
+The brief makes multiple web searches and a ZenBin publish in one run. On slow connections or with rate-limited search APIs, this can exceed the default timeout.
+
+Increase the timeout in your skill configuration:
+
+```bash
+# Add to skills/morning-brief.md YAML front matter:
+# timeout: 120   (seconds)
+```
+
+Or split the brief into two skills: `morning-gather` (search) and `morning-publish` (format + publish).
+
+### Brief has no "Today" section content
+
+MEMORY.md exists but doesn't have current priorities. Add them manually:
+
+```text
+Add to my MEMORY.md: this week I'm focused on [current project].
+```
+
+The next run will pick it up.
+
+### ZenBin URL in Telegram is wrong or broken
+
+The brief published but the URL is malformed. Check the publish response in the morning brief output — it should include a full `https://zenbin.org/p/...` URL. If it's truncated, the skill's HTML formatting step may be cutting the URL.
+
+---
+
+## Step 7 — Clawvisor
+
+### "No credentials found" for Google Workspace
+
+Run the configuration flow:
+
+```bash
+openclaw configure
+# Select: Google Workspace
+# Follow the OAuth browser flow
+```
+
+Or in HyperClaw: Dashboard → Claw → Clawvisor → Google Workspace → Connect.
+
+### Google OAuth flow fails to redirect back
+
+The redirect URI may not be registered. Check that the authorized redirect URI in your Google OAuth app includes `https://app.hyper.io/oauth/callback` (HyperClaw) or `http://localhost:PORT/callback` (OpenClaw local).
+
+### Slack posts going to the wrong channel
+
+The channel name in your request must exactly match the Slack channel name, including capitalization:
+
+```text
+Post "test" to #dev-general        # correct if channel is named dev-general
+Post "test" to #Dev-General        # won't work
+```
+
+### GitHub token has insufficient permissions
+
+A common issue is a token scoped too narrowly. The minimum permissions for repo read + PR create:
+
+- `repo` (full repo access) or
+- `contents:read`, `pull_requests:write`, `issues:write`
+
+Generate a new PAT at github.com/settings/tokens with the right scopes.
+
+---
+
+<Callout type="tip">
+If you're stuck on something not covered here, ask your Claw directly: "Check the gateway logs and tell me why [X] isn't working." Claws can usually self-diagnose if given access to their own logs.
+</Callout>

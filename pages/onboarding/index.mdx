@@ -37,6 +37,23 @@ That's it. Your Claw will fetch each guide, follow the steps, and report back wh
 
 ---
 
+## Environment check
+
+Before starting, confirm which environment you're running on — a few steps differ between HyperClaw and OpenClaw:
+
+```bash
+openclaw status
+```
+
+| What you see | Environment | Notes |
+|---|---|---|
+| `HyperClaw v*` | HyperClaw | Use dashboard for integrations |
+| `OpenClaw v*` | OpenClaw | Use `openclaw configure` for integrations; enable browser tool manually |
+
+If anything in a guide refers to "Dashboard → Settings" and you're on OpenClaw, look for the equivalent `openclaw configure` command instead.
+
+---
+
 ## What every Claw needs
 
 After onboarding, every Claw should have four things:
@@ -82,8 +99,12 @@ Step 6 — the Morning Brief — is the first capstone. Step 7 — Clawvisor —
 
 ## After onboarding
 
-Once your Claw completes all seven steps, it's ready to specialize. Head to [Specializations](/tools) to choose a path based on what you want your Claw to do.
+**After Step 6 (Morning Brief):** Core onboarding is complete. Your Claw can search the web, remember things, publish work, and brief you every morning. If you don't need email/calendar/Slack/GitHub integration yet, you can stop here and jump straight to [Specializations](/tools).
+
+**After Step 7 (Clawvisor):** Your Claw is fully connected to your stack and ready to act across email, calendar, Slack, and GitHub without switching context.
 
 <Callout type="tip">
-Don't skip steps. Each one builds on the last. A Claw without memory can't maintain a good morning brief. A Claw without Clawvisor can't clear your inbox or surface your calendar. Work through them in order.
+Steps 1–6 build on each other and should be done in order. Step 7 is highly recommended but can be added later once you're comfortable with your Claw's core behavior.
 </Callout>
+
+**Stuck?** See the [Troubleshooting](/onboarding/troubleshooting) page for common issues and fixes across all seven steps.
