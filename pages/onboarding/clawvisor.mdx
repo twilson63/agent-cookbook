@@ -1,0 +1,159 @@
+---
+title: Clawvisor
+---
+
+import { Steps, Callout, Cards, Card } from 'nextra/components'
+
+# Step 7 — Clawvisor
+
+*For agents:* Connect each integration your human uses. Verify each connection with a live test before marking it done. Save connection status and any relevant IDs to TOOLS.md.
+
+---
+
+Clawvisor is the integration layer for your Claw — the bridge between your agent and the tools you actually work in every day. Without it, your Claw lives in a chat window. With it, your Claw can read your email, check your calendar, post to Slack, open GitHub issues, and take action across your entire stack.
+
+This is what turns a capable assistant into a working teammate.
+
+<Steps>
+
+### Open Clawvisor
+
+Access Clawvisor from the HyperClaw dashboard:
+
+**Dashboard → Your Claw → Clawvisor**
+
+You'll see a list of available integrations. Connect each one that applies to your workflow.
+
+### Connect your email
+
+Email is the highest-leverage connection for most people. Your Claw can read incoming messages, draft replies, send on your behalf, and use your inbox as a task queue.
+
+```text
+Connect my email to Clawvisor. I use [Gmail / Outlook / other].
+Walk me through the OAuth flow.
+```
+
+Once connected, verify with a live read:
+
+```text
+What are the last 3 unread emails in my inbox?
+```
+
+If your Claw can describe them, email is working.
+
+<Callout type="info">
+Your Claw will only read and send email when you instruct it to, or when a skill explicitly includes email actions. It does not monitor your inbox passively unless you set up a scheduled email-review task.
+</Callout>
+
+### Connect your calendar
+
+Calendar access lets your Claw include your schedule in the morning brief, avoid booking conflicts, and remind you about upcoming commitments.
+
+```text
+Connect my Google Calendar (or Outlook Calendar) to Clawvisor.
+```
+
+Verify with:
+
+```text
+What do I have scheduled for tomorrow?
+```
+
+A working calendar connection returns your actual events. Update your morning-brief skill to include today's calendar:
+
+```text
+Update my morning-brief skill to include my calendar events for the day as a new section called "On the calendar."
+```
+
+### Connect Slack
+
+Slack integration lets your Claw post updates, monitor channels for mentions, and surface important threads without you having to dig through it yourself.
+
+```text
+Connect Slack to Clawvisor. I want my Claw to be able to post to channels and read messages.
+```
+
+Choose which workspace and which channels your Claw should have access to. Start narrow — your Claw doesn't need to see every channel on day one.
+
+Verify with a test post:
+
+```text
+Post "Claw connected ✅" to the #general channel (or any low-traffic channel).
+```
+
+### Connect GitHub
+
+GitHub integration is essential if you're using the Developer Agent specialization, but useful for anyone who tracks work via issues or PRs.
+
+```text
+Connect GitHub to Clawvisor. I want my Claw to be able to read repos, open issues, and create PRs.
+```
+
+Verify with:
+
+```text
+List the open pull requests in [your main repo].
+```
+
+<Callout type="warning">
+Grant GitHub access at the repo level, not the org level, until you've verified your Claw behaves correctly. You can expand permissions later.
+</Callout>
+
+### Save connection status to TOOLS.md
+
+Once connections are live, document them:
+
+```bash
+cat >> ~/TOOLS.md << 'EOF'
+
+## Clawvisor Integrations
+
+- Email: [Gmail / Outlook] — connected, verified
+- Calendar: [Google / Outlook] — connected, verified
+- Slack: [Workspace name] — connected, channels: [list]
+- GitHub: [Org or repo] — connected, verified
+
+## Notes
+- GitHub access is repo-scoped, not org-scoped
+- Slack: Claw can post to #general and #dev only
+EOF
+```
+
+</Steps>
+
+## What Clawvisor unlocks
+
+Once connected, your Claw can coordinate across your full stack without switching context:
+
+| What you say | What your Claw does |
+|---|---|
+| "Clear my morning" | Reads calendar, declines or reschedules low-priority meetings |
+| "Catch me up on Slack" | Surfaces threads where you were mentioned since yesterday |
+| "Handle the support emails" | Reads inbox, drafts replies, flags anything that needs you |
+| "What's open on the repo?" | Lists PRs and issues, grouped by priority |
+| "Send the brief to the team" | Publishes to ZenBin and posts the link in Slack |
+
+Each of these combines two or more integrations — which is why Clawvisor is core setup, not optional.
+
+## Add more integrations
+
+Beyond the four core connections, Clawvisor supports additional services. Connect them as your workflows require:
+
+<Cards>
+  <Card title="Notion" arrow>
+    Read and write to your workspace — meeting notes, wikis, project databases.
+  </Card>
+  <Card title="Linear / Jira" arrow>
+    Create issues, update statuses, and surface blocked work automatically.
+  </Card>
+  <Card title="Zoom / Meet" arrow>
+    Join calls, generate summaries, and create action items from transcripts.
+  </Card>
+  <Card title="Stripe / QuickBooks" arrow>
+    Monitor revenue, flag anomalies, and pull financial context into briefs.
+  </Card>
+</Cards>
+
+---
+
+*Onboarding complete. Head to [Specializations](/tools) to go deeper.*
