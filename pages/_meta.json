@@ -1,9 +1,10 @@
 {
   "index": "Introduction",
-  "quick-start": "Quick Start",
-  "history": "History",
+  "onboarding": "🚀 Onboarding",
+  "tools": "Specializations",
+  "recipes": "Recipes",
   "concepts": "Concepts",
   "ai-literacy": "🎓 AI Literacy Course",
-  "recipes": "Recipes",
-  "tools": "HyperClaw Setup"
+  "history": "History",
+  "quick-start": "Quick Start"
 }

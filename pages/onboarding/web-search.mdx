@@ -1,0 +1,124 @@
+---
+title: Web Search
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Step 3 — Web Search
+
+*For agents:* Verify web search is available, run a live test query, and confirm you can retrieve current information before moving to Step 4.
+
+---
+
+A Claw without web search only knows what it was trained on. That's useful but limited — no current news, no live prices, no recent docs. Web search turns your Claw into a research partner that can look things up on demand.
+
+This step verifies that web search is enabled and working. The morning brief in Step 6 depends on it.
+
+<Steps>
+
+### Check if web search is already available
+
+Send your Claw this message:
+
+```text
+Search the web for today's top headline and tell me what you find.
+Include the source URL.
+```
+
+If your Claw returns a current result with a URL, web search is already working. Skip to the verification step.
+
+If your Claw says it can't browse the web, continue to the next step.
+
+### Enable web search via skill
+
+Create a web search skill file in your workspace:
+
+```bash
+cat > ~/skills/web-search.md << 'EOF'
+---
+name: web-search
+description: Search the web for current information using available search tools
+argument-hint: "<search query>"
+---
+
+Search the web for: $ARGUMENTS
+
+Use the best available search tool (Brave, Bing, DuckDuckGo, or any configured search MCP).
+
+Return:
+- The top 3–5 relevant results
+- A brief summary of what you found
+- Source URLs for each result
+
+Always include the date of the information when it is time-sensitive.
+EOF
+mkdir -p ~/skills
+mv ~/skills/web-search.md ~/skills/web-search.md 2>/dev/null || true
+```
+
+If your HyperClaw environment has a search MCP configured (Brave Search, Bing, etc.), the skill will route to it automatically.
+
+### Configure a search provider if needed
+
+Check which search tools are available:
+
+```bash
+# Check for configured MCPs
+ls ~/.openclaw/mcp/ 2>/dev/null || echo "No MCP directory found"
+cat ~/.openclaw/config.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('tools',{}), indent=2))" 2>/dev/null
+```
+
+If no search tool is configured, add one. Brave Search is the recommended option:
+
+```bash
+# Add Brave Search MCP (requires a free Brave Search API key)
+# Get your key at: https://brave.com/search/api/
+cat >> ~/.openclaw/config.json << 'EOF'
+{
+  "tools": {
+    "brave-search": {
+      "type": "mcp",
+      "command": "npx @modelcontextprotocol/server-brave-search",
+      "env": {
+        "BRAVE_API_KEY": "your_key_here"
+      }
+    }
+  }
+}
+EOF
+```
+
+Restart your Claw after adding the tool.
+
+### Verify with a live query
+
+Once search is enabled, send this test:
+
+```text
+Search the web for "HyperClaw agent platform" and summarize what you find.
+Include at least one source URL.
+```
+
+A working search returns a real result with a URL. The URL should be something you can open and verify.
+
+<Callout type="tip">
+If your Claw is running in an environment with an existing search MCP already configured (common in HyperClaw pods), you may find search just works after enabling the skill file.
+</Callout>
+
+</Steps>
+
+## How your Claw uses search
+
+After setup, web search happens naturally. Your Claw will search when it needs current information and when you ask it to:
+
+```text
+What's the weather in New York this morning?
+Search for the latest Claude model release notes.
+Find me three articles about Kubernetes pod autoscaling from the last month.
+```
+
+The morning brief in Step 6 uses web search for news and weather — which is why this step comes first.
+
+---
+
+*Next: [Step 4 — Memory](/onboarding/memory)*

@@ -1,45 +1,51 @@
 ---
-title: HyperClaw Setup
+title: Specializations
 ---
 
 import { Cards, Card, Callout } from 'nextra/components'
 
-# HyperClaw Setup
+# Specializations
 
-Everything you need when spinning up a new HyperClaw Claw — from model configuration to memory and monitoring. Follow these guides in order for a complete setup, or jump to the one you need.
+Once you've completed [Onboarding](/onboarding), your Claw has the four core capabilities every agent needs. From here, choose a specialization — or stack several together.
 
 <Callout type="tip">
-New to HyperClaw? Start with the [Quick Start](/quick-start) to get your first Claw running before diving into these guides.
+Haven't completed onboarding yet? Start at [Onboarding → Start Here](/onboarding) before picking a specialization. The guides here assume identity, ZenBin, web search, memory, and scheduling are already working.
 </Callout>
 
-## Setup guides
+## Choose your path
 
 <Cards>
-  <Card title="GPT-5.5 Setup" href="/tools/gpt-5-5-setup" arrow>
-    Connect your Claw to GPT-5.5 via OpenAI Codex OAuth — no raw API key in chat.
+  <Card title="Power Model (GPT-5.5)" href="/tools/gpt-5-5-setup" arrow>
+    Connect your Claw to GPT-5.5 via Codex OAuth. The right base for any compute-intensive specialization.
   </Card>
-  <Card title="ZenBin Setup" href="/tools/zenbin-setup" arrow>
-    Give your Claw a publishing path. Generate an Ed25519 keypair and publish pages with a single prompt.
+  <Card title="Developer Agent" href="/tools/hyperclaw-developer-agent" arrow>
+    Full developer setup — GitHub access, repo workflows, PR automation, and a day-one acceptance test.
   </Card>
-  <Card title="SRE Agent Setup" href="/tools/sre-agent-setup" arrow>
-    Configure a dedicated Claw for infrastructure monitoring, runbook execution, and Telegram alerting.
+  <Card title="SRE Agent" href="/tools/sre-agent-setup" arrow>
+    A dedicated Claw for infrastructure monitoring, runbook execution, and 24/7 Telegram alerting.
   </Card>
-  <Card title="Developer Agent Setup" href="/tools/hyperclaw-developer-agent" arrow>
-    Full walkthrough: identity files, GitHub access, memory workflow, and a day-one acceptance test.
+  <Card title="G-Brain" href="/tools/gbrain-setup" arrow>
+    Local semantic search over a markdown knowledge base. Turns your Claw from "has notes" to "can search its own knowledge."
   </Card>
-  <Card title="G-Brain Setup" href="/tools/gbrain-setup" arrow>
-    Give your Claw a local semantic search index over a markdown knowledge base.
+  <Card title="Graphic Designer" href="/tools/graphic-designer" arrow>
+    Image generation, brand assets, and design review workflows. Coming soon.
+  </Card>
+  <Card title="Slides & Video" href="/tools/slides-video" arrow>
+    Animated decks, narration, and video production from your Claw. Coming soon.
+  </Card>
+  <Card title="Voice Agent" href="/tools/voice" arrow>
+    Voice input, speech output, and voice-first workflow design. Coming soon.
   </Card>
 </Cards>
 
-## Recommended setup order for a new Claw
+## Stacking specializations
 
-| Step | Guide | What it gives you |
-|---|---|---|
-| 1 | [GPT-5.5 Setup](/tools/gpt-5-5-setup) | A strong coding model, restart-safe |
-| 2 | [ZenBin Setup](/tools/zenbin-setup) | A publishing path for docs and demos |
-| 3 | [Developer Agent Setup](/tools/hyperclaw-developer-agent) | Identity, memory, GitHub access |
-| 4 | [G-Brain Setup](/tools/gbrain-setup) | Semantic search over your knowledge base |
-| 5 | [SRE Agent Setup](/tools/sre-agent-setup) | 24/7 monitoring on a dedicated Claw |
+Specializations are additive. A developer agent with G-Brain is more capable than one without. GPT-5.5 improves any specialization that does heavy reasoning. Stack them based on what you're building.
 
-Steps 1–4 are for your primary working Claw. Step 5 is a separate Claw dedicated to SRE — spin it up when you're ready to monitor something.
+| What you're building | Recommended stack |
+|---|---|
+| A sharp personal assistant | Core + GPT-5.5 |
+| A shipping developer teammate | Core + GPT-5.5 + Developer Agent + G-Brain |
+| Infrastructure watchdog | Core + SRE Agent |
+| A creative production partner | Core + Graphic Designer + Slides & Video |
+| A full-stack working agent | Core + GPT-5.5 + Developer Agent + G-Brain + SRE Agent |

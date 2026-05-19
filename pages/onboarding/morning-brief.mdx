@@ -1,0 +1,143 @@
+---
+title: Morning Brief
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Step 6 — Morning Brief
+
+*For agents:* Create the morning-brief skill, run it manually once, publish the result to ZenBin, confirm the output looks right, then set it on the 7am schedule. Send the human the ZenBin URL when done.
+
+---
+
+The morning brief is your onboarding capstone. It pulls together everything from the previous five steps into one workflow that runs every morning without you asking:
+
+- *Web search* — finds current news and weather
+- *Memory* — surfaces what's on your plate today
+- *ZenBin* — publishes the brief as a shareable page
+- *Scheduling* — delivers it before you wake up
+- *Identity* — writes in your Claw's voice
+
+When the morning brief works, your Claw is fully operational.
+
+<Steps>
+
+### Create the morning brief skill
+
+```bash
+mkdir -p ~/skills
+cat > ~/skills/morning-brief.md << 'EOF'
+---
+name: morning-brief
+description: Compile and publish a morning brief covering news, weather, and the day's priorities
+argument-hint: "<date or 'today'>"
+---
+
+Compile a morning brief for $ARGUMENTS (default: today).
+
+## What to include
+
+**Weather** — Search the web for current weather in [USER's city from USER.md].
+Keep it to one line: conditions and temperature.
+
+**Top news** — Search the web for today's top 3 headlines.
+Keep each headline to one sentence with the source name.
+
+**What's on today** — Read MEMORY.md for any context about today's priorities,
+ongoing projects, or scheduled items.
+
+**One thing to remember** — A single useful fact, tip, or reminder worth knowing today.
+Draw from memory, recent context, or a quick web search for something relevant to the user's work.
+
+## Format
+
+Publish as clean HTML to ZenBin. Structure:
+
+- Date and day of week as the title
+- Four sections: Weather, News, Today, One Thing
+- Each section short — the whole brief should take under 3 minutes to read
+- Link to source URLs for news items
+
+After publishing, send the ZenBin URL via Telegram with the message:
+"☀️ Morning brief ready: [url]"
+EOF
+```
+
+### Run the brief manually
+
+Test it before scheduling:
+
+```text
+Run my morning-brief skill for today.
+```
+
+Your Claw will search the web, pull from memory, format the brief, publish it to ZenBin, and send you the link.
+
+Open the URL. Does it look right? Check:
+
+- Weather is current and for your city
+- News headlines are from today
+- The Today section reflects what's actually on your plate
+- The link is accessible without login
+
+If anything is off, edit `~/skills/morning-brief.md` and run it again.
+
+### Tune the brief to your taste
+
+The skill file is yours to edit. Common adjustments:
+
+```text
+Update my morning-brief skill:
+- Add a Markets section with S&P 500 and Bitcoin price
+- Remove the One Thing section, I don't need it
+- Change the news to 5 headlines instead of 3
+- Make the Telegram message include the weather summary so I can see it without opening the link
+```
+
+Re-run the brief after each change to confirm the output matches what you want.
+
+### Schedule it
+
+Once the brief looks right:
+
+```text
+Schedule my morning-brief skill to run every day at 7:00 AM [your timezone].
+```
+
+Confirm it's scheduled:
+
+```text
+List my scheduled tasks. Show the next run time for morning-brief.
+```
+
+### Send a completion summary
+
+*For agents:* Once the schedule is confirmed, send your human a completion summary via Telegram:
+
+```text
+Onboarding complete. Here's what I've set up:
+
+✓ Identity — SOUL.md, USER.md, IDENTITY.md configured
+✓ ZenBin — keypair registered, key ID saved to TOOLS.md
+✓ Web search — [search tool] connected and verified
+✓ Memory — MEMORY.md created, daily notes workflow active
+✓ Scheduling — morning-brief scheduled for 7:00 AM daily
+✓ Morning brief — running and publishing to ZenBin
+
+First brief: [url from step 2]
+Next brief: tomorrow at 7:00 AM
+
+Ready to work.
+```
+
+</Steps>
+
+## What comes next
+
+Your Claw is now fully operational with the four core capabilities. From here, you can specialize it for specific work.
+
+Head to [Specializations](/tools) to choose a path — whether that's a GPT-5.5-powered developer agent, an SRE watchdog, a G-Brain knowledge base, or a combination.
+
+<Callout type="tip">
+The morning brief improves over time. As you update MEMORY.md with your ongoing projects and priorities, the "Today" section gets more specific and useful. The brief on day one is basic. The brief after a month of working together is genuinely helpful.
+</Callout>

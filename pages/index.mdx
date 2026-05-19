@@ -4,50 +4,49 @@ title: Welcome
 
 import { Callout, Cards, Card } from 'nextra/components'
 
-# Welcome to the HyperClaw Cookbook
+# HyperClaw Cookbook
 
-HyperClaw gives you a personal AI agent — your Claw — that lives in the cloud, connects to Telegram and email, and gets smarter the more you use it. This cookbook shows you how to set it up, extend it, and put it to work.
+Your reference for setting up, onboarding, and specializing HyperClaw agents — written for both the humans who configure them and the agents who follow the guides.
 
-## What you'll find here
-
-<Cards>
-  <Card title="Quick Start" href="/quick-start" arrow>
-    Launch your first Claw and send your first message in under 10 minutes.
-  </Card>
-  <Card title="Recipes" href="/recipes" arrow>
-    Step-by-step playbooks for connecting your Claw to email, managing Claws via API, and more.
-  </Card>
-  <Card title="HyperClaw Setup" href="/tools" arrow>
-    Set up a full developer agent with identity, memory, GitHub access, and a publishing workflow.
-  </Card>
-  <Card title="Concepts" href="/concepts" arrow>
-    Understand the building blocks — models, agents, harnesses, and how they fit together.
-  </Card>
-  <Card title="AI Literacy Course" href="/ai-literacy" arrow>
-    A structured course from prompting basics to multi-agent teams. No coding required.
-  </Card>
-</Cards>
-
-## What is HyperClaw?
-
-HyperClaw is an agent platform. Each Claw is your own dedicated AI pod — running OpenClaw, connected to your channels, and ready to take on work:
-
-| What your Claw can do | How |
-|---|---|
-| Chat with you on Telegram | Connected during setup, always on |
-| Receive and send email | AgentMail gives your Claw its own inbox |
-| Run custom skills | Markdown skill files define repeatable behaviors |
-| Remember things between sessions | Workspace files persist across restarts |
-| Be managed programmatically | Full REST API for create, configure, and deploy |
-
-Your Claw starts as a general assistant. The recipes and setup guides here show you how to make it specific — a developer agent, an email responder, an automation worker — whatever your workflow needs.
+<Callout type="tip">
+New Claw? Start with [Onboarding](/onboarding). It walks you — or your agent — through the six steps every Claw needs: identity, publishing, web search, memory, scheduling, and a morning brief that ties it all together.
+</Callout>
 
 ## Where to start
 
-<Callout type="tip">
-New to HyperClaw? Go to [Quick Start](/quick-start) first — it takes less than 10 minutes and gets you to a live, talking Claw.
-</Callout>
+<Cards>
+  <Card title="🚀 Onboarding" href="/onboarding" arrow>
+    The six-step setup every new Claw should complete. Includes a bootstrap prompt you can paste directly to a fresh agent.
+  </Card>
+  <Card title="Specializations" href="/tools" arrow>
+    After onboarding, choose a path: developer agent, SRE watchdog, G-Brain knowledge base, and more.
+  </Card>
+  <Card title="Recipes" href="/recipes" arrow>
+    Focused playbooks for specific HyperClaw workflows — email, API management, and more.
+  </Card>
+</Cards>
 
-Already have a Claw and want to extend it? Jump to [Recipes](/recipes) for concrete playbooks, or [HyperClaw Setup](/tools) for the full developer agent walkthrough.
+## What every Claw needs
 
-New to AI agents in general? The [AI Literacy Course](/ai-literacy) and [Concepts](/concepts) section will give you the mental models to get more out of everything else.
+The onboarding guide builds the four capabilities that form the foundation of any useful agent:
+
+| Capability | What it gives your Claw |
+|---|---|
+| Identity | A persistent name, voice, and operating style |
+| Output (ZenBin) | A way to publish and share work as public pages |
+| Input (Web Search) | Access to current information beyond training data |
+| Memory | Durable recall that survives session restarts |
+| Scheduling | The ability to act without being asked |
+
+The morning brief — Step 6 of onboarding — is the capstone that exercises all five in one workflow.
+
+## Background reading
+
+<Cards>
+  <Card title="Concepts" href="/concepts" arrow>
+    The building blocks — models, agents, harnesses, memory, and tools.
+  </Card>
+  <Card title="AI Literacy Course" href="/ai-literacy" arrow>
+    A structured course from prompting basics to multi-agent teams.
+  </Card>
+</Cards>

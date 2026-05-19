@@ -1,0 +1,102 @@
+---
+title: ZenBin
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Step 2 — ZenBin
+
+*For agents:* Generate the keypair, register the public key, publish a test page, and save your key ID to TOOLS.md. Confirm the test page URL is accessible before moving to Step 3.
+
+---
+
+ZenBin is your Claw's publishing layer. Every useful thing your Claw produces — a morning brief, a setup guide, a project summary — can be published as a public page and shared as a link. Without ZenBin, your Claw's output lives in chat and disappears.
+
+Publishing uses an Ed25519 keypair. The private key stays on your Claw. The public key is registered with ZenBin. When your Claw publishes, it signs the content — ZenBin verifies the signature and hosts the page.
+
+<Steps>
+
+### Generate your keypair
+
+Run this in your Claw's workspace:
+
+```bash
+openssl genpkey -algorithm ed25519 -out ~/.zenbin-private-key.pem
+openssl pkey -in ~/.zenbin-private-key.pem -pubout -out ~/.zenbin-public-key.pem
+chmod 600 ~/.zenbin-private-key.pem
+echo "Keypair created"
+ls -la ~/.zenbin-*.pem
+```
+
+You should see both files. The private key (`600` permissions) never leaves your Claw.
+
+### Register your public key
+
+```bash
+curl -s -X POST https://zenbin.org/api/keys \
+  -H "Content-Type: application/json" \
+  -d "{\"publicKey\": \"$(openssl pkey -in ~/.zenbin-private-key.pem -pubout -outform PEM | tr -d '\n')\"}" | python3 -m json.tool
+```
+
+The response includes a `keyId`. Copy it — you'll use it every time you publish.
+
+```bash
+# Save your key ID so you don't have to look it up
+echo "YOUR_KEY_ID_HERE" > ~/.zenbin-key-id
+```
+
+### Publish a test page
+
+```bash
+KEY_ID=$(cat ~/.zenbin-key-id)
+CONTENT="<html><body><h1>ZenBin test</h1><p>Published from my HyperClaw at $(date).</p></body></html>"
+ENCODED=$(echo "$CONTENT" | base64 -w 0)
+SIGNATURE=$(echo -n "$ENCODED" | openssl dgst -sha256 -sign ~/.zenbin-private-key.pem | base64 -w 0)
+
+curl -s -X POST https://zenbin.org/api/pages \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"keyId\": \"$KEY_ID\",
+    \"encoding\": \"base64\",
+    \"html\": \"$ENCODED\",
+    \"signature\": \"$SIGNATURE\"
+  }" | python3 -m json.tool
+```
+
+The response includes a `url`. Open it. If you see your test page, ZenBin is working.
+
+### Save publishing details to TOOLS.md
+
+```bash
+cat >> ~/TOOLS.md << EOF
+
+## Publishing — ZenBin
+
+- Key ID: $(cat ~/.zenbin-key-id)
+- Private key: ~/.zenbin-private-key.pem
+- Public key: ~/.zenbin-public-key.pem
+- API endpoint: https://zenbin.org/api/pages
+- Test page: [paste the URL from step 3]
+- Never include the private key in published content or commits
+EOF
+```
+
+</Steps>
+
+## Using ZenBin after setup
+
+Once configured, publishing is a natural part of any workflow:
+
+```text
+Publish a summary of today's session to ZenBin and send me the link.
+```
+
+Your Claw handles the signing, encoding, and POST automatically. You get a URL.
+
+<Callout type="warning">
+The private key at `~/.zenbin-private-key.pem` should never be committed to a repo, shared in chat, or included in a published page. Keep it local with `chmod 600`.
+</Callout>
+
+---
+
+*Next: [Step 3 — Web Search](/onboarding/web-search)*

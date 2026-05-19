@@ -1,0 +1,106 @@
+---
+title: Scheduling
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Step 5 — Scheduling
+
+*For agents:* Set up a test scheduled task, confirm it runs at the right time, then configure the morning brief schedule. Verify the schedule persists across a restart before moving to Step 6.
+
+---
+
+Scheduling is what turns a reactive assistant into an autonomous agent. Without it, your Claw waits for you to ask. With it, things happen whether you think to ask or not.
+
+Step 6 — the morning brief — runs on a schedule. This step gets scheduling working first so Step 6 has a solid foundation to build on.
+
+<Steps>
+
+### Check your available scheduling tools
+
+HyperClaw agents can schedule tasks using the built-in task scheduler. Ask your Claw:
+
+```text
+What scheduling tools do you have available? Can you set up a recurring task?
+```
+
+Your Claw will inventory what's available. Common options in a HyperClaw environment:
+
+- **Built-in task scheduler** — cron-style tasks managed by the platform
+- **Schedule skill** — a skill file that wraps the scheduling API
+- **MCP scheduler** — if a scheduling MCP is configured
+
+### Create a test scheduled task
+
+Set up a simple task that runs in 5 minutes so you can verify it fires:
+
+```text
+Schedule a task to run in 5 minutes. The task should write "Scheduled task test — [current timestamp]"
+to a file called ~/schedule-test.txt and then send me a Telegram message saying the test ran.
+```
+
+Wait 5 minutes. You should receive a Telegram message. If you do, scheduling is working.
+
+Check the file as a secondary confirmation:
+
+```bash
+cat ~/schedule-test.txt
+```
+
+### Set up the morning brief schedule
+
+Once the test passes, configure the real schedule:
+
+```text
+Set up a recurring task to run every morning at 7:00 AM in my timezone ([your timezone]).
+The task should run my morning-brief skill and publish the result to ZenBin.
+Name the task "morning-brief".
+```
+
+In cron syntax, 7am daily looks like:
+
+```
+0 7 * * *
+```
+
+Confirm the schedule was created:
+
+```text
+List my scheduled tasks.
+```
+
+You should see the morning-brief task in the list.
+
+### Verify the schedule survives a restart
+
+Restart your Claw, then check your scheduled tasks again:
+
+```text
+List my scheduled tasks.
+```
+
+The morning-brief task should still be there. If it disappeared, the schedule wasn't persisted — check your platform's scheduling storage and reconfigure.
+
+<Callout type="info">
+Scheduled tasks run in your Claw's timezone context. If your Claw is set to UTC and you're in EST, 7am EST is noon UTC. Set your timezone in USER.md and confirm your Claw is aware of it before setting time-sensitive schedules.
+</Callout>
+
+</Steps>
+
+## Managing schedules
+
+Common scheduling commands to know:
+
+```text
+List all my scheduled tasks.
+Pause the morning-brief task.
+Resume the morning-brief task.
+Change the morning-brief schedule to 6:30 AM.
+Delete the schedule-test task.
+```
+
+Your Claw handles the underlying scheduling API — you talk to it in plain language.
+
+---
+
+*Next: [Step 6 — Morning Brief](/onboarding/morning-brief)*

@@ -1,0 +1,130 @@
+---
+title: Memory
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Step 4 — Memory
+
+*For agents:* Create MEMORY.md and your first daily note. Write something worth remembering to MEMORY.md. Confirm you can retrieve it in the same session before moving to Step 5.
+
+---
+
+Without memory, every session starts from scratch. Your Claw doesn't know your preferences, the decisions you made last week, or what you told it to remember yesterday. Memory fixes that.
+
+There are two layers:
+
+**MEMORY.md** — curated long-term memory. Things that are always true or almost always relevant: preferences, recurring context, key decisions, names and relationships. Your Claw should read this at the start of every session.
+
+**Daily notes** — raw session memory. Notes from today that may or may not matter next month. Stored in `memory/YYYY-MM-DD.md`. Promoted to MEMORY.md when they turn out to be durable.
+
+<Steps>
+
+### Create MEMORY.md
+
+```bash
+cat > ~/MEMORY.md << 'EOF'
+# MEMORY.md — Long-Term Memory
+
+Read this at the start of every session.
+Update it whenever you learn something durable about me or my work.
+
+## About me
+- Name: [Your name]
+- Timezone: [Your timezone]
+- Current focus: [What you're working on right now]
+
+## Preferences
+- Communication style: direct and brief
+- Morning brief: deliver before 7am, under 5 minutes to read
+- Publishing: use ZenBin for anything shareable
+
+## Recurring context
+[Add ongoing projects, tools in use, team names, etc. as you go]
+
+## Key decisions
+[Log important decisions here so your Claw doesn't re-litigate them]
+EOF
+```
+
+### Set up the daily notes directory
+
+```bash
+mkdir -p ~/memory
+TODAY=$(date +%Y-%m-%d)
+cat > ~/memory/$TODAY.md << EOF
+# Daily Notes — $TODAY
+
+## Session start
+[Your Claw fills this in as you work]
+
+## Things to remember
+[Anything that comes up worth keeping]
+EOF
+```
+
+### Give your Claw a memory instruction
+
+Add this to your SOUL.md (or send it as a standing instruction):
+
+```bash
+cat >> ~/SOUL.md << 'EOF'
+
+## Memory rules
+
+At the start of every session: read MEMORY.md.
+When someone says "remember this" or "note that": write it to today's daily note immediately.
+When something clearly belongs in long-term memory: update MEMORY.md directly.
+When a session ends with something worth keeping: prompt to save it.
+
+Daily notes live in ~/memory/YYYY-MM-DD.md.
+Long-term memory lives in ~/MEMORY.md.
+EOF
+```
+
+### Test the memory workflow
+
+Send your Claw this sequence:
+
+```text
+Remember that I prefer dark mode in all tools and I start work at 8am EST.
+```
+
+Then immediately:
+
+```text
+What do you remember about my working preferences?
+```
+
+Your Claw should surface what it just wrote. If it does, memory is working. If it responds generically, check that the memory rule was added to SOUL.md and restart.
+
+### Promote something to long-term memory
+
+Add a real preference or decision to MEMORY.md now, while you're thinking about it:
+
+```text
+Add to MEMORY.md: I use ZenBin for publishing, my key ID is [your key ID], and
+my private key is at ~/.zenbin-private-key.pem.
+```
+
+This plants a real memory your Claw will use in Step 6.
+
+</Steps>
+
+## The memory discipline
+
+The memory system only works if your Claw uses it consistently. The key rule is simple: **write it down when it happens, not when you remember to**.
+
+- Temporary things go in today's daily note
+- Durable things go in MEMORY.md
+- When in doubt, write it down — you can always clean it up later
+
+Over time, MEMORY.md becomes a living document that reflects how you actually work. A well-maintained MEMORY.md is what separates a Claw that feels like it knows you from one that feels like it's meeting you for the first time every session.
+
+<Callout type="tip">
+Start MEMORY.md sparse. Add to it as you notice gaps — when your Claw asks about something it should already know. Don't try to pre-populate everything upfront.
+</Callout>
+
+---
+
+*Next: [Step 5 — Scheduling](/onboarding/scheduling)*
