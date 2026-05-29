@@ -1,0 +1,180 @@
+---
+title: Voice Agent
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Voice Agent — Real-Time Phone Calls
+
+Give your Claw a phone number. This recipe configures OpenClaw to make and receive live voice calls using Twilio for telephony and Google Gemini Live for full-duplex realtime audio — no pre-recorded responses, no turn-taking delays.
+
+## How it works
+
+When a call comes in (or your Claw initiates one), Twilio streams the audio to a local webhook served by the `@openclaw/voice-call` plugin on port 3334. The plugin pipes that audio directly into Gemini Live's bidirectional `bidiGenerateContent` API — the same model that powers Gemini's native voice mode. Your Claw responds in realtime, voice to voice.
+
+The bootstrap prompt below does all the configuration work — you just supply the credentials.
+
+## What you need
+
+| Credential | Where to get it |
+|---|---|
+| Twilio Account SID | [console.twilio.com](https://console.twilio.com) → Account Info |
+| Twilio Auth Token | Same page |
+| Twilio phone number | Buy one in Twilio Console (E.164 format, e.g. `+1855XXXXXXX`) |
+| Your cell number | For inbound call allowlist |
+| Gemini API key | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| Public hostname | Where OpenClaw is reachable for Twilio webhooks |
+
+<Callout type="warning">
+The Gemini key must have access to `gemini-2.5-flash-native-audio-preview-12-2025`. Standard `gemini-2.5-flash` does not support bidirectional audio and will fail silently.
+</Callout>
+
+## Setup
+
+<Steps>
+
+### Install the voice-call plugin
+
+If you haven't already:
+
+```bash
+openclaw plugins install @openclaw/voice-call
+```
+
+### Paste the bootstrap prompt into your Claw
+
+Copy the entire prompt below and paste it into any OpenClaw chat. The agent will ask for each credential one at a time, then handle the rest.
+
+```text
+You are helping me set up the @openclaw/voice-call plugin for real-time voice
+conversations. Please follow these steps carefully and do not skip any.
+
+OBJECTIVE
+Configure OpenClaw to make and receive phone calls via Twilio with Google
+Gemini Live realtime audio (full-duplex conversation).
+
+PREREQUISITES I HAVE
+- OpenClaw is running and you can edit ~/.openclaw/openclaw.json
+- @openclaw/voice-call plugin is installed (if not, run: openclaw plugins install @openclaw/voice-call)
+
+WHAT I NEED FROM YOU
+Ask me for these credentials one at a time (do not ask for all at once):
+1. My Twilio Account SID
+2. My Twilio Auth Token
+3. My Twilio phone number (E.164 format, e.g. +1855XXXXXXX)
+4. My cell phone number (to whitelist for inbound calls)
+5. My Gemini API key (from https://aistudio.google.com/apikey — should start with AIza or AQ.)
+6. My public hostname where OpenClaw is reachable (for Twilio webhook, e.g. myhost.example.com)
+
+STEPS TO EXECUTE
+
+Step A — Verify the Gemini key works for realtime
+Run: curl "https://generativelanguage.googleapis.com/v1alpha/models/gemini-2.5-flash-native-audio-preview-12-2025?key=MY_KEY"
+Expected response should include "bidiGenerateContent" in supportedGenerationMethods.
+If it fails, tell me to generate a new key.
+
+Step B — Add GEMINI_API_KEY to env in openclaw.json
+Add the key under the "env" block.
+
+Step C — Add voice-call plugin config to plugins.entries
+Use this template, filling in credentials:
+{
+  "voice-call": {
+    "enabled": true,
+    "config": {
+      "provider": "twilio",
+      "fromNumber": "MY_TWILIO_PHONE",
+      "publicUrl": "https://MY_HOST/voice/webhook",
+      "twilio": {
+        "accountSid": "MY_TWILIO_SID",
+        "authToken": "MY_AUTH_TOKEN"
+      },
+      "outbound": { "defaultMode": "conversation" },
+      "skipSignatureVerification": true,
+      "serve": { "bind": "0.0.0.0", "port": 3334 },
+      "inboundPolicy": "allowlist",
+      "allowFrom": ["MY_CELL_NUMBER"],
+      "inboundGreeting": "Hello, this is [NAME]. How can I help you?",
+      "realtime": {
+        "enabled": true,
+        "provider": "google",
+        "providers": {
+          "google": {
+            "model": "gemini-2.5-flash-native-audio-preview-12-2025",
+            "apiKey": "MY_GEMINI_KEY"
+          }
+        }
+      }
+    }
+  }
+}
+
+CRITICAL RULES:
+- Paste the actual Gemini key directly in apiKey — do NOT use __ENV_GEMINI_API_KEY__
+  reference (env vars can be stale in containers)
+- Do NOT include tts or streaming blocks — they conflict with realtime
+- The model MUST be "gemini-2.5-flash-native-audio-preview-12-2025" — NOT
+  "gemini-2.5-flash" (doesn't support bidi)
+
+Step D — Expose the port (HyperClaw only)
+Go to Settings → Public Services and enable port 3334. Without this, Twilio
+cannot reach the voice endpoint.
+
+Step E — Configure Twilio webhook
+In Twilio Console, go to your phone number settings and set the Voice webhook
+URL to https://MY_HOST/voice/webhook (HTTP POST).
+
+Step F — Create a restore script
+Write a script at ~/.openclaw/workspace/voice-call-config-restore.sh that
+reapplies this config on pod restart. Add a note to HEARTBEAT.md to check the
+plugin on startup.
+
+Step G — Restart the gateway
+Run: openclaw gateway restart
+
+Step H — Test
+Make a test call to my cell with:
+voice_call({ action: "initiate_call", to: "MY_CELL", mode: "conversation",
+message: "Hey, testing the voice setup. Can you hear me?" })
+
+TROUBLESHOOTING REFERENCE
+- Silent call: API key format is wrong — paste it inline, not as an env var reference
+- session.error → closed on inbound: key may be expired (AQ. tokens are short-lived)
+  or model name is wrong
+- Gateway restart doesn't pick up changes: zombie child processes — SIGUSR1 can fail
+  in containers, try a full restart
+```
+
+### Verify it's working
+
+Once the agent completes setup, you should receive a test call on your cell. If it connects but you hear silence, see troubleshooting below.
+
+</Steps>
+
+## What the agent does
+
+The bootstrap prompt drives your Claw through this sequence automatically:
+
+1. Verifies the Gemini key supports bidirectional audio
+2. Edits `openclaw.json` with Twilio + Gemini config
+3. Creates a restore script for pod restarts
+4. Guides you to set the Twilio webhook URL
+5. Restarts the gateway
+6. Places a test call to confirm it's working
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Call connects, complete silence | Gemini key pasted as env var reference | Paste the key inline directly in `apiKey` |
+| `session.error → closed` on inbound | Expired key or wrong model name | Regenerate key at aistudio.google.com; confirm model is `gemini-2.5-flash-native-audio-preview-12-2025` |
+| Gateway restart doesn't apply config | Zombie child processes in container | Full container restart rather than SIGUSR1 |
+| Twilio webhook 404 | Port 3334 not exposed (HyperClaw) | Settings → Public Services → enable port 3334 |
+
+<Callout type="tip">
+After setup is confirmed working, rotate any API keys that were shared in chat. The bootstrap prompt uses inline keys for reliability — once you've verified everything, you can switch to env var references if your platform handles restart cycles cleanly.
+</Callout>
+
+<Callout type="info">
+The core onboarding steps in the [Onboarding](/onboarding) section apply to all specializations — start there if you haven't already. Full voice setup guide also at [zenbin.org/p/voice-setup-guide](https://zenbin.org/p/voice-setup-guide).
+</Callout>
